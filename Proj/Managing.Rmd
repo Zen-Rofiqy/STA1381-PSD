@@ -1,0 +1,1293 @@
+---
+title: "Andat PSD kel 3"
+author: "Angga Fathan Rofiqy"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+### Setting
+
+`Function` biar gak perlu ganti `backslash` (`\`) jadi `slash` (`/`).
+
+```{r}
+path <- function() gsub  ( "\\\\",  "/",  readClipboard ()  )
+#Copy path, Panggil function di console
+#Copy r path, paste ke var yang diinginkan
+```
+
+Set Working Directory
+
+```{r setup, include=FALSE, echo=FALSE}
+require("knitr")
+opts_knit$set(root.dir = "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 5/8. Pengantar Sains Data/Proj")
+```
+
+`Function` biar gak perlu repot buat `install("")` atau `load()` *package.*
+
+```{r}
+#                      -=( Install & Load Package Function )=-
+install_load <- function (package1, ...)  {   
+
+   # convert arguments to vector
+   packages <- c(package1, ...)
+
+   # start loop to determine if each package is installed
+   for(package in packages){
+
+       # if package is installed locally, load
+       if(package %in% rownames(installed.packages()))
+          do.call('library', list(package))
+
+       # if package is not installed locally, download, then load
+       else {
+          install.packages(package)
+          do.call("library", list(package))
+       }
+   } 
+}
+```
+
+`Function` buat deteksi *Outlier.*
+
+```{r}
+#                            -=( Is outlier? Funciton )=-
+is_outlier <- function(x) {
+  return(x < quantile(x,0.25) -1.5*IQR(x) | x > quantile(x,0.75) +1.5*IQR(x))
+}
+```
+
+`Function` Data untuk *box plot* `function`.
+
+```{r}
+#                      -=( Ggplot Stat Attribute Funciton )=-
+gstat <- function(dt){
+  install_load("dplyr","tibble")
+  
+  #Set Data Frame
+  dt <- data.frame(obs = dt[[1]], dat = dt[[2]], row.names = dt[[1]])
+  
+  #ID/obs outlier (oo)
+  oo <- dt %>%
+  rownames_to_column(var = "outlier") %>%
+  mutate(is_outlier = if_else(is_outlier(dat), dat, as.numeric(NA))) %>%
+  mutate(outlier = if_else(is.na(is_outlier) | is_outlier == max(dat) 
+                           | is_outlier == min(dat), as.numeric(NA), 
+                             as.numeric(outlier)),
+         is_outlier = if_else(is_outlier == max(dat) 
+                              | is_outlier == min(dat), 
+                                as.numeric(NA), is_outlier))
+  
+  #Obs Minimum
+  om <- data.frame(min = ifelse(dt$dat == min(dt$dat), dt$obs, NA), 
+                   min_val = ifelse(dt$dat == min(dt$dat), min(dt$dat), NA))
+  #Obs Maximum
+  omx <- data.frame(max = ifelse(dt$dat == max(dt$dat), dt$obs, NA), 
+                    max_val = ifelse(dt$dat == max(dt$dat), max(dt$dat), NA))
+  #Binding together
+  gs <- cbind(oo, om, omx)
+  
+  #Calc Mean
+  mean <- data.frame(mean = round(mean(dt$dat), 2))
+  
+  #Make it list
+  gs <- list(gs, mean)
+return(gs)
+}
+```
+
+`Variabel` untuk warna pada `function` *box plot.*
+
+```{r}
+#                           -=( Default Color Palette )=-
+colord <- data.frame(
+  f = c('#75bfc8', 'Fill color'),        c = c('#444442', 'Stroke color'),
+  oc = c('#0b5f6a', 'Outlier color'),    min = c('#0b5f6a', 'Minimum value color'),
+  max = c('#0b5f6a', 'Max value color'), med = c('#c3ac8b', 'Median value color'),
+  iqr = c('#c3ac8b', 'IQR3 Value'),      mean = c('#608981', 'Mean Marker'),
+  ooc = c('#0b5f6a', 'Oulier Obs color'), 
+  ovc = c('#0b5f6a', 'Oulier Value color'), v = c('#c3eca2', 'Violin'),
+  meanv = c('#608981', 'Mean Value'),    moc = c('#0b5f6a', 'Min Max Obs'),
+  stringsAsFactors = FALSE
+)
+```
+
+`Variabel` untuk `ggplot` *theme.*
+
+```{r}
+install_load('ggplot2')
+theme1 <- list(
+  guides(fill="none") , #No Legends
+  theme(
+  text = element_text(size = 66),
+  axis.title = element_text(),
+  axis.text.x = element_text(hjust = 0.5, face = "bold", margin = margin(b=50)),
+  plot.title = element_text(hjust = 0.5, face = "bold", margin = margin(b=50)),
+  plot.subtitle = element_text(hjust = 0.5),
+  panel.background = element_rect(fill = 'transparent'),
+  plot.background = element_rect(fill='transparent', color=NA),
+  panel.grid.major = element_line(colour = "grey50"),
+  axis.line = element_line(linewidth = 5, colour = "grey80"))
+)
+```
+
+***Box Plot*** `Function`.
+
+```{r}
+#                           -=( Box Plot Function )=-
+boxp <- function(dt, cp=colord, labs=lab1){ #data, color palette, label
+  install_load('ggplot2')
+  gs <- gstat(dt)
+  b <- ggplot(data=gs[[1]], aes(y="", x=dat)) + 
+        #Violin Plot
+        geom_violin(scale="count", fill=cp$v[1], color=NA, alpha=0.5, 
+                    trim = FALSE) +
+        #Box Plot
+        geom_boxplot(fill=cp$f[1], color=cp$c[1],
+                     outlier.size=15, outlier.color=cp$oc[1], 
+                     alpha=0.7,notch=T, width = 0.25) +
+        #Median Value
+        stat_summary(geom="text", fun=median,
+                     aes(label=sprintf("%1.1f", after_stat(x))),
+                     position=position_nudge(y=0.425), size=16, color=cp$med[1]) +
+        #IQR1 Value
+        stat_summary(geom="text", fun="quantile", fun.args=list(probs=0.25),
+                     aes(label=sprintf("%1.1f", after_stat(x))),
+                     position=position_nudge(y=-0.425), size=16, color=cp$iqr[1]) +
+        #IQR3 Value
+        stat_summary(geom="text", fun="quantile", fun.args=list(probs=0.75),
+                     aes(label=sprintf("%1.1f", after_stat(x))),
+                     position=position_nudge(y=-0.425), size=16, color=cp$iqr[1]) +
+        #Mean Marker
+        stat_summary(fun='mean', geom="point",colour=cp$mean[1], 
+                     shape=18, size=16, alpha=0.75) +
+        #Title
+        ggtitle(labs$title) + 
+        theme(plot.title = element_text(hjust = 0.5)) + #Title Position
+        #Labels
+        ylab(labs$ylab) + xlab(labs$xlab) +
+        #Mean Value
+        geom_text(data = gs[[2]], aes(label = paste0("Mean : ",mean), x = mean),
+                  angle=45, size=16, vjust=-0.5, hjust=0.5, color=cp$mean[1]) + 
+        #Theme
+        theme1
+return(b)
+}
+```
+
+*Default* *label* untuk `function` *box plot.*
+
+```{r}
+#                            -=( Default Label/Title )=-
+lab1 <- data.frame(title='Distribution of Data X', ylab='', xlab='Data X')
+```
+
+`Function` `position_stack_and_nudge`
+
+```{r}
+#                          -=( GGPLOT POSITION FUNCTION )=-
+library(ggplot2)
+position_stack_and_nudge <- function(x = 0, y = 0, vjust = 1, reverse = FALSE) {
+  ggproto(NULL, PositionStackAndNudge,
+    x = x,
+    y = y,
+    vjust = vjust,
+    reverse = reverse
+  )
+}
+
+#' @rdname ggplot2-ggproto
+#' @format NULL
+#' @usage NULL
+#' @noRd
+PositionStackAndNudge <- ggproto("PositionStackAndNudge", PositionStack,
+  x = 0,
+  y = 0,
+
+  setup_params = function(self, data) {
+    c(
+        list(x = self$x, y = self$y),
+        ggproto_parent(PositionStack, self)$setup_params(data)
+    )
+  },
+
+  compute_layer = function(self, data, params, panel) {
+    # operate on the stacked positions (updated in August 2020)
+    data = ggproto_parent(PositionStack, self)$compute_layer(data, params, panel)
+
+    x_orig <- data$x
+    y_orig <- data$y
+    # transform only the dimensions for which non-zero nudging is requested
+    if (any(params$x != 0)) {
+      if (any(params$y != 0)) {
+        data <- transform_position(data, function(x) x + params$x, function(y) y + params$y)
+      } else {
+        data <- transform_position(data, function(x) x + params$x, NULL)
+      }
+    } else if (any(params$y != 0)) {
+      data <- transform_position(data, function(x) x, function(y) y + params$y)
+    }
+    data$nudge_x <- data$x
+    data$nudge_y <- data$y
+    data$x <- x_orig
+    data$y <- y_orig
+
+    data
+  },
+
+  compute_panel = function(self, data, params, scales) {
+      ggproto_parent(PositionStack, self)$compute_panel(data, params, scales)
+  }
+)
+```
+
+*Theme* *Pie Chart.*
+
+```{r}
+install_load('ggrepel')
+#                             -=( Label Pie Chart )=-
+lab.p <- list(
+  geom_label_repel( aes(label = paste0(perc,"(",n,")")),
+          position = position_stack_and_nudge(vjust = 0.5, x = 0.65),
+          direction='y', fontface = 'bold', color = 'white',
+          box.padding = unit(0.35, "lines"),
+          point.padding = unit(0.5, "lines"), segment.color = '#454545',
+          size=10) 
+)
+#                           -=( THEME Pie Chart )=-
+theme.p <- list(
+  theme_void()  , 
+        theme(
+        text = element_text(size = 36),
+        axis.text.y = element_text(vjust = .5, face = "bold"),
+        plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5) )
+)
+```
+
+`Function` *Pie Chart*
+
+```{r}
+#                           -=( Pie Chart FUNCTION )=-
+plot.p <- function(dt, title = "Pice Chart"){
+  install_load("ggplot2", "dplyr", "viridis", "ggrepel", "tidyverse",'scales')
+  #DATA FRAME
+  df <- data.frame(ket = dt) %>%
+    #Frequency
+    group_by(ket) %>%
+    count() %>%
+    ungroup() %>%
+    mutate(perc = percent(n/sum(n), accuracy = 0.1, trim = FALSE))
+  
+  #PIE CHART
+  sp <- ggplot(data=df, aes(x = "", y = n, fill = ket)) +
+          geom_col(width = 1, color = "white", linewidth = 2,
+                   position = position_stack()) +
+        coord_polar(theta = "y") +
+        scale_alpha_manual(values = c("0"=0, "1"=1, "2"=0.7), guide=F) +
+        scale_x_discrete(breaks = NULL) +
+        scale_y_continuous(breaks = NULL) +
+        labs(title = title) + #Title
+        #COLORING
+        scale_fill_viridis(alpha = 0.75, #Opacity
+                           begin = 0.2, #Color pallte scale begins
+                           end = 0.5, #Color pallte scale ends
+                           direction = -1, #Flip color scale
+                           discrete = T, #Discrete Value
+                           option = "D") + #Color Palette
+        theme.p + #Theme
+        xlab("") + ylab("") + lab.p #Labels
+return(sp)
+}
+```
+
+### Data input
+
+```{r}
+install_load('readxl','dplyr','kableExtra')
+data <- read_xlsx("data.xlsx", sheet="Laptop")
+data <- data[,-c(1,2)]
+cat("Jumlah Kolom:", ncol(data), "\n")
+cat("Jumlah Baris:", nrow(data), "\n")
+
+kable(head(data)) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+### Cek Missing Data
+
+```{r}
+# Mencari indeks baris dan kolom yang mengandung NA
+na.idx <- which(is.na(data), arr.ind = TRUE)
+cat("Banyaknya data NA : ", nrow(na.idx))
+
+# Menampilkan data raw dengan baris dan kolom yang mengandung NA
+install_load('kableExtra','dplyr','DT')
+
+#Menampilkan tabel
+kable(data[                        # Subsetting
+                unique(na.idx[, 1]),   # Vektor indeks baris yang mengandung NA
+                unique(na.idx[, 2])  ] # Vektor indeks kolom yang mengandung NA
+      # Style Tabel
+      ) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+### Hapus Data NA
+
+```{r}
+data <- data[ -unique(na.idx[, 1]),  ]
+cat("Jumlah Baris:", nrow(data), "\n")
+```
+
+# 1. Brand Classification
+
+```{r}
+# Install dan muat paket stringr jika belum diinstal
+install_load('stringr')
+
+# Daftar kata kunci merek
+brands <- c(
+    "HP", "Hewlett-Packard", "Acer", "Dell", "Lenovo", "ASUS",
+    "MSI", "Alienware", "Apple", "LG", "Samsung", "Aorus", "Gigabyte",
+    "Razer", "Microsoft", "Panasonic", "Chuwi", "Toshiba", "Fusion5")
+
+# Fungsi untuk menetapkan merek berdasarkan kata kunci
+assign_brand <- function(data) {
+  for (brand_keywords in brands) {
+    if (any(str_detect(tolower(data), tolower(brand_keywords)))) {
+      return(brand_keywords[1])  # Ambil merek pertama yang cocok
+    }
+  }
+  return("Tidak Diketahui")
+}
+
+# Menambahkan kolom brand berdasarkan fungsi
+data$Brand <- sapply(data$Name, assign_brand)
+
+# Tampilkan hasil
+kable(head(data)) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+### Sebaran Brand Laptop
+
+```{r dpi=300, fig1, fig.height = 12, fig.width = 20, fig.align = "center"}
+# Membuat bar chart persentase
+ggplot(data = data %>% count(Brand) %>% # banyaknya laptop brand x
+  mutate(perc = round(n / sum(n) * 100)), #buat persentase
+       aes(x = reorder(Brand, -n), y = perc)) +
+  geom_bar(stat = "identity", fill='#2D99AE') +
+  geom_text(aes(label = prettyNum(n,big.mark = ",")
+                ), vjust = -0.5, size = 7, col="orange4", 
+            fontface = "bold") + # Tambahkan label
+  labs(x = "Brand", y = "Persentase (%)", 
+       title = "Sebaran Brand Laptop") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  theme_minimal() + # Tambahkan tema minimal
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, 
+                                   margin = margin(b = 10)),
+        axis.text.y = element_text(vjust = .5, face = "bold", 
+                                   margin = margin(l = 20)),
+        plot.title = element_text(hjust = 0.5, face = "bold"),
+        text = element_text(size = 30),
+        plot.subtitle = element_text(hjust = 0.5)
+        ) 
+```
+
+# 2. Scoring CPU
+
+Kami membuat Score untuk CPU dengan data benchmark dari website [notebookcheck.net](https://www.notebookcheck.net/Mobile-Processors-Benchmark-List.2436.0.html) yang berisikan score benchmark dari :
+
+1.  Cinebench R15 CPU Single 64Bit
+2.  Cinebench R15 CPU Multi 64Bit
+3.  Cinebench R20 Single
+4.  Cinebench R20
+5.  x265
+6.  Blender(-)
+7.  7-Zip Single
+8.  7-Zip
+9.  Geekbench 5.4 Single-Core
+10. Geekbench 5.4 Multi-Core
+11. "WebXPRT 3
+
+Berikut **Metode** kami :
+
+1.  **Scaling data benchmark**\
+    Agar nilai setiap benchmark berada dalam skala yang sama (10 sampai 100)
+
+2.  **Mengubah data NA menjadi 0\
+    **Agar dapat dijumlahkan.
+
+3.  **Memberi Bobot pada setiap Benchmark\
+    **AI memberi saran untuk nilai bobot masing-masing :\
+    ![](images/Screenshot%202023-09-06%20112121.png){width="249"}\
+    Dengan cara perkalian matriks antara data benchmark $(\mathbf{B})$ dengan matriks diagonal bobot $(\mathbf{D})$:
+
+    $$
+    \mathbf{B}_{n\times11} \boldsymbol{\cdot} \mathbf{D}_{11\times11} 
+    $$\
+    dimana $n=$ Banyaknya baris data
+
+    $$
+    \begin{pmatrix}
+       b_{1.1} & b_{1.2} & \cdots & b_{1.11}\\
+       \vdots & \vdots & \vdots & \vdots \\
+       b_{n.1} & b_{n.2} & \cdots & b_{n.11}\\
+    \end{pmatrix}
+    \boldsymbol{\cdot}
+    \begin{pmatrix}   
+       10 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\   
+       0 & 10 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\   
+       0 & 0 & 9 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\   
+       0 & 0 & 0 & 9 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\   
+       0 & 0 & 0 & 0 & 8 & 0 & 0 & 0 & 0 & 0 & 0\\    
+       0 & 0 & 0 & 0 & 0 & 7 & 0 & 0 & 0 & 0 & 0\\   
+       0 & 0 & 0 & 0 & 0 & 0 & 6 & 0 & 0 & 0 & 0\\   
+       0 & 0 & 0 & 0 & 0 & 0 & 0 & 6 & 0 & 0 & 0\\   
+       0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 8 & 0 & 0\\   
+       0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 8 & 0\\   
+       0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 7\\    
+    \end{pmatrix}
+    $$
+
+4.  **Menjumlahkan Total Score dari masing-masing Benchmark\
+    **Dengan begini, Score CPU pun diperoleh.
+
+### Seleksi Data
+
+```{r}
+#Data Benchmark CPU
+cpu <- read_xlsx("data.xlsx", sheet="CPU") %>%
+       select(1, 7:ncol(.)) %>% #Ambil data benchmark nya saja 
+  mutate_at(vars(-1), ~as.numeric(gsub("n[0-9]+$", "", .))) #Ubah jadi numerik
+cat("Jumlah Baris:", nrow(cpu), "\n")
+kable(head(cpu)) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+### Scoring
+
+```{r}
+install_load('scales')
+cpu.score <- cpu %>%
+  mutate_at(vars(2:ncol(cpu)), rescale, to = c(10, 100)) %>% #Scaling
+  mutate_at(vars(2:ncol(cpu)), ~ ifelse(is.na(.), 0, .)) %>% #Na = 0
+  select(-one_of("Model")) %>% #Pilih kolom benchmark
+  as.matrix() %*% diag(c(10, 10, 9, 9, 8, 7, 6, 6, 8, 8, 7)) %>%  #Beri bobot
+  as.data.frame() %>% 
+  mutate(Score = rowSums(across(where(is.numeric)))) %>% #Jumlahkan semua kolom
+  select(one_of("Score")) #Ambil kolom score aja
+#Gabung data
+cpu <- bind_cols(cpu %>% select(Model),  cpu.score %>% select(Score))
+kable(head(cpu)) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+### Gabung
+
+```{r}
+Bukan. Jadi buat algoritma seperi ini : 
+gabung data "cpu" ke "data" dengan kondisi :
+Jika kolom "CPU" pada "data" sama dengan kolom "Model" pada "cpu"{
+  Jika sama, maka gabung; 
+  Jika tidak sama. Maka cek, apakah di kedua kolom memiliki tanda kurung?{
+    Jika ya, Maka cek, Apakah kesamaan di dalam tanda kurung itu mirip 80%?{
+      Jika ya maka gabung;
+      Jika tidak, maka cek, apakah jika dihapus 'tanda kurung beserta isinya', kolom "Model" dengan kolom "CPU" 90% sama?{
+      Jika ya maka gabung; 
+      Jika tidak maka NA
+    }
+    }
+    Jika tidak, Maka cek, apakah jika dihapus 'tanda kurung beserta isinya', kolom "Model" dengan kolom "CPU" 90% sama?{
+      Jika ya maka gabung; 
+      Jika tidak maka NA
+    }
+  }
+}
+```
+
+```{r}
+install_load('stringdist','fuzzyjoin','stringi')
+# Fungsi untuk menghitung kesamaan antara dua teks
+similarity_and_cleanup <- function(text1, text2) {
+  # Menghilangkan tanda kurung
+  text1_no_parentheses <- gsub("\\([^)]+\\)", "", text1)
+  text2_no_parentheses <- gsub("\\([^)]+\\)", "", text2)
+
+  # Jika teks di luar tanda kurung persis sama, kembalikan 0
+  if (text1_no_parentheses == text2_no_parentheses) {
+    return(0)
+  } else {
+    # Jika tidak sama persis, cari kesamaan Jaro-Winkler di luar tanda kurung
+    text1_cleaned <- gsub("\\s+", " ", tolower(text1_no_parentheses))
+    text2_cleaned <- gsub("\\s+", " ", tolower(text2_no_parentheses))
+    return(stringdist::stringdist(text1_cleaned, text2_cleaned, method = "jw"))
+  }
+}
+
+# Menggabungkan data dan melakukan perbandingan kesamaan
+coba <- stringdist_left_join(
+  data[10,] %>% # Membersihkan dan menghapus tanda kurung di kedua dataset
+    mutate(CPU_cleaned = gsub("\\([^)]+\\)", "", CPU)),
+  cpu %>%
+    mutate(Model_cleaned = gsub("\\([^)]+\\)", "", Model)),
+  by = c("CPU_cleaned" = "Model_cleaned"),
+  method = "jw",
+  max_dist = 0.2
+) %>%
+  rowwise() %>%
+  mutate(
+    CPU_final = ifelse(similarity_and_cleanup(CPU, Model) < 0.2, Model, CPU)
+  ) %>%
+  select(-Model_cleaned, -CPU_cleaned) %>% rename("CPU Score" = "Score")
+
+```
+
+```{r}
+install_load('stringdist','fuzzyjoin','stringi')
+# Fungsi untuk menghitung kesamaan antara dua teks
+similarity_and_cleanup <- function(text1, text2) {
+  # Menghilangkan tanda kurung dan mengganti beberapa spasi dengan satu spasi
+  text1_cleaned <- gsub("\\s+", " ", gsub("\\([^)]+\\)", "", tolower(text1)))
+  text2_cleaned <- gsub("\\s+", " ", gsub("\\([^)]+\\)", "", tolower(text2)))
+  
+  return(stringdist::stringdist(text1_cleaned, text2_cleaned, method = "jw"))
+}
+
+# Menggabungkan data dan melakukan perbandingan kesamaan
+coba <- stringdist_left_join(
+  data[10,] %>% # Membersihkan dan menghapus tanda kurung di kedua dataset
+    mutate(CPU_cleaned = gsub("\\([^)]+\\)", "", CPU)),
+  cpu %>%
+    mutate(Model_cleaned = gsub("\\([^)]+\\)", "", Model)),
+  by = c("CPU_cleaned" = "Model_cleaned"),
+  method = "jw",
+  max_dist = 0.2
+) %>%
+  rowwise() %>%
+  mutate(
+    CPU_final = ifelse(similarity_and_cleanup(CPU, Model) < 0.2, Model, CPU)
+  ) %>%
+  select(-Model_cleaned, -CPU_cleaned, -CPU_final) %>% rename("CPU Score" = "Score")
+
+View(coba)
+```
+
+```{r}
+# Menggabungkan data
+data <- data %>%
+   left_join(cpu, by = c("CPU" = "Model")) %>%
+  rename("CPU Score" = "Score")
+kable(head(data)) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+### Cek NA
+
+```{r}
+cat("Banyaknya Laptop dengan Score CPU yang NA :", sum(is.na(data$`CPU Score`)))
+```
+
+Cek CPU apa saja yang NA, dan berapa jumlahnya
+
+```{r}
+NA.cpu_score <- data %>%
+  group_by(CPU) %>% 
+  summarise(NA.cpu_score = sum(is.na(`CPU Score`))) %>%
+  filter(NA.cpu_score > 0)
+cat("Banyaknya CPU dng Score yang NA :", nrow(NA.cpu_score))
+kable(NA.cpu_score) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+### Sebaran CPU Score
+
+```{r dpi=300, fig2, fig.height = 17, fig.width = 50, fig.align = "center"}
+boxp( dt =
+  data %>%
+    mutate(Index = 1:nrow(.)) %>%
+    filter(!is.na(`CPU Score`)) %>%
+    select(Index, `CPU Score`),
+  labs = data.frame(title='Sebaran CPU Score', ylab='', xlab='CPU Score')
+  )
+```
+
+### Brand Classification
+
+```{r}
+data <- data %>%
+  mutate(`CPU Brand` = case_when(
+    grepl("Intel", CPU) ~ "Intel",
+    grepl("AMD", CPU) ~ "AMD",
+    grepl("Apple", CPU) ~ "Apple",
+    grepl("Mediatek", CPU) ~ "Mediatek",
+    grepl("Qualcomm", CPU) ~ "Qualcomm",
+    TRUE ~ "Other"
+  ))
+```
+
+```{r dpi=300, fig3, fig.height = 12, fig.width = 20, fig.align = "center"}
+# Membuat bar chart persentase
+ggplot(data = data %>% count(`CPU Brand`) %>% # banyaknya laptop brand x
+                  mutate(perc = round(n / sum(n) * 100)), #buat persentase, 
+       aes(x = reorder(`CPU Brand`, -n), y = perc)) +
+  geom_bar(stat = "identity", fill='#2D99AE') +
+  geom_text(aes(label = prettyNum(n,big.mark = ",")
+                ), vjust = -0.5, size = 7, col="orange4", 
+            fontface = "bold") + # Tambahkan label
+  labs(x = "Brand", y = "Persentase (%)", 
+       title = "Sebaran Brand GPU Laptop") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  theme_minimal() + # Tambahkan tema minimal
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, 
+                                   margin = margin(b = 1)),
+        axis.text.y = element_text(vjust = .5, face = "bold", 
+                                   margin = margin(l = 20)),
+        plot.title = element_text(hjust = 0.5, vjust =0.5,
+                                  face = "bold", margin = margin(b = 50)),
+        text = element_text(size = 30),
+        plot.subtitle = element_text(hjust = 0.5)
+        ) 
+```
+
+# 3. Scoring GPU
+
+Kami membuat Score untuk GPU dengan data benchmark dari website [notebookcheck.net](https://www.notebookcheck.net/Mobile-Graphics-Cards-Benchmark-List.844.0.html) yang berisikan score benchmark dari :
+
+1.  3DMark Ice Storm GPU
+2.  3DMark Cloud Gate GPU
+3.  3DMark11 P GPU
+4.  3DMark Fire Strike Graphics
+5.  3DMark Time Spy Graphics
+
+Berikut **Metode** kami :
+
+1.  **Scaling data benchmark**\
+    Agar nilai setiap benchmark berada dalam skala yang sama (10 sampai 100)
+
+2.  **Mengubah data NA menjadi 0\
+    **Agar dapat dijumlahkan.
+
+3.  **Memberi Bobot pada setiap Benchmark\
+    **AI memberi saran untuk nilai bobot masing-masing :\
+    ![](images/Screenshot%202023-09-06%20231040.png){width="411"}
+
+4.  Dengan cara perkalian matriks antara data benchmark $(\mathbf{B})$ dengan matriks diagonal bobot $(\mathbf{D})$:
+
+    $$
+    \mathbf{B}_{n\times11} \boldsymbol{\cdot} \mathbf{D}_{11\times11} 
+    $$\
+    dimana $n=$ Banyaknya baris data
+
+    $$
+    \begin{pmatrix}
+       b_{1.1} & b_{1.2} & \cdots & b_{1.11}\\
+       \vdots & \vdots & \vdots & \vdots \\
+       b_{n.1} & b_{n.2} & \cdots & b_{n.11}\\
+    \end{pmatrix}
+    \boldsymbol{\cdot}
+    \begin{pmatrix}   
+       5 & 0 & 0 & 0 & 0 \\   
+       0 & 5 & 0 & 0 & 0 \\   
+       0 & 0 & 5 & 0 & 0 \\   
+       0 & 0 & 0 & 7 & 0 \\ 
+       0 & 0 & 0 & 0 & 7   
+    \end{pmatrix}
+    $$
+
+5.  **Menjumlahkan Total Score dari masing-masing Benchmark\
+    **Dengan begini, Score GPU pun diperoleh.
+
+### Seleksi Data
+
+```{r}
+#Data Benchmark CPU
+gpu <- read_xlsx("data.xlsx", sheet="GPU") %>%
+       select(1, 11:ncol(.)) %>% #Ambil data benchmark nya saja 
+  #Ubah jadi numerik, hapus n123
+  mutate_at(vars(-1), ~as.numeric(gsub("n[0-9]+$", "", .))) #Ubah jadi numerik
+cat("Jumlah Baris:", nrow(gpu), "\n")
+kable(head(gpu)) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+### Scoring
+
+```{r}
+gpu.score <- gpu %>%
+  mutate_at(vars(2:ncol(gpu)), rescale, to = c(0, 10)) %>% #Scaling
+  mutate_at(vars(2:ncol(gpu)), ~ ifelse(is.na(.), 0, .)) %>% #Na = 0
+  select(-one_of("Model")) %>% #Pilih kolom benchmark
+  as.matrix() %*% diag(c(5,5,5,7,7)) %>%  #Beri bobot
+  as.data.frame() %>% 
+  mutate(Score = rowSums(across(where(is.numeric)))) %>% #Jumlahkan semua kolom
+  select(one_of("Score")) #Ambil kolom score aja
+#Gabung data
+gpu <- bind_cols(gpu %>% select(Model),  gpu.score %>% select(Score))
+kable(head(gpu)) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+### Gabung
+
+```{r}
+install_load('stringdist','fuzzyjoin','stringi')
+# Fungsi untuk menghitung kesamaan antara dua teks
+similarity_and_cleanup <- function(text1, text2) {
+  # Menghilangkan tanda kurung dan mengganti beberapa spasi dengan satu spasi
+  text1_cleaned <- gsub("\\s+", " ", gsub("\\([^)]+\\)", "", tolower(text1)))
+  text2_cleaned <- gsub("\\s+", " ", gsub("\\([^)]+\\)", "", tolower(text2)))
+  
+  return(stringdist::stringdist(text1_cleaned, text2_cleaned, method = "jw"))
+}
+
+# Menggabungkan data dan melakukan perbandingan kesamaan
+data <- stringdist_left_join(
+  data %>% # Membersihkan dan menghapus tanda kurung di kedua dataset
+    mutate(GPU_cleaned = gsub("\\([^)]+\\)", "", GPU)),
+  gpu %>%
+    mutate(Model_cleaned = gsub("\\([^)]+\\)", "", Model)),
+  by = c("GPU_cleaned" = "Model_cleaned"),
+  method = "jw",
+  max_dist = 0.2
+) %>%
+  rowwise() %>%
+  mutate(
+    GPU_final = ifelse(similarity_and_cleanup(GPU, Model) < 0.2, Model, GPU)
+  ) %>%
+  select(-Model_cleaned, -GPU_cleaned, -GPU_final, -Model) %>% rename("GPU Score" = "Score")
+
+kable(head(data)) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+### Cek NA
+
+```{r}
+cat("Banyaknya Laptop dengan Score GPU yang NA :", sum(is.na(data$`GPU Score`)))
+```
+
+Cek GPU apa saja yang NA, dan berapa jumlahnya
+
+```{r}
+NA.gpu_score <- data %>%
+  group_by(GPU) %>% 
+  summarise(NA.gpu_score = sum(is.na(`GPU Score`))) %>%
+  filter(NA.gpu_score > 0)
+cat("Banyaknya GPU dng Score yang NA :", nrow(NA.gpu_score))
+kable(NA.gpu_score) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+Data *Benchmark* GPU `Imagination PowerVR GX6250` Memang tidak ada dalam *website* [notebookcheck.net](https://www.notebookcheck.net/Mobile-Graphics-Cards-Benchmark-List.844.0.html). Padahal website tersebut memiliki data terlengkap. Ini berarti, saking tidak terkenalnya GPU tersebut, dalam website yang lengkap saja tidak masuk. Tidak mungkin GPU yang memiliki *Benchmark Score* yang bagus tidak masuk kedalam *website* terserbut. Sehinggga kami memutuskan untuk memberi nilai 0 kepada GPU tersebut.
+
+```{r}
+data <- data %>%
+  mutate(`GPU Score` = ifelse(is.na(`GPU Score`), 0, `GPU Score`))
+```
+
+### Sebaran GPU Score
+
+```{r dpi=300, fig4, fig.height = 17, fig.width = 50, fig.align = "center"}
+boxp( dt =
+  data %>%
+    mutate(idx = 1:row_number()) %>%
+    filter(!is.na(`GPU Score`)) %>%
+    select(idx, `GPU Score`),
+  labs = data.frame(title='Sebaran GPU Score', ylab='', xlab='GPU Score')
+  )
+```
+
+```{r}
+install_load('stringdist','fuzzyjoin','stringi')
+# Fungsi untuk menghitung kesamaan antara dua teks tanpa spasi ekstra dan tanda kurung
+similarity_without_parentheses <- function(text1, text2) {
+  text1_cleaned <- gsub("\\([^)]+\\)", "", gsub("\\s+", " ", tolower(text1)))
+  text2_cleaned <- gsub("\\([^)]+\\)", "", gsub("\\s+", " ", tolower(text2)))
+  return(stringdist::stringdist(text1_cleaned, text2_cleaned, method = "jw"))
+}
+
+coba <- data %>% select(-"GPU Score") %>%
+  stringdist_left_join(
+    gpu,
+    by = c("GPU" = "Model"),
+    method = "jw",  # Menggunakan Jaro-Winkler distance untuk perbandingan kesamaan
+    max_dist = 0.2  # Sesuaikan nilai threshold ini sesuai dengan tingkat kesamaan yang diinginkan
+  ) %>%
+  rowwise() %>%
+  mutate(
+    Similarity = similarity_without_parentheses(GPU, Model),
+    GPU_final = ifelse(Similarity < 0.2, Model, GPU)
+  ) %>%
+  select(-Similarity, -Model) %>%
+  rename("GPU Score" = "Score")
+```
+
+```{r}
+install_load('stringdist','fuzzyjoin','stringi')
+
+# Fungsi untuk membersihkan dan menghapus spasi ekstra
+clean_and_lowercase <- function(text) {
+  text <- tolower(text)
+  text <- gsub("\\s+", " ", text)  # Mengganti beberapa spasi dengan satu spasi
+  text <- trimws(text)  # Menghapus spasi di awal dan akhir
+  return(text)
+}
+
+# Menggabungkan data dan membersihkan mereka
+coba <- data %>% select(-"GPU Score") %>%
+  mutate(GPU_cleaned = clean_and_lowercase(GPU)) %>%
+  stringdist_left_join(
+    gpu %>% mutate(Model_cleaned = clean_and_lowercase(Model)),
+    by = c("GPU_cleaned" = "Model_cleaned"),
+    method = "jw",
+    max_dist = 0.2
+  ) %>%
+  rowwise() %>%
+  mutate(
+    GPU_final = ifelse(similarity_without_spaces(GPU, Model) < 0.2, Model, GPU)
+  ) %>%
+  select(-Model_cleaned) %>% select(-GPU_cleaned)
+```
+
+```{r}
+install_load('stringdist','fuzzyjoin','stringi')
+# Fungsi untuk menghapus spasi ekstra dan mengkonversi teks menjadi huruf kecil
+clean_and_lowercase <- function(text) {
+  text <- stri_trans_tolower(text)
+  text <- stri_trans_general(text, "latin-ascii")
+  text <- gsub("\\s+", " ", text)  # Mengganti beberapa spasi dengan satu spasi
+  text <- trimws(text)  # Menghapus spasi di awal dan akhir
+  return(text)
+}
+
+# Fungsi untuk menghitung kesamaan antara dua teks tanpa perbedaan spasi
+similarity_without_spaces <- function(text1, text2) {
+  text1_cleaned <- clean_and_lowercase(text1)
+  text2_cleaned <- clean_and_lowercase(text2)
+  return(stringdist::stringdist(text1_cleaned, text2_cleaned, method = "jw"))
+}
+
+coba <- data %>% select(-"GPU Score") %>%
+  stringdist_left_join(
+    gpu,
+    by = c("GPU" = "Model"),
+    method = "jw",  # Menggunakan Jaro-Winkler distance untuk perbandingan kesamaan
+    max_dist = 0.2  # Sesuaikan nilai threshold ini sesuai dengan tingkat kesamaan yang diinginkan
+  ) %>%
+  rowwise() %>%
+  mutate(
+    Similarity = similarity_without_spaces(GPU, Model),
+    GPU_final = ifelse(Similarity < 0.2, Model, GPU)
+  ) %>%
+  select(-Similarity, -Model) %>%
+  rename("GPU Score" = "Score")
+```
+
+```{r}
+install_load('stringdist','fuzzyjoin')
+
+# Fungsi untuk menghitung kesamaan antara dua teks tanpa tanda kurung
+similarity_without_parentheses <- function(text1, text2) {
+  text1 <- gsub("\\([^)]+\\)", "", text1)
+  text2 <- gsub("\\([^)]+\\)", "", text2)
+  return(stringdist::stringdist(text1, text2, method = "jw"))
+}
+
+coba <- data %>% select(-"GPU Score") %>%
+  stringdist_left_join(
+    gpu,
+    by = c("GPU" = "Model"),
+    method = "jw",  # Menggunakan Jaro-Winkler distance untuk perbandingan kesamaan
+    max_dist = 0.2  # Sesuaikan nilai threshold ini sesuai dengan tingkat kesamaan yang diinginkan
+  ) %>%
+  rowwise() %>%
+  mutate(
+    Similarity = similarity_without_parentheses(GPU, Model),
+    GPU_final = ifelse(Similarity < 0.2, Model, GPU)
+  ) %>%
+  select(-Similarity, -Model) %>%
+  rename("GPU Score" = "Score")
+```
+
+```{r}
+install_load('stringdist','fuzzyjoin')
+coba <- data %>% select(-"GPU Score") %>% 
+  mutate(GPU_cleaned = gsub("\\([^)]+\\)", "", GPU)) %>%
+  left_join(gpu %>%
+              mutate(Model_cleaned = gsub("\\([^)]+\\)", "", Model)),
+            by = c("GPU_cleaned" = "Model_cleaned")) %>%
+  select(-GPU_cleaned)
+
+```
+
+```{r}
+# Menggabungkan data
+data <- data %>%
+   left_join(gpu, by = c("GPU" = "Model")) %>%
+  rename("GPU Score" = "Score")
+kable(head(data)) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+### Brand Classification
+
+```{r}
+data <- data %>%
+  mutate(`GPU Brand` = case_when(
+    str_detect(GPU, "NVIDIA") ~ "NVIDIA",
+    str_detect(GPU, "Intel") ~ "Intel",
+    str_detect(GPU, "ARM") ~ "ARM",
+    str_detect(GPU, "Imagination") ~ "Imagination",
+    str_detect(GPU, "Qualcomm") ~ "Qualcomm",
+    str_detect(GPU, "AMD") ~ "AMD",
+    str_detect(GPU, "Apple") ~ "Apple",
+    TRUE ~ "Unknown"  # Jika tidak ada yang cocok
+  ))
+```
+
+```{r dpi=300, fig5, fig.height = 12, fig.width = 20, fig.align = "center"}
+# Membuat bar chart persentase
+ggplot(data = data %>% count(`GPU Brand`) %>% # banyaknya laptop brand x
+                  mutate(perc = round(n / sum(n) * 100)), #buat persentase, 
+       aes(x = reorder(`GPU Brand`, -n), y = perc)) +
+  geom_bar(stat = "identity", fill='#2D99AE') +
+  geom_text(aes(label = prettyNum(n,big.mark = ",")
+                ), vjust = -0.5, size = 7, col="orange4", 
+            fontface = "bold") + # Tambahkan label
+  labs(x = "Brand", y = "Persentase (%)", 
+       title = "Sebaran Brand GPU Laptop") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  theme_minimal() + # Tambahkan tema minimal
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, 
+                                   margin = margin(b = 1)),
+        axis.text.y = element_text(vjust = .5, face = "bold", 
+                                   margin = margin(l = 20)),
+        plot.title = element_text(hjust = 0.5, vjust =0.5,
+                                  face = "bold", margin = margin(b = 50)),
+        text = element_text(size = 30),
+        plot.subtitle = element_text(hjust = 0.5)
+        ) 
+```
+
+# 4. Price to Numeric
+
+```{r}
+data <- data %>%
+  mutate(`Price (USD)` = as.numeric(gsub("\\$", "", Price))) %>%
+  select(-Price)
+kable(head(data)) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+### Sebaran Harga Laptop
+
+```{r dpi=300, fig6, fig.height = 17, fig.width = 50, fig.align = "center"}
+boxp( dt =
+  data %>%
+    mutate(Index = 1:nrow(.)) %>%
+    filter(!is.na(`Price (USD)`)) %>%
+    select(Index, `Price (USD)`),
+  labs = data.frame(title='Sebaran Harga Laptop', ylab='', xlab='Harga Laptop')
+  )
+```
+
+# 5. RAM to Numeric
+
+```{r}
+data <- data %>%
+  mutate(`Ram (GB)` = as.numeric(gsub("GB RAM", "", RAM))) %>%
+  select(-RAM)
+kable(head(data)) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+### Sebaran RAM Laptop
+
+```{r dpi=300, fig7, fig.height = 12, fig.width = 20, fig.align = "center"}
+# Membuat bar chart persentase
+ggplot(data = data %>% count(`Ram (GB)`) %>% # banyaknya laptop brand x
+                  mutate(perc = round(n / sum(n) * 100)), #buat persentase, 
+       aes(x = reorder(`Ram (GB)`, -n), y = perc)) +
+  geom_bar(stat = "identity", fill='#2D99AE') +
+  geom_text(aes(label = prettyNum(n,big.mark = ",")
+                ), vjust = -0.5, size = 7, col="orange4", 
+            fontface = "bold") + # Tambahkan label
+  labs(x = "RAM (GB)", y = "Persentase (%)", 
+       title = "Sebaran RAM Laptop") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  theme_minimal() + # Tambahkan tema minimal
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, 
+                                   margin = margin(b = 1)),
+        axis.text.y = element_text(vjust = .5, face = "bold", 
+                                   margin = margin(l = 20)),
+        plot.title = element_text(hjust = 0.5, vjust =0.5,
+                                  face = "bold", margin = margin(b = 50)),
+        text = element_text(size = 30),
+        plot.subtitle = element_text(hjust = 0.5)
+        ) 
+```
+
+# 6. Storage to Numeric
+
+```{r}
+storage <- data %>%
+mutate(`Storage (GB)` = as.numeric(str_extract(Storage, "\\d+")),
+         `Storage Type` = str_extract(Storage, "(SSD|HDD)")) %>% 
+  select(`Storage (GB)`,`Storage Type`)
+kable(head(storage)) %>% 
+  kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+### Sebaran Storage Laptop
+
+**Pie Chart SSD & HDD**
+
+```{r dpi=300, fig8, fig.height = 20, fig.width = 23, fig.align = 'left'}
+plot.p(dt = storage$`Storage Type`, title = "Porporsi SSD dan HDD")
+```
+
+**Sebaran SSD**
+
+```{r dpi=300, fig9, fig.height = 12, fig.width = 20, fig.align = "center"}
+# Membuat bar chart persentase
+ggplot(data = storage %>%
+        filter(grepl("SSD", `Storage Type`, ignore.case = TRUE))
+        %>% count(`Storage (GB)`) %>% # banyaknya laptop brand x
+                  mutate(perc = round(n / sum(n) * 100)), #buat persentase, 
+       aes(x = reorder(`Storage (GB)`, -n), y = perc)) +
+  geom_bar(stat = "identity", fill='#2D99AE') +
+  geom_text(aes(label = prettyNum(n,big.mark = ",")
+                ), vjust = -0.5, size = 7, col="orange4", 
+            fontface = "bold") + # Tambahkan label
+  labs(x = "SSD (GB)", y = "Persentase (%)", 
+       title = "Sebaran SSD Laptop") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  theme_minimal() + # Tambahkan tema minimal
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, 
+                                   margin = margin(b = 1)),
+        axis.text.y = element_text(vjust = .5, face = "bold", 
+                                   margin = margin(l = 20)),
+        plot.title = element_text(hjust = 0.5, vjust =0.5,
+                                  face = "bold", margin = margin(b = 50)),
+        text = element_text(size = 30),
+        plot.subtitle = element_text(hjust = 0.5)
+        ) 
+```
+
+**Sebaran HDD**
+
+```{r dpi=300, fig10, fig.height = 12, fig.width = 20, fig.align = "center"}
+# Membuat bar chart persentase
+ggplot(data = storage %>%
+        filter(grepl("HDD", `Storage Type`, ignore.case = TRUE))
+        %>% count(`Storage (GB)`) %>% # banyaknya laptop brand x
+                  mutate(perc = round(n / sum(n) * 100)), #buat persentase, 
+       aes(x = reorder(`Storage (GB)`, -n), y = perc)) +
+  geom_bar(stat = "identity", fill='#2D99AE') +
+  geom_text(aes(label = prettyNum(n,big.mark = ",")
+                ), vjust = -0.5, size = 7, col="orange4", 
+            fontface = "bold") + # Tambahkan label
+  labs(x = "HDD (GB)", y = "Persentase (%)", 
+       title = "Sebaran HDD Laptop") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  theme_minimal() + # Tambahkan tema minimal
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, 
+                                   margin = margin(b = 1)),
+        axis.text.y = element_text(vjust = .5, face = "bold", 
+                                   margin = margin(l = 20)),
+        plot.title = element_text(hjust = 0.5, vjust =0.5,
+                                  face = "bold", margin = margin(b = 50)),
+        text = element_text(size = 30),
+        plot.subtitle = element_text(hjust = 0.5)
+        ) 
+```
+
+### Scoring Storage
+
+![](images/Screenshot%202023-09-09%20104328.png){width="396"}
+
+![](images/Screenshot%202023-09-09%20105435.png){width="390"}
+
+![](images/Screenshot%202023-09-09%20105737.png){width="394"}
+
+```{r}
+storage <- storage %>%
+  mutate(
+    `Storage Score` = ifelse(`Storage Type` == "SSD", `Storage (GB)` * (7.5/3.5), 
+                           `Storage (GB)` * (3.5/7.5))
+  )
+kable(head(storage)) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+### Gabung
+
+```{r}
+data <- data %>%
+  mutate(`Storage Score` = storage$`Storage Score`)
+kable(head(data)) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+# 7. Display Classification & Scoring
+
+Karena kami melihat banyak sekali laptop tanpa refresh rate. Maka kami memutuskan untuk menambahkannya dengan refresh rate minimal pada laptop.
+
+![](images/Screenshot%202023-09-09%20093522.png){width="433"}
+
+```{r}
+display <- data %>%
+  separate(Display, into = c("Screen Size (Inch)", "Resolution", 
+                             "Screen Type","Refresh Rate (Hz)" ), 
+           sep = ", ", remove = FALSE) %>%
+  mutate(
+    # Menghapus karakter ” dan mengubah menjadi numerik
+    `Screen Size (Inch)` = as.numeric(gsub("[^0-9.]", "", `Screen Size (Inch)`)), 
+    #Tukar Kolom jika ada hz
+    temp = `Refresh Rate (Hz)`,
+    `Refresh Rate (Hz)` = ifelse(grepl("Hz", `Screen Type`), 
+                                 as.numeric(gsub("[^0-9.]", "", `Screen Type`)), #Ubah hz jadi numerik
+                                 60), #Jika tidak ada, beri nilai minimal hz laptop yakni 60 hz
+    `Screen Type` = ifelse(grepl("Hz", `Screen Type`), temp, `Screen Type`)
+  ) %>%
+  select(`Screen Size (Inch)`, Resolution, `Screen Type`, `Refresh Rate (Hz)`)
+kable(head(display)) %>% 
+  kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+### Cek NA
+
+```{r}
+cat(" Jumlah Screen Size NA  :", sum(is.na(display$`Screen Size (Inch)`)), "\n",
+     "Jumlah Resolution NA   :", sum(is.na(display$Resolution)), "\n",
+     "Jumlah Screen Type NA  :", sum(is.na(display$`Screen Type`)), "\n",
+     "Jumlah Refresh Rate NA :", sum(is.na(display$`Refresh Rate (Hz)`)), "\n"
+    )
+na.idx <- which(is.na(display[,3]), arr.ind = TRUE)
+kable(data[ unique(na.idx[, 1]), unique(na.idx[, 2]) +3 ]) %>% 
+  kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+![](images/Screenshot%202023-09-09%20094224.png){width="508"}
+
+### LCD untuk NA
+
+Menambahkan Tipe LCD ke kolom *Screen Type* yang NA
+
+```{r}
+display <- display %>% 
+  mutate(`Screen Type` = ifelse(is.na(`Screen Type`), "LCD", `Screen Type`))
+kable(
+  display %>%
+  group_by(`Screen Type`) %>%
+  summarise(Total = n())
+) %>%  kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+### Cek Resolusi layar
+
+Karena kami lihat banyak sekali jenis resolusi layar yang punya nama, jadi kami memutuskan untuk melihat semua jenis nya.
+
+```{r}
+kable(
+  display %>%
+  group_by(`Resolution`) %>%
+  summarise(Total = n())
+) %>%  kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+Semua namanya adalah seberapa besar kualitas resolusinya, Kecuali PixelSense.
+
+![](images/Screenshot%202023-09-09%20112702.png){width="426"}
+
+![](images/Screenshot%202023-09-09%20113940.png){width="418"}
+
+### Multiply Resolution
+
+```{r}
+display <- display %>% 
+  mutate( # Mencari semua kemungkinan pasangan angka dalam kolom "Resolution"
+    Resolution_Num = str_extract_all(Resolution, "\\d{2,}"),
+    # Mengambil pasangan angka yang memiliki dua angka di dalamnya
+    Resolution_Num = sapply(Resolution_Num, 
+                            function(x) if (length(x) == 2) paste(x, collapse = "x") else NA)
+  ) %>% # Pisahkan "Width" dan "Height" dari "Resolution_Num"
+  separate(Resolution_Num, into = c("Width", "Height"), sep = "x", 
+           convert = TRUE, remove = FALSE) %>% 
+# Berikan bobot jika ada kata PixelSense dalam kolom resolusi
+  mutate(
+    Resolution = ifelse(grepl("PixelSense", Resolution), 
+                              Width * Height * 1.125, 
+                              Width * Height)
+  ) %>% select(-Resolution_Num, -Width, -Height) 
+kable(head(display)) %>%  kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+### Screen Type Value Number
+
+![](images/Screenshot%202023-09-09%20133313.png){width="435"}
+
+![](images/Screenshot%202023-09-09%20134237.png){width="438"}
+
+```{r}
+display <- display %>%
+  mutate(
+    `Screen Type` = case_when(
+      `Screen Type` == "OLED" ~ "9",  `Screen Type` == "IPS" ~ "7",   
+      `Screen Type` == "LCD" ~ "5",   `Screen Type` == "TN" ~ "3",    
+      TRUE ~ `Screen Type`
+    ), `Screen Type` = as.numeric(`Screen Type`)
+  )
+kable(head(display)) %>% 
+  kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+### Display Score
+
+$$
+\frac{\mathbf{Resolution\times Screen.Type}}
+{\mathbf{Screen.Size}} + \mathbf{Refresh.Rate}
+$$
+
+```{r}
+display <- display %>% 
+  mutate_all(rescale, to = c(10, 100)) %>% 
+  mutate(`Display Score` = ((Resolution * `Screen Type`) / 
+                             `Screen Size (Inch)`) + `Refresh Rate (Hz)`)
+kable(head(display)) %>% 
+  kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+### Gabung
+
+```{r}
+data <- data %>% bind_cols(`Display Score` = display$`Display Score`)
+kable(head(data)) %>% 
+  kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+# 8. Finishing
+
+### Urutkan Kolom
+
+```{r}
+data <- data %>%
+  relocate(Name, Brand, `Price (USD)`, `Ram (GB)`, CPU, `CPU Brand`, 
+           `CPU Score`, GPU, `GPU Brand`, `GPU Score`, Display, 
+           `Display Score`, Storage, `Storage Score`)
+kable(head(data)) %>% 
+  kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+### Pisah data dengan kasus NA = 0
+
+```{r}
+data0 <- data %>% 
+  mutate_if(is.numeric, ~replace_na(., 0))
+```
+
+### Pisah data regresi
+
+```{r}
+reg <- data0 %>% 
+  select( "Price (USD)","Ram (GB)", "CPU Score", "GPU Score","Display Score", "Storage Score")
+```
+
+### Export
+
+```{r}
+install_load('openxlsx')
+write.xlsx(list("Data" = data, "Data NA=0" = data0, "Regresi" = reg), 
+           file = "managed.xlsx")
+```

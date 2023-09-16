@@ -1,0 +1,82 @@
+---
+title: "Andat PSD kel 3"
+author: "Angga Fathan Rofiqy"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+### Set Working Directory
+
+```{r}
+repo  <- gsub  ( "\\\\",  "/",  readClipboard ()  ); repo
+```
+
+```{r setup, include=FALSE, echo=FALSE}
+require("knitr")
+opts_knit$set(root.dir = "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 5/8. Pengantar Sains Data/Proj")
+```
+
+### Library
+
+```{r}
+library(rvest)
+library(tidyverse)
+library(rio)
+library(kableExtra) 
+```
+
+### Scraping cpu ranking
+
+```{r}
+universitas = 430
+page = 1
+url <- paste("https://sinta.kemdikbud.go.id/affiliations/authors/",universitas,"?page=",page,sep="")
+sinta <- read_html(url)
+html_nodes(sinta, "div.profile-name") %>%  html_text2()
+```
+
+```{r}
+nama_authors <- html_nodes(sinta, ".profile-name") %>%  html_text2()
+nama_dept <- html_nodes(sinta, ".profile-dept") %>%  html_text2()
+SINTA_ID <- html_nodes(sinta, "div.profile-id")  %>%  html_text2() %>% gsub("ID : ", "", .)
+output <- cbind(SINTA_ID,nama_authors)
+output
+```
+
+```{r}
+library(rvest)
+
+# URL halaman web
+url <- "https://laptopmedia.com/top-laptop-cpu-ranking/"
+page <- read_html(url)
+
+# Mengekstrak baris tabel
+table_rows <- page %>% html_nodes("table#w-all_lps tbody tr")
+
+# Membuat data frame kosong
+cpu_data <- data.frame()
+
+# Looping untuk mengekstrak data dari setiap baris tabel
+for (row in table_rows) {
+  cpu_rank <- row %>% html_nodes("td:nth-child(1)") %>% html_text() %>% trimws()
+  cpu_name <- row %>% html_nodes("td:nth-child(2) a") %>% html_text() %>% trimws()
+  cinebench_score <- row %>% html_nodes("td:nth-child(3)") %>% html_text() %>% trimws()
+  performance_diff <- row %>% html_nodes("td:nth-child(4) span") %>% html_text() %>% trimws()
+  price <- row %>% html_nodes("td:nth-child(5) a") %>% html_text() %>% trimws()
+  price_diff <- row %>% html_nodes("td:nth-child(6) span") %>% html_text() %>% trimws()
+  
+  # Menambahkan data ke dalam data frame
+  cpu_data <- rbind(cpu_data, data.frame(
+    Rank = cpu_rank,
+    CPU_Name = cpu_name,
+    Cinebench_Score = cinebench_score,
+    Performance_Difference = performance_diff,
+    Price = price,
+    Price_Difference = price_diff
+  ))
+}
+
+# Menampilkan data hasil scraping
+print(cpu_data)
+
+```
