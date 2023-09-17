@@ -180,6 +180,8 @@ kable(head(data)) %>% kable_styling(bootstrap_options = "striped", full_width = 
 
 ### Cek Missing Data
 
+Penting untuk melihat ada tidaknya missing data.
+
 ```{r}
 # Mencari indeks baris dan kolom yang mengandung NA
 na.idx <- which(is.na(data), arr.ind = TRUE)
@@ -198,12 +200,18 @@ kable(data[                        # Subsetting
 
 ### Hapus Data NA
 
+Karena peubah diatas sulit untuk diduga maka kami putuskan untuk menghapus data `NA` tersebut.
+
 ```{r}
 data <- data[ -unique(na.idx[, 1]),  ]
 cat("Jumlah Baris:", nrow(data), "\n")
 ```
 
 # 1. Brand Classification
+
+![](https://cdn.mypressoffice.co.za/EmbeddedResourceHandler.ashx?guid=9aea7ce743a24c01894037ed39729778){width="556"}
+
+Klasifikasi brand ini diperlukan agar kita dapat melihat lebih jelas sebaran brand yang dijual pada *e-commerce* ini maupun untuk analisis selanjutnya.
 
 ```{r}
 # Install dan muat paket stringr jika belum diinstal
@@ -232,7 +240,7 @@ data$Brand <- sapply(data$Name, assign_brand)
 kable(head(data)) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
 ```
 
-### Sebaran Brand Laptop
+### a. Sebaran Brand Laptop
 
 ```{r dpi=300, fig1, fig.height = 12, fig.width = 20, fig.align = "center"}
 # Membuat bar chart persentase
@@ -256,6 +264,50 @@ ggplot(data = data %>% count(Brand) %>% # banyaknya laptop brand x
         text = element_text(size = 30),
         plot.subtitle = element_text(hjust = 0.5)
         ) 
+```
+
+### b. Brand to dummy variable
+
+![](https://www.statology.org/wp-content/uploads/2021/02/dummy6.png){width="444"}
+
+Singkat nya peubah Dummy memisahkan setiap kategori ke beberapa kolom. Dengan isi `1` atau `TRUE` yang kategori nya sesuai, dan `0` atau `FALSE` untuk kategori lainnya. Seperti contoh gambar di atas.
+
+Namun cara diatas sangat memakan waktu dan memakan memori. Untung nya `R` dapat mengenali lebih *advance* yakni dengan tipe variabel `factor`. Karena `factor` memiliki `level` atau urutan nilai kategori yang bisa di ubah sesuka hati. Seperti ini `factor(data$Brand, levels = c('HP','Acer',...))`. Namun untuk *default* nya, `R` mengurutkan berdasarkan abjad.
+
+Terdapat Fungsi `relevel()` yang digunakan dalam konteks peubah dummy untuk menentukan referensi atau kategori dasar. Namun ini hanya menggantikan posisi `level 1`, dengan `ref` yang diberikan. Sisanya mengurut sesuai abjad.
+
+Ketika membuat peubah dummy untuk variabel kategorikal dengan **lebih dari dua kategori**, R secara otomatis **memilih satu kategori** sebagai **referensi** dan yang lainnya sebagai peubah dummy. Referensi yang diubah **dapat mempengaruhi hasil analisis regresi** karena perubahan dalam perbandingan dengan referensi. Jadi, pemilihan referensi ini perlu diperhatikan dalam konteks analisis statistik.
+
+Berikut beberapa pertimbangan untuk memilih referensi yang baik:
+
+1.  **Interpretasi yang Jelas:** Pilih kelompok referensi yang mudah diinterpretasikan. Ini akan membuat hasil analisis lebih mudah dipahami. Misalnya, jika Anda menganalisis jenis produk (A, B, C), mungkin produk yang paling umum atau biasa digunakan adalah pilihan yang baik untuk referensi.
+
+2.  **Pentingnya Variabel:** Pilih kelompok yang memiliki relevansi atau signifikansi tertentu dalam konteks analisis Anda sebagai referensi. Ini dapat membantu Anda memahami efek perbedaan antara kelompok tersebut dengan kelompok lain.
+
+3.  **Eksplanasi Variabel Lain:** Terkadang pemilihan referensi dapat memengaruhi hasil analisis. Misalnya, dalam analisis regresi logistik, referensi dapat mempengaruhi bagaimana koefisien variabel lain diinterpretasikan.
+
+4.  **Kemudahan Analisis:** Pilih kelompok referensi yang memudahkan perbandingan dengan kelompok lainnya. Ini dapat membuat hasil analisis lebih intuitif dan bermakna.
+
+5.  **Konteks Bisnis atau Penelitian:** Pertimbangkan konteks bisnis atau penelitian Anda. Misalnya, jika Anda sedang melakukan penelitian pasar, referensi yang cocok mungkin adalah produk atau merek yang paling dikenal atau paling banyak digunakan di pasar.
+
+6.  **Efeknya pada Regresi:** Pahami bahwa pemilihan referensi dapat mempengaruhi koefisien dan interpretasi dalam analisis regresi. Koefisien peubah dummy akan mengukur perbedaan antara kelompok referensi dengan kelompok lainnya.
+
+7.  **Perbandingan yang Relevan:** Pastikan perbandingan antara kelompok lain dengan kelompok referensi memiliki makna dalam konteks analisis Anda.
+
+Untuk peubah brand, kami memilih *Brand* `HP` Sebagai referensi, karena merupakan kategori dengan jumlah terbanyak.
+
+```{r}
+data <- data %>% 
+  mutate(`Brand` = relevel(as.factor(data$Brand), ref = "HP"))
+str(data$Brand)
+levels(data$Brand)
+```
+
+Contoh Linear Model.
+
+```{r}
+model <- lm(`Price (USD)` ~ `Brand`,data=data)
+summary(model)
 ```
 
 # 2. Price to Numeric
