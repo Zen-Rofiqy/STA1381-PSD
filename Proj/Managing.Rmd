@@ -166,6 +166,14 @@ return(sp)
 }
 ```
 
+# Tentang Data
+
+![](images/Screenshot 2023-09-18 072128.png){width="521"}
+
+Data kelompok kami merupakan data hasil *web scraping* dari [laptopmedia.com](https://laptopmedia.com/specs/?size=n_100_n) dengan menggunakan *extension* *`web scraper`* dari chrome. Data ini memiliki 7 peubah yakni : `Name` (Nama laptop), `Price` (Harga), `CPU`, `GPU`, `RAM`, `Display` (layar), dan `Storage`.
+
+Data tersebut perlu dibersihkan dan dimanage sehingga dapat di olah pada analisis selanjutnya.
+
 ### Data input
 
 ```{r}
@@ -303,23 +311,21 @@ str(data$Brand)
 levels(data$Brand)
 ```
 
-Contoh Linear Model.
-
-```{r}
-model <- lm(`Price (USD)` ~ `Brand`,data=data)
-summary(model)
-```
-
 # 2. Price to Numeric
+
+![](images/Screenshot 2023-09-18 073150-01.png){width="144"}
+
+`Price` Memiliki karakter `$` yang menandakan satuan `USD`. Agar dapat dianalisis lebih lanjut, kami menghapus `$` lalu menjadikannya sebagai peubah numerik dan membaginya dengan $100$, karena 2 digit dari belakang merupakan `cent` . Selain `Price (USD)` agar memudahkan dalam membaca nilai mata uang, kami juga membuat peubah tambahan yakni `Price (IDR)` dengan mengalikan setiap $1$ `USD` dengan $15,355.40$ (Nilai $1$ `USD` ke `IDR` Sekarang).
 
 ```{r}
 data <- data %>%
-  mutate(`Price (USD)` = as.numeric(gsub("\\$", "", Price))) %>%
+  mutate(`Price (USD)` = as.numeric(gsub("\\$", "", Price)) / 100,
+         `Price (IDR)` =  `Price (USD)` * 15355.40 ) %>%
   select(-Price)
 kable(head(data)) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
 ```
 
-### Sebaran Harga Laptop
+### a. Sebaran Harga Laptop
 
 ```{r dpi=300, fig2, fig.height = 9, fig.width = 16, fig.align = "center"}
 install_load('ggridges','hrbrthemes','viridis')
@@ -333,10 +339,34 @@ ggplot(data, aes(x=`Price (USD)`, y=Brand, fill=Brand)) + geom_density_ridges() 
                      option = "D") + #Color Palette
   theme_modern_rc(axis_title_just = "center", axis_title_size = 12) +
   theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
-  labs(x = "\nMerek",y = "Cicilan/Bulan (Juta Rupiah)\n", title = "Sebaran Harga Cicilan/Bulan Tiap Tahun")
+  labs(x = "\nHarga (USD)",y = "Brand Laptop\n", 
+       title = "Sebaran Harga Brand Laptop")
 ```
 
+```{r}
+summary(data$`Price (USD)`)
+```
+
+```{r}
+summary(data$`Price (IDR)`)
+```
+
+Dari sebarannya, terlhiat bahwa mayoritas sebaran berdasarkan brand nya, menjulur ke kanan. Artinya lebih banyak harga laptop yang lebih murah daripada yang mahal. Sekitar $75\%$ laptop harganya dibawah $1,800\$$ ($27.6$ jt `IDR`). Harga laptop paling murah yakni $110\$$ atau sekitar $1.7$ jt `IDR`. Dan Harga laptop paling mahal yakni $11,812\$$ atau sekitar $181$ jt `IDR`.
+
+Contoh Model Linear dengan peubah dummy.
+
+```{r}
+model <- lm(`Price (USD)` ~ `Brand`,data=data)
+summary(model)
+```
+
+Terlihat bahwa tidak ada *Brand* `HP` , karena `HP` dijadikan sebagai referensi sebelumnya.
+
 # 3. RAM to Numeric
+
+![](https://cdn.slidesharecdn.com/ss_thumbnails/ram-150924144319-lva1-app6892-thumbnail.jpg?width=640&height=640&fit=bounds){width="366"}
+
+Selanjutnya, kami menghapus "GB RAM" pada `RAM` dan mengubahnya menjadi numerik agar dapat dianalisis.
 
 ```{r}
 data <- data %>%
@@ -345,7 +375,7 @@ data <- data %>%
 kable(head(data)) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
 ```
 
-### Sebaran RAM Laptop
+### a. Sebaran RAM Laptop
 
 ```{r dpi=300, fig3, fig.height = 12, fig.width = 20, fig.align = "center"}
 # Membuat bar chart persentase
@@ -372,7 +402,17 @@ ggplot(data = data %>% count(`Ram (GB)`) %>% # banyaknya laptop brand x
         ) 
 ```
 
+Terlihat bahwa `RAM` laptop terbanyak memiliki kapasitas $16$GB, sedangkan yang terkecil adalah $0$GB.
+
+![](images/Screenshot 2023-09-18 080021.png)
+
+Ini memang agak aneh, tapi setelah kami cek kembali, ternyata memang ada laptop dengan `RAM` $0$GB.
+
 # 4. Storage to Numeric
+
+![](https://foto.kontan.co.id/ndzhEdzNLaXZ3QiVe92nzpZQE9E=/smart/2020/09/21/1786193659p.jpg){width="482"}
+
+Setelah itu kami akan mengubah `Storage` Menjadi numerik dengan cara memisahkan *"SSD" & "HDD"* ke kolom `Storage Type`.
 
 ```{r}
 storage <- data %>%
@@ -383,13 +423,15 @@ kable(head(storage)) %>%
   kable_styling(bootstrap_options = "striped", full_width = FALSE)
 ```
 
-### Sebaran Storage Laptop
+### a. Sebaran Storage Laptop
 
 **Pie Chart SSD & HDD**
 
 ```{r dpi=300, fig4, fig.height = 20, fig.width = 23, fig.align = 'left'}
 plot.p(dt = storage$`Storage Type`, title = "Porporsi SSD dan HDD")
 ```
+
+Terlihat bahwa $94.1\%$ laptop memiliki tipe peyimpanan `SSD`. Sunggu perbedaan yang sangat jauh.
 
 **Sebaran SSD**
 
@@ -420,6 +462,17 @@ ggplot(data = storage %>%
         ) 
 ```
 
+Laptop dengan total penyimpanan $1000$ GigaByte ( $1$ TerraByte) `SSD` merupakan total penyimpanan yang paling banyak dimiliki oleh laptop.
+
+```{r}
+kable(data[data$`Storage` == "16GB SSD", ]) %>% 
+  kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+Memang agak mengejutkan, bahwa ternyata ada laptop yang hanya memiliki penyimpanan $16$ GB `SSD` saja. Tidak ada keterangan Bahwa laptop tersebut memiliki penyimpanan *Hybrid* dengan tambahan `HDD`. Namun kami yakin laptop tersebut pasti memiliki penyimpanan `HDD` tambahan. Karena terlihat bahwa ada laptop yang memiliki Spesifikasi gahar dengan harga yang mahal pula, namun Storage hanya $16$ GB `SSD` saja. Laptop tersebut adalah `ASUS TUF Gaming A17` dengan harga $67.4$ jt `IDR`.
+
+Tapi karena keterbatasan informasi dari data hasil *scraping.* Kami akan melanjutkan dengan data ini dahulu saja. Jika memungkinkan untuk *scraping* ulang, maka akan kami *scraping ulang.*
+
 **Sebaran HDD**
 
 ```{r dpi=300, fig6, fig.height = 12, fig.width = 20, fig.align = "center"}
@@ -449,7 +502,11 @@ ggplot(data = storage %>%
         ) 
 ```
 
-### Scoring Storage
+Kebanyakan laptop dengan tipe penyimpanan `HDD` memiliki total penyimpanan $1$ TerraByte.
+
+### b. Scoring Storage
+
+*Scoring* merupakan salah satu metode untuk mengurangi adanya *autokorelasi* pada analsis regresi. Untuk mengurangi adanya *autokorelasi* pada 2 peubah diatas yakni `Storage (GB)` dengan `Storage Type`, Maka kami melakukan *scoring* dengan mempertimbangkan hal berikut:
 
 -   Dalam **hal kinerja**, `SSD` dapat diperkirakan sekitar $5$ hingga $10$ kali **lebih cepat** daripada `HDD` dalam hal **kecepatan baca/tulis data**.
 
@@ -470,7 +527,7 @@ storage <- storage %>%
 kable(head(storage)) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
 ```
 
-### Gabung
+### c. Merge Data
 
 ```{r}
 data <- data %>%
@@ -480,7 +537,13 @@ kable(head(data)) %>% kable_styling(bootstrap_options = "striped", full_width = 
 
 # 5. Display Classification & Scoring
 
+![](https://qph.cf2.quoracdn.net/main-qimg-f01ec3abcc2b0e19b19243602b6fd9db-lq){width="505"}
+
+Setelah Storage, kita lanjut ke peubah selanjutnya yakni `Display`. Ada beberapa komponen dalam display, terutama pada data yang kami miliki ada 4 komponen, Yakni `Screen Size`, `Resolution`, `Refresh Rate`, dan `Screen Type`. Kami melakukan pemisahan keempat komponen tersebut menjadi 4 kolom yang berbeda.
+
 ### a. Refresh Rate
+
+![](https://image.coolblue.be/content/cffb24a1579732d98944c878b448c8ec){width="512"}
 
 Ada baiknya kita mengetahui bahwa:
 
@@ -506,9 +569,11 @@ display <- data %>%
     `Screen Size (Inch)` = as.numeric(gsub("[^0-9.]", "", `Screen Size (Inch)`)), 
     #Tukar Kolom jika ada hz
     temp = `Refresh Rate (Hz)`,
+    #Ubah hz jadi numerik
     `Refresh Rate (Hz)` = ifelse(grepl("Hz", `Screen Type`), 
-                                 as.numeric(gsub("[^0-9.]", "", `Screen Type`)), #Ubah hz jadi numerik
-                                 60), #Jika tidak ada, beri nilai minimal hz laptop yakni 60 hz
+                                 as.numeric(gsub("[^0-9.]", "", `Screen Type`)), 
+                      #Jika tidak ada, beri nilai minimal hz laptop yakni 60 hz
+                                 60), 
     `Screen Type` = ifelse(grepl("Hz", `Screen Type`), temp, `Screen Type`)
   ) %>%
   select(`Screen Size (Inch)`, Resolution, `Screen Type`, `Refresh Rate (Hz)`)
@@ -531,6 +596,8 @@ kable(data[ unique(na.idx[, 1]), unique(na.idx[, 2]) +3 ]) %>%
 
 ### b.1 Tipe Layar
 
+![](https://1.bp.blogspot.com/-_KgnaIgNqWA/YUyyjn3zXOI/AAAAAAAAIy0/caDzBcT5XuMX85NuhMw7G7lo9-qKDkIGQCLcBGAsYHQ/s1429/ASUS%2BOLED%2B03.jpg){width="636"}
+
 Penting untuk mengetahui bahwa:
 
 -   Tipe layar mengacu pada teknologi yang digunakan dalam pembuatan layar.
@@ -547,7 +614,7 @@ Penting untuk mengetahui bahwa:
 
 -   Tipe layar dapat mempengaruhi kualitas tampilan, reproduksi warna, dan sudut pandang.
 
-Seperti yang kita lihat pada `###Cek NA`, Yang `NA` Hanya tersisa pada *Screen Type* saja. Karena setiap layar pasti memiliki tipe nya oleh karena itu kami menanyakan kepada `chat gpt` *"Apa tipe layar minimal pada laptop?"* Berikut ulasannnya : \
+Seperti yang kita lihat pada `###Cek NA`, Yang `NA` Hanya tersisa pada *Screen Type* saja. Karena setiap layar pasti memiliki tipe nya oleh karena itu kami menanyakan kepada `chat gpt` *"Apa tipe layar minimal pada laptop?"* Berikut ulasannnya :\
 **Tipe layar minimal laptop** adalah **layar LCD** (Liquid Crystal Display). Layar LCD adalah teknologi layar yang paling umum digunakan dalam laptop dan perangkat komputer lainnya. LCD menggunakan kristal cair yang berada di antara dua lapisan kaca yang kemudian dikendalikan untuk mengatur cahaya dan menghasilkan gambar.
 
 Dengan demikian kami memutuskan untuk menambahkan Tipe LCD ke kolom *Screen Type* yang `NA`
@@ -633,6 +700,8 @@ kable(head(display)) %>%
 
 ### c.1 Resolusi layar
 
+![](https://cdn.britannica.com/52/241752-050-39026C33/display-resolution-television-tv-screen.jpg){width="654"}
+
 Penting untuk mengetahui apa itu resolusi layar.
 
 -   Resolusi adalah jumlah piksel yang dapat ditampilkan pada layar.
@@ -712,21 +781,43 @@ kable(head(data)) %>%
   kable_styling(bootstrap_options = "striped", full_width = FALSE)
 ```
 
-# 2. Scoring CPU
+# 6. Scoring CPU
 
-Kami membuat Score untuk CPU dengan data benchmark dari website [notebookcheck.net](https://www.notebookcheck.net/Mobile-Processors-Benchmark-List.2436.0.html) yang berisikan score benchmark dari :
+![](https://barriermagz.com/wp-content/uploads/2022/05/AMD-OR-INTEL.jpg){width="651"}
 
-1.  Cinebench R15 CPU Single 64Bit
-2.  Cinebench R15 CPU Multi 64Bit
-3.  Cinebench R20 Single
-4.  Cinebench R20
-5.  x265
-6.  Blender(-)
-7.  7-Zip Single
-8.  7-Zip
-9.  Geekbench 5.4 Single-Core
-10. Geekbench 5.4 Multi-Core
-11. "WebXPRT 3
+Untuk mengukur score dari `CPU` ada yang namanya *Benchmark*. **Benchmark CPU adalah** proses pengukuran dan perbandingan kinerja unit pemrosesan pusat (CPU) pada komputer atau perangkat keras serupa. **Tujuannya** adalah untuk mengukur sejauh mana **CPU dapat menjalankan** berbagai tugas pemrosesan data dan instruksi perangkat lunak dalam berbagai skenario. Benchmark CPU membantu pengguna, peneliti, dan produsen perangkat keras dalam memahami kinerja CPU, membandingkannya dengan CPU lain, dan menilai bagaimana CPU tersebut berkinerja dalam berbagai aplikasi.
+
+Biasanya pada data *benchmark* terdapat $n$ , contohnya : $12017.5^{n4}$ . $n$ disini menyatakan banyaknya sampel atau ulangan yang dilakukan dalam test *benchmark*.
+
+Ada 2 contoh untuk benchmark CPU yang populer yakni **Cinebench** dan **Geekbench.**
+
+![](https://www.cgdirector.com/wp-content/uploads/media/2018/08/CinebenchR15-Twitter_1200x675.jpg){width="660"}
+
+**Cinebench**:
+
+-   **Deskripsi**: Cinebench adalah benchmark CPU yang dikembangkan oleh Maxon. Ini dirancang khusus untuk mengukur kinerja CPU dalam aplikasi grafis dan rendering 3D. Cinebench menggunakan perangkat lunak Cinema 4D untuk melakukan tes rendering dalam berbagai skenario, termasuk rendering tunggal dan multi-threaded.
+
+-   **Cara Kerja**: Cinebench menghitung berapa lama CPU memerlukan waktu untuk menyelesaikan tugas rendering yang diberikan dalam skenario yang berbeda. Hasilnya adalah skor yang mencerminkan kemampuan CPU dalam tugas rendering grafis. Semakin tinggi skornya, semakin baik kinerja CPU dalam aplikasi seperti grafis dan rendering 3D.
+
+-   **Penggunaan**: Cinebench sering digunakan oleh para profesional grafis, pengembang perangkat lunak, dan pengguna yang memiliki kebutuhan khusus dalam tugas rendering.
+
+![](https://fdn.gsmarena.com/imgroot/news/19/09/geekbench-new-version/-636/gsmarena_001.jpg){width="549"}
+
+**Geekbench**:
+
+-   **Deskripsi**: Geekbench adalah benchmark CPU yang dirancang oleh Primate Labs. Ini adalah benchmark sintetis yang mengukur kinerja CPU dalam berbagai tugas pemrosesan umum, termasuk perhitungan matematika, komunikasi memori, dan pengolahan data. Geekbench tersedia untuk berbagai platform, termasuk Windows, macOS, iOS, dan Android.
+
+-   **Cara Kerja**: Geekbench menjalankan sejumlah tes sintetis yang mencakup berbagai jenis operasi CPU, seperti operasi integer dan floating-point. Kemudian, hasilnya digabungkan untuk menghasilkan skor single-core dan multi-core yang mencerminkan kinerja CPU dalam aplikasi umum.
+
+-   **Penggunaan**: Geekbench adalah alat yang sering digunakan untuk membandingkan kinerja CPU dari berbagai merek dan model. Hasil Geekbench dapat memberikan gambaran umum tentang seberapa baik CPU dapat menangani berbagai tugas pemrosesan.
+
+Kami membuat Score untuk CPU dengan data benchmark dari website [notebookcheck.net](https://www.notebookcheck.net/Mobile-Processors-Benchmark-List.2436.0.html) dengan setting :
+
+![](images/Screenshot 2023-09-18 165425.png){width="734"}
+
+*Setting* ini agar mendapatkan seluruh data yang kami perlukan. Pastikan ***Checklist semua***yang ada **kecuali** `Show single scores on hover` , `Show only itmes with known benchmark results` , `Show Percent` dan `Still available (not archived)`.
+
+Agar perhitungannya maksimal dan presisi, kami menggunakan seluruh *benchmark* yang ada, yakni sebanyak $40$ data *benchmark.*
 
 Berikut **Metode** kami :
 
@@ -737,12 +828,12 @@ Berikut **Metode** kami :
     **Agar dapat dijumlahkan.
 
 3.  **Memberi Bobot pada setiap Benchmark\
-    **AI memberi saran untuk nilai bobot masing-masing :\
-    ![](images/Screenshot%202023-09-06%20112121.png){width="249"}\
+    **`Chat GPT` memberi saran untuk nilai bobot masing-masing :\
+    ![](images/Screenshot 2023-09-18 140457.png)\
     Dengan cara perkalian matriks antara data benchmark $(\mathbf{B})$ dengan matriks diagonal bobot $(\mathbf{D})$:
 
     $$
-    \mathbf{B}_{n\times11} \boldsymbol{\cdot} \mathbf{D}_{11\times11} 
+    \mathbf{B}_{n\times40} \boldsymbol{\cdot} \mathbf{D}_{40\times40} 
     $$\
     dimana $n=$ Banyaknya baris data
 
@@ -753,31 +844,52 @@ Berikut **Metode** kami :
        b_{n.1} & b_{n.2} & \cdots & b_{n.11}\\
     \end{pmatrix}
     \boldsymbol{\cdot}
-    \begin{pmatrix}   
-       10 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\   
-       0 & 10 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\   
-       0 & 0 & 9 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\   
-       0 & 0 & 0 & 9 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\   
-       0 & 0 & 0 & 0 & 8 & 0 & 0 & 0 & 0 & 0 & 0\\    
-       0 & 0 & 0 & 0 & 0 & 7 & 0 & 0 & 0 & 0 & 0\\   
-       0 & 0 & 0 & 0 & 0 & 0 & 6 & 0 & 0 & 0 & 0\\   
-       0 & 0 & 0 & 0 & 0 & 0 & 0 & 6 & 0 & 0 & 0\\   
-       0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 8 & 0 & 0\\   
-       0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 8 & 0\\   
-       0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 7\\    
+    \begin{pmatrix}      
+    5 & 0 & 0 & \cdots & 0 \\      
+    0 & 4 & 0 & \cdots & 0 \\      
+    0 & 0 & 4 & \cdots & 0 \\      
+    \vdots & \vdots & \vdots & \ddots & \vdots \\    
+    0 & 0 & 0 & \cdots & 7   
     \end{pmatrix}
     $$
 
 4.  **Menjumlahkan Total Score dari masing-masing Benchmark\
-    **Dengan begini, Score CPU pun diperoleh.
+    **Menggunakan `rowSums()`
+
+5.  **Membagi nya dengan banyaknya Benchmark yang bukan 0 atau NA\
+    Agar adil** harus dibagi. Jadi mirip seperti **rata-rata**. Namun bedanya jika kolom `Bechmark A` = 0. Maka tidak akan dibagi. Misalnya : \
+    `Benchmark A` : NA\
+    `Benchmark B` : NA\
+    `Benchmark C` : 1405\
+    `Benchmark D` : 3329
+
+    `Score` : $\frac{A + B + C + D}{not.NA.nor.0}$
+    `Score` : $\frac{0 + 0 + 1405 + 3329}{0+0+1+1}$\
+    `Score` : $2367$\
+    Sehingga akan diperoleh hasil yang **ADIL**
+
+Kenapa perlu *scaling?*. Mudahnya gini. Misalnya kita punya data dengan 2 `Score`. `Score 1` memiliki rentang nliai dari $10\ldots300$ sedangkan `Score 2` dengan rendant $1 \ldots 10$ . Untuk menghitung total score nya, tidak lah valid untuk langsung menjumlahkan nya.
+
+![](images/Screenshot 2023-09-18 090033.png){width="257"}
+
+Maka dari itu perlu scaling. Antara mengubah ke rentang skala `Score 1` atau mengubah ke `Score 2`. Seperti ini:
+
+```{r}
+rescale(c(10, 200, 230, 300), to = c(1, 10))
+```
+
+![](images/Screenshot 2023-09-18 093917.png){width="240"}
+
+Pada kasus `Score CPU` , *Score* ini tidak memiliki rentang nilai yang pasti ($0 \ldots \infty$). Sehingga cukup `rescale(data, to = c(10, 100))` saja. Kami mengambil nilai terkecil yakni $10$ dan nilai terbesar yakni $100$ Sedangkan $0$ untuk yang `NA`.
 
 ### Seleksi Data
 
 ```{r}
 #Data Benchmark CPU
-cpu <- read_xlsx("data.xlsx", sheet="CPU") %>%
-       select(1, 7:ncol(.)) %>% #Ambil data benchmark nya saja 
-  mutate_at(vars(-1), ~as.numeric(gsub("n[0-9]+$", "", .))) #Ubah jadi numerik
+cpu <- read_xlsx("data_new.xlsx", sheet="CPU") %>%
+       select(1, 15:ncol(.)) %>% #Ambil data benchmark nya saja 
+  #Hapus selain numerik dan setelahnya, lalu Ubah jadi numerik
+  mutate_at(vars(-1), ~as.numeric(gsub("[^0-9.].*$", "", .))) 
 cat("Jumlah Baris:", nrow(cpu), "\n")
 kable(head(cpu)) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
 ```
@@ -785,15 +897,31 @@ kable(head(cpu)) %>% kable_styling(bootstrap_options = "striped", full_width = F
 ### Scoring
 
 ```{r}
+gpu.score <- gpu %>%
+  mutate_at(vars(2:ncol(gpu)), rescale, to = c(0, 10)) %>% #Scaling
+  mutate_at(vars(2:ncol(gpu)), ~ ifelse(is.na(.), 0, .)) %>% #Na = 0
+  select(-one_of("Model")) %>% #Pilih kolom benchmark
+  as.matrix() %*% diag(c(5,5,5,7,7)) %>%  #Beri bobot
+  as.data.frame() %>% 
+  mutate(Score = rowSums(across(where(is.numeric)))) %>% #Jumlahkan semua kolom
+  select(one_of("Score")) #Ambil kolom score aja
+```
+
+```{r}
 install_load('scales')
 cpu.score <- cpu %>%
   mutate_at(vars(2:ncol(cpu)), rescale, to = c(10, 100)) %>% #Scaling
   mutate_at(vars(2:ncol(cpu)), ~ ifelse(is.na(.), 0, .)) %>% #Na = 0
   select(-one_of("Model")) %>% #Pilih kolom benchmark
-  as.matrix() %*% diag(c(10, 10, 9, 9, 8, 7, 6, 6, 8, 8, 7)) %>%  #Beri bobot
+  as.matrix() %*% diag(c(5, 4, 4, 6, 6, 7, 7, 8, 8, 9,
+                         9, 3, 3, 3, 3, 4, 5, 5, 5, 4, 
+                         4, 4, 8, 7, 7, 6, 6, 6, 7, 7, 
+                         8, 8, 9, 9, 6, 3, 4, 5, 5, 7)) %>%  #Beri bobot
   as.data.frame() %>% 
   mutate(Score = rowSums(across(where(is.numeric)))) %>% #Jumlahkan semua kolom
-  select(one_of("Score")) #Ambil kolom score aja
+  select(one_of("Score")) %>%  #Ambil kolom score aja
+  # Bagi dengan jumlah kolom yang tidak sama dengan 0
+  mutate(Score = Score / rowSums(Score != 0)) 
 #Gabung data
 cpu <- bind_cols(cpu %>% select(Model),  cpu.score %>% select(Score))
 kable(head(cpu)) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
@@ -863,6 +991,356 @@ Untuk setiap baris dalam "data":
           
   Jika tidak ada baris yang memiliki Model yang sama:
     Set nilai kolom "Score" dalam baris saat ini dalam "data" menjadi NA
+```
+
+```{r}
+library(data.table)
+library(stringdist)
+
+# Fungsi untuk menghitung kesamaan antara dua teks
+similarity_and_cleanup <- function(text1, text2) {
+  text1_no_parentheses <- gsub("\\([^)]+\\)", "", text1)
+  text2_no_parentheses <- gsub("\\([^)]+\\)", "", text2)
+
+  if (tolower(text1_no_parentheses) == tolower(text2_no_parentheses)) {
+    return(0)
+  } else {
+    similarity_no_parentheses <- 
+      stringdist::stringdist(tolower(text1_no_parentheses), 
+                             tolower(text2_no_parentheses), method = "jw")
+    if (similarity_no_parentheses < 0.2) {
+      return(similarity_no_parentheses)
+    } else {
+      text1_inside_parentheses <- gsub(".*?\\((.*?)\\).*", "\\1", text1)
+      text2_inside_parentheses <- gsub(".*?\\((.*?)\\).*", "\\1", text2)
+      similarity_inside_parentheses <- 
+        stringdist::stringdist(tolower(text1_inside_parentheses), 
+                               tolower(text2_inside_parentheses), method = "jw")
+      
+      if (similarity_inside_parentheses >= 0.8) {
+        return(similarity_inside_parentheses)
+      } else {
+        similarity_without_parentheses <- 
+          stringdist::stringdist(tolower(text1_no_parentheses),
+                                 tolower(text2_no_parentheses), method = "jw")
+        if (similarity_without_parentheses >= 0.9) {
+          return(similarity_without_parentheses)
+        } else {
+          return(NA)
+        }
+      }
+    }
+  }
+}
+
+# Menggabungkan data "cpu" ke "data" dengan kondisi yang dioptimalkan
+setDT(data)  # Mengubah data.frame menjadi data.table
+setDT(cpu)   # Mengubah data.frame cpu menjadi data.table
+
+# Fungsi untuk menggabungkan data berdasarkan aturan Anda
+join_and_score <- function(data, cpu) {
+  data[, BestMatch := NA_character_]
+  data[, `CPU Score` := NA_real_]
+  
+  for (i in 1:nrow(data)) {
+    current_cpu <- data[i, CPU]
+    matching_rows <- cpu[tolower(Model) == tolower(current_cpu)]
+    
+    if (nrow(matching_rows) > 0) {
+      matching_row <- matching_rows[1]
+      matching_cpu <- matching_row$Model
+      
+      if (tolower(current_cpu) == tolower(matching_cpu)) {
+        data[i, `CPU Score` := matching_row$Score]
+        data[i, BestMatch := matching_cpu]
+      } else {
+        if (grepl("\\(", current_cpu) && grepl("\\(", matching_cpu)) {
+          current_cpu_clean <- gsub(".*?\\((.*?)\\).*", "\\1", current_cpu)
+          matching_cpu_clean <- gsub(".*?\\((.*?)\\).*", "\\1", matching_cpu)
+          similarity_clean <- 
+            stringdist::stringdist(tolower(current_cpu_clean), 
+                                   tolower(matching_cpu_clean), method = "jw")
+          
+          if (similarity_clean >= 0.8) {
+            data[i, `CPU Score` := matching_row$Score]
+            data[i, BestMatch := matching_cpu]
+          } else {
+            current_cpu_no_parentheses <- gsub("\\([^)]+\\)", "", current_cpu)
+            matching_cpu_no_parentheses <- gsub("\\([^)]+\\)", "", matching_cpu)
+            similarity_no_parentheses <- 
+              stringdist::stringdist(tolower(current_cpu_no_parentheses), 
+                                     tolower(matching_cpu_no_parentheses), method = "jw")
+            
+            if (similarity_no_parentheses >= 0.9) {
+              data[i, `CPU Score` := matching_row$Score]
+              data[i, BestMatch := matching_cpu]
+            }
+          }
+        } else {
+          current_cpu_no_parentheses <- gsub("\\([^)]+\\)", "", current_cpu)
+          matching_cpu_no_parentheses <- gsub("\\([^)]+\\)", "", matching_cpu)
+          similarity_no_parentheses <- 
+            stringdist::stringdist(tolower(current_cpu_no_parentheses), 
+                                   tolower(matching_cpu_no_parentheses), method = "jw")
+          
+          if (similarity_no_parentheses >= 0.9) {
+            data[i, `CPU Score` := matching_row$Score]
+            data[i, BestMatch := matching_cpu]
+          }
+        }
+      }
+    }
+  }
+  return(data)
+}
+
+# Panggil fungsi untuk menggabungkan data
+coba2 <- join_and_score(data[1:1000, ], cpu)
+```
+
+```{r}
+library(data.table)
+library(stringdist)
+
+# Fungsi untuk menghitung kesamaan antara dua teks
+similarity_and_cleanup <- function(text1, text2) {
+  text1_no_parentheses <- gsub("\\([^)]+\\)", "", text1)
+  text2_no_parentheses <- gsub("\\([^)]+\\)", "", text2)
+
+  if (text1_no_parentheses == text2_no_parentheses) {
+    return(0)
+  } else {
+    similarity_no_parentheses <- 
+      stringdist::stringdist(text1_no_parentheses, 
+                             text2_no_parentheses, method = "jw")
+    if (similarity_no_parentheses < 0.2) {
+      return(similarity_no_parentheses)
+    } else {
+      text1_inside_parentheses <- gsub(".*?\\((.*?)\\).*", "\\1", text1)
+      text2_inside_parentheses <- gsub(".*?\\((.*?)\\).*", "\\1", text2)
+      similarity_inside_parentheses <- 
+        stringdist::stringdist(text1_inside_parentheses, 
+                               text2_inside_parentheses, method = "jw")
+      
+      if (similarity_inside_parentheses >= 0.8) {
+        return(similarity_inside_parentheses)
+      } else {
+        similarity_without_parentheses <- 
+          stringdist::stringdist(text1_no_parentheses, 
+                                 text2_no_parentheses, method = "jw")
+        if (similarity_without_parentheses >= 0.9) {
+          return(similarity_without_parentheses)
+        } else {
+          return(NA)
+        }
+      }
+    }
+  }
+}
+
+# Menggabungkan data "cpu" ke "data" dengan kondisi yang dioptimalkan
+setDT(data)  # Mengubah data.frame menjadi data.table
+setDT(cpu)   # Mengubah data.frame cpu menjadi data.table
+
+# Fungsi untuk menggabungkan data berdasarkan aturan Anda
+join_and_score <- function(data, cpu) {
+  data[, BestMatch := NA_character_]
+  data[, `CPU Score` := NA_real_]
+  
+  for (i in 1:nrow(data)) {
+    current_cpu <- data[i, CPU]
+    matching_rows <- cpu[Model == current_cpu]
+    
+    if (nrow(matching_rows) > 0) {
+      matching_row <- matching_rows[1]
+      matching_cpu <- matching_row$Model
+      
+      if (current_cpu == matching_cpu) {
+        data[i, `CPU Score` := matching_row$Score]
+      } else {
+        if (grepl("\\(", current_cpu) && grepl("\\(", matching_cpu)) {
+          current_cpu_clean <- gsub(".*?\\((.*?)\\).*", "\\1", current_cpu)
+          matching_cpu_clean <- gsub(".*?\\((.*?)\\).*", "\\1", matching_cpu)
+          similarity_clean <- 
+            stringdist::stringdist(current_cpu_clean, 
+                                   matching_cpu_clean, method = "jw")
+          
+          if (similarity_clean >= 0.8) {
+            data[i, `CPU Score` := matching_row$Score]
+          } else {
+            current_cpu_no_parentheses <- gsub("\\([^)]+\\)", "", current_cpu)
+            matching_cpu_no_parentheses <- gsub("\\([^)]+\\)", "", matching_cpu)
+            similarity_no_parentheses <- 
+              stringdist::stringdist(current_cpu_no_parentheses,
+                                     matching_cpu_no_parentheses, method = "jw")
+            
+            if (similarity_no_parentheses >= 0.9) {
+              data[i, `CPU Score` := matching_row$Score]
+            }
+          }
+        } else {
+          current_cpu_no_parentheses <- gsub("\\([^)]+\\)", "", current_cpu)
+          matching_cpu_no_parentheses <- gsub("\\([^)]+\\)", "", matching_cpu)
+          similarity_no_parentheses <- 
+            stringdist::stringdist(current_cpu_no_parentheses,
+                                   matching_cpu_no_parentheses, method = "jw")
+          
+          if (similarity_no_parentheses >= 0.9) {
+            data[i, `CPU Score` := matching_row$Score]
+          }
+        }
+      }
+    }
+  }
+  return(data)
+}
+
+# Panggil fungsi untuk menggabungkan data
+coba <- join_and_score(data[1:1000, ], cpu)
+```
+
+```{r}
+cat("Banyaknya Laptop dengan Score CPU yang NA :", sum(is.na(coba2$`CPU Score`)))
+```
+
+```{r}
+NA.CPU.Score <- coba2 %>%
+  group_by(CPU) %>% 
+  summarise(NA.CPU.Score = sum(is.na(`CPU Score`))) %>%
+  filter(NA.CPU.Score > 0)
+cat("Banyaknya CPU dng Score yang NA :", nrow(NA.CPU.Score))
+kable(NA.CPU.Score) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+![](images/Screenshot 2023-09-18 102128.png){width="527"}
+
+Jika saya cari pada sheet CPU, terlihat bahwa tidak ada CPU NA yang ditemukan.
+
+![](images/Screenshot 2023-09-18 103135.png)
+
+Namun jika saya cari lagi pada `website` tadi, terlihat bahawa CPU yang dicari itu ada namun dengan nama yang sedikit berbeda. Ketika saya cari-cari di `internet`, telihat bahwa **tidak ada** hasil benchmark dari `AMD Ryzen 5 5650U`. Hanya ada `AMD Ryzen 5 PRO 5650U` . Karena itu, kami memutuskan untuk menganggap bahwa kedua CPU ini sama. Maka **Algoritmanya perlu diperbaiki lagi.**
+
+Sisa nya, CPU AMD Ryzen `HS` Series & `Apple` Saya tidak menemukan nya di `website` tadi. Sehingga perlu mencari di internet dan menambahkan manual ke `sheet` `CPU`.
+
+Hanya perlu menghapus kata "PRO" dan `Space` Berlebih pada function `join_and_score`
+
+```{r}
+# Fungsi untuk menggabungkan data berdasarkan aturan Anda
+join_and_score <- function(data, cpu) {
+  data[, BestMatch := NA_character_]
+  data[, `CPU Score` := NA_real_]
+  
+  # Menghapus kata "PRO" dan spasi berlebih dari kolom `Model` di data `cpu`
+  cpu$Model <- gsub("\\s+", " ", gsub("PRO", "", cpu$Model, ignore.case = TRUE))
+  
+  for (i in 1:nrow(data)) {
+    current_cpu <- data[i, CPU]
+    # Menghapus kata "PRO" dan spasi berlebih dari `current_cpu`
+    current_cpu <- gsub("\\s+", " ", gsub("PRO", "", current_cpu, ignore.case = TRUE))
+    
+    matching_rows <- cpu[tolower(Model) == tolower(current_cpu)]
+    
+    if (nrow(matching_rows) > 0) {
+      matching_row <- matching_rows[1]
+      matching_cpu <- matching_row$Model
+      
+      if (tolower(current_cpu) == tolower(matching_cpu)) {
+        data[i, `CPU Score` := matching_row$Score]
+        data[i, BestMatch := matching_cpu]
+      } else {
+        if (grepl("\\(", current_cpu) && grepl("\\(", matching_cpu)) {
+          current_cpu_clean <- gsub(".*?\\((.*?)\\).*", "\\1", current_cpu)
+          matching_cpu_clean <- gsub(".*?\\((.*?)\\).*", "\\1", matching_cpu)
+          similarity_clean <- 
+            stringdist::stringdist(tolower(current_cpu_clean), 
+                                   tolower(matching_cpu_clean), method = "jw")
+          
+          if (similarity_clean >= 0.8) {
+            data[i, `CPU Score` := matching_row$Score]
+            data[i, BestMatch := matching_cpu]
+          } else {
+            current_cpu_no_parentheses <- gsub("\\([^)]+\\)", "", current_cpu)
+            matching_cpu_no_parentheses <- gsub("\\([^)]+\\)", "", matching_cpu)
+            similarity_no_parentheses <- 
+              stringdist::stringdist(tolower(current_cpu_no_parentheses), 
+                                     tolower(matching_cpu_no_parentheses), method = "jw")
+            
+            if (similarity_no_parentheses >= 0.9) {
+              data[i, `CPU Score` := matching_row$Score]
+              data[i, BestMatch := matching_cpu]
+            }
+          }
+        } else {
+          current_cpu_no_parentheses <- gsub("\\([^)]+\\)", "", current_cpu)
+          matching_cpu_no_parentheses <- gsub("\\([^)]+\\)", "", matching_cpu)
+          similarity_no_parentheses <- 
+            stringdist::stringdist(tolower(current_cpu_no_parentheses), 
+                                   tolower(matching_cpu_no_parentheses), method = "jw")
+          
+          if (similarity_no_parentheses >= 0.9) {
+            data[i, `CPU Score` := matching_row$Score]
+            data[i, BestMatch := matching_cpu]
+          }
+        }
+      }
+    }
+  }
+  return(data)
+}
+```
+
+```{r}
+# Menggabungkan data "cpu" ke "data" dengan kondisi yang dioptimalkan
+setDT(data)  # Mengubah data.frame menjadi data.table
+setDT(cpu)   # Mengubah data.frame cpu menjadi data.table
+
+coba2 <- join_and_score(data[1:1000, ], cpu)
+```
+
+```{r}
+library(stringdist)
+library(dplyr)
+
+# Fungsi untuk menghitung kesamaan antara dua teks
+similarity_and_cleanup <- function(text1, text2) {
+  # Menghilangkan tanda kurung
+  text1_no_parentheses <- gsub("\\([^)]+\\)", "", text1)
+  text2_no_parentheses <- gsub("\\([^)]+\\)", "", text2)
+  
+  # Jika teks di luar tanda kurung persis sama, kembalikan 0
+  ifelse(text1_no_parentheses == text2_no_parentheses, 0,
+    # Jika teks di luar tanda kurung tidak sama persis, cek kesamaan Jaro-Winkler di luar tanda kurung
+    ifelse(stringdist::stringdist(text1_no_parentheses, text2_no_parentheses, 
+                                  method = "jw") < 0.2, 
+      stringdist::stringdist(text1_no_parentheses, text2_no_parentheses, 
+                             method = "jw"),
+      # Jika kesamaan di luar tanda kurung lebih dari 20%, cek kesamaan di dalam tanda kurung
+      ifelse(stringdist::stringdist(gsub(".*?\\((.*?)\\).*", "\\1", text1), 
+                                   gsub(".*?\\((.*?)\\).*", "\\1", text2), 
+                                   method = "jw") >= 0.8,
+        stringdist::stringdist(gsub(".*?\\((.*?)\\).*", "\\1", text1), 
+                               gsub(".*?\\((.*?)\\).*", "\\1", text2), method = "jw"),
+        # Jika kesamaan di dalam tanda kurung kurang dari 80%, cek kesamaan tanpa tanda kurung
+        ifelse(stringdist::stringdist(text1_no_parentheses, text2_no_parentheses, 
+                                      method = "jw") >= 0.9,
+          stringdist::stringdist(text1_no_parentheses, text2_no_parentheses, 
+                                 method = "jw"),
+          # Jika tidak ada kesamaan yang memadai, kembalikan NA
+          NA
+        )
+      )
+    )
+  )
+}
+
+# Menggabungkan data "cpu" ke "data" berdasarkan kemiripan CPU
+coba <- data[1:1000,] %>%
+  mutate(
+    Similarities = sapply(CPU, function(x) similarity_and_cleanup(x, Model_cleaned)),
+    BestMatch = ifelse(Similarities > 0, Model_cleaned[which.min(Similarities)], NA),
+    `CPU Score` = ifelse(Similarities > 0, Score[which.min(Similarities)], NA)
+  ) %>% select(-Similarities)
+
 ```
 
 ```{r}
@@ -1216,7 +1694,9 @@ ggplot(data = data %>% count(`CPU Brand`) %>% # banyaknya laptop brand x
         ) 
 ```
 
-# 3. Scoring GPU
+# 7. Scoring GPU
+
+![](https://www.notebookcheck.net/fileadmin/Notebooks/Apple/apple_m1_gpu_perf.jpg){width="550"}
 
 Kami membuat Score untuk GPU dengan data benchmark dari website [notebookcheck.net](https://www.notebookcheck.net/Mobile-Graphics-Cards-Benchmark-List.844.0.html) yang berisikan score benchmark dari :
 
