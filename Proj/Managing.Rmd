@@ -1,5 +1,5 @@
 ---
-title: "Andat PSD kel 3"
+title: "Managing PSD kel 3"
 author: "Angga Fathan Rofiqy"
 date: "`r Sys.Date()`"
 output:
@@ -814,7 +814,7 @@ Ada 2 contoh untuk benchmark CPU yang populer yakni **Cinebench** dan **Geekbenc
 
 -   **Deskripsi**: Geekbench adalah benchmark CPU yang dirancang oleh Primate Labs. Ini adalah benchmark sintetis yang mengukur kinerja CPU dalam berbagai tugas pemrosesan umum, termasuk perhitungan matematika, komunikasi memori, dan pengolahan data. Geekbench tersedia untuk berbagai platform, termasuk Windows, macOS, iOS, dan Android.
 
--   **Cara Kerja**: Geekbench menjalankan sejumlah tes sintetis yang mencakup berbagai jenis operasi CPU, seperti operasi integer dan floating-point. Kemudian, hasilnya digabungkan untuk menghasilkan skor single-core dan multi-core yang mencerminkan kinerja CPU dalam aplikasi umum.
+-   **Cara Kerja**: Geekbench menjalankan sejumlah tes sintetis yang mencakup berbagai jenis operasi CPU, seperti operasi integer dan floating-point. Kemudian, hasilnya diMergekan untuk menghasilkan skor single-core dan multi-core yang mencerminkan kinerja CPU dalam aplikasi umum.
 
 -   **Penggunaan**: Geekbench adalah alat yang sering digunakan untuk membandingkan kinerja CPU dari berbagai merek dan model. Hasil Geekbench dapat memberikan gambaran umum tentang seberapa baik CPU dapat menangani berbagai tugas pemrosesan.
 
@@ -831,8 +831,8 @@ Berikut **Metode** kami :
 1.  **Scaling data benchmark**\
     Agar nilai setiap benchmark berada dalam skala yang sama (10 sampai 100)
 
-2.  **Mengubah data NA menjadi 0\
-    **Agar dapat dijumlahkan.
+2.  **Mengubah data `NA` menjadi** $0$**\
+    ***Not Available* atau Data yang tidak ada harus diubah menjadi $0$ Agar dapat dijumlahkan.
 
 3.  **Memberi Bobot pada setiap Benchmark\
     **`Chat GPT` memberi saran untuk nilai bobot masing-masing :\
@@ -863,16 +863,19 @@ Berikut **Metode** kami :
 4.  **Menjumlahkan Total Score dari masing-masing Benchmark\
     **Menggunakan `rowSums()`
 
-5.  **Membagi nya dengan banyaknya Benchmark yang bukan 0 atau NA\
-    Agar adil** harus dibagi. Jadi mirip seperti **rata-rata**. Namun bedanya jika kolom `Bechmark A` = 0. Maka tidak akan dibagi. Misalnya :\
-    `Benchmark A` : NA\
-    `Benchmark B` : NA\
-    `Benchmark C` : 1405\
-    `Benchmark D` : 3329
+5.  **Membagi nya dengan banyaknya Benchmark yang bukan** $0$ **atau `NA`\
+    Agar adil** harus dibagi. Jadi mirip seperti **rata-rata**. Namun bedanya jika kolom `Bechmark A` = $0$. Maka tidak akan dibagi. Misalnya :\
+    `Benchmark A` : `NA`\
+    `Benchmark B` : `NA`\
+    `Benchmark C` : $1405$\
+    `Benchmark D` : $3329$
 
     `Score` : $\frac{A + B + C + D}{not.NA.nor.0}$ `Score` : $\frac{0 + 0 + 1405 + 3329}{0+0+1+1}$\
     `Score` : $2367$\
     Sehingga akan diperoleh hasil yang **ADIL**
+
+6.  **Mengubah `NaN` menjadi** $0$**\
+    **Tak lupa untuk mengubah *Not a Number* menjadi $0$. Ini dihasilkan ketika satu baris $0$ semua
 
 Kenapa perlu *scaling?*. Mudahnya gini. Misalnya kita punya data dengan 2 `Score`. `Score 1` memiliki rentang nliai dari $10\ldots300$ sedangkan `Score 2` dengan rendant $1 \ldots 10$ . Untuk menghitung total score nya, tidak lah valid untuk langsung menjumlahkan nya.
 
@@ -903,17 +906,6 @@ kable(head(cpu)) %>% kable_styling(bootstrap_options = "striped", full_width = F
 ### Scoring
 
 ```{r}
-gpu.score <- gpu %>%
-  mutate_at(vars(2:ncol(gpu)), rescale, to = c(0, 10)) %>% #Scaling
-  mutate_at(vars(2:ncol(gpu)), ~ ifelse(is.na(.), 0, .)) %>% #Na = 0
-  select(-one_of("Model")) %>% #Pilih kolom benchmark
-  as.matrix() %*% diag(c(5,5,5,7,7)) %>%  #Beri bobot
-  as.data.frame() %>% 
-  mutate(Score = rowSums(across(where(is.numeric)))) %>% #Jumlahkan semua kolom
-  select(one_of("Score")) #Ambil kolom score aja
-```
-
-```{r}
 install_load('scales')
 cpu.score <- cpu %>%
   mutate_at(vars(2:ncol(cpu)), rescale, to = c(10, 100)) %>% #Scaling
@@ -925,30 +917,31 @@ cpu.score <- cpu %>%
                          8, 8, 9, 9, 6, 3, 4, 5, 5, 7)) %>%  #Beri bobot
   as.data.frame() %>% 
   mutate(Score = rowSums(across(where(is.numeric)))) %>% #Jumlahkan semua kolom
-  select(one_of("Score")) %>%  #Ambil kolom score aja
   # Bagi dengan jumlah kolom yang tidak sama dengan 0
-  mutate(Score = Score / rowSums(Score != 0)) 
-#Gabung data
+  mutate(Score = Score / rowSums(across(where(is.numeric)) != 0)) %>% 
+  mutate(Score = ifelse(is.na(Score), 0, Score)) %>% #NaN = 0
+  select(one_of("Score"))  #Ambil kolom score aja
+#Merge data ke cpu
 cpu <- bind_cols(cpu %>% select(Model),  cpu.score %>% select(Score))
 kable(head(cpu)) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
 ```
 
-### Gabung
+### Merge Data
 
 ```         
 Algoritma seperi ini : 
-gabung data "cpu" ke "data" dengan kondisi :
+Merge data "cpu" ke "data" dengan kondisi :
 Jika (kolom "CPU" pada "data" sama dengan kolom "Model" pada "cpu"){
-  Jika (sama) maka gabung; 
+  Jika (sama) maka Merge; 
   Jika (tidak sama){
     Maka cek, apakah di kedua kolom memiliki tanda kurung?{
     
       jika (ya){
         Maka cek, Apakah kesamaan di dalam tanda kurung itu mirip 80%?{
-          Jika (ya) maka gabung;
+          Jika (ya) maka Merge;
           Jika (tidak){
             Maka cek, apakah jika dihapus 'tanda kurung beserta isinya', kolom "Model" dengan kolom "CPU" 90% sama?{
-              Jika (ya) maka gabung; 
+              Jika (ya) maka Merge; 
               Jika (tidak) maka NA;
             }
           }
@@ -957,7 +950,7 @@ Jika (kolom "CPU" pada "data" sama dengan kolom "Model" pada "cpu"){
       
       Jika (tidak){
         Maka cek, apakah jika dihapus 'tanda kurung beserta isinya', kolom "Model" dengan kolom "CPU" 90% sama?{
-          Jika (ya) maka gabung; 
+          Jika (ya) maka Merge; 
           Jika (tidak) maka NA;
         }
       }
@@ -975,23 +968,23 @@ Untuk setiap baris dalam "data":
     Ambil baris pertama yang memiliki Model yang sama
     CPU_model = nilai kolom "Model" dari baris yang cocok
     Jika CPU_data sama dengan CPU_model:
-      Gabungkan nilai kolom "Score" dari baris yang cocok ke baris saat ini dalam "data"
+      Mergekan nilai kolom "Score" dari baris yang cocok ke baris saat ini dalam "data"
       
     Jika tidak sama:
       Jika CPU_data dan CPU_model memiliki tanda kurung:
       
         Jika kesamaan dalam tanda kurung antara CPU_data dan CPU_model > 80%:
-          Gabungkan nilai kolom "Score" dari baris yang cocok ke baris saat ini dalam "data"
+          Mergekan nilai kolom "Score" dari baris yang cocok ke baris saat ini dalam "data"
           
         Jika tidak:
           Jika kesamaan setelah menghapus tanda kurung antara CPU_data dan CPU_model > 90%:
-            Gabungkan nilai kolom "Score" dari baris yang cocok ke baris saat ini dalam "data"
+            Mergekan nilai kolom "Score" dari baris yang cocok ke baris saat ini dalam "data"
           Jika tidak:
             Set nilai kolom "Score" dalam baris saat ini dalam "data" menjadi NA
             
       Jika tidak memiliki tanda kurung:
         Jika kesamaan setelah menghapus tanda kurung antara CPU_data dan CPU_model > 90%:
-          Gabungkan nilai kolom "Score" dari baris yang cocok ke baris saat ini dalam "data"
+          Mergekan nilai kolom "Score" dari baris yang cocok ke baris saat ini dalam "data"
         Jika tidak:
           Set nilai kolom "Score" dalam baris saat ini dalam "data" menjadi NA
           
@@ -1000,213 +993,22 @@ Untuk setiap baris dalam "data":
 ```
 
 ```{r}
-library(data.table)
-library(stringdist)
-
-# Fungsi untuk menghitung kesamaan antara dua teks
-similarity_and_cleanup <- function(text1, text2) {
-  text1_no_parentheses <- gsub("\\([^)]+\\)", "", text1)
-  text2_no_parentheses <- gsub("\\([^)]+\\)", "", text2)
-
-  if (tolower(text1_no_parentheses) == tolower(text2_no_parentheses)) {
-    return(0)
-  } else {
-    similarity_no_parentheses <- 
-      stringdist::stringdist(tolower(text1_no_parentheses), 
-                             tolower(text2_no_parentheses), method = "jw")
-    if (similarity_no_parentheses < 0.2) {
-      return(similarity_no_parentheses)
-    } else {
-      text1_inside_parentheses <- gsub(".*?\\((.*?)\\).*", "\\1", text1)
-      text2_inside_parentheses <- gsub(".*?\\((.*?)\\).*", "\\1", text2)
-      similarity_inside_parentheses <- 
-        stringdist::stringdist(tolower(text1_inside_parentheses), 
-                               tolower(text2_inside_parentheses), method = "jw")
-      
-      if (similarity_inside_parentheses >= 0.8) {
-        return(similarity_inside_parentheses)
-      } else {
-        similarity_without_parentheses <- 
-          stringdist::stringdist(tolower(text1_no_parentheses),
-                                 tolower(text2_no_parentheses), method = "jw")
-        if (similarity_without_parentheses >= 0.9) {
-          return(similarity_without_parentheses)
-        } else {
-          return(NA)
-        }
-      }
-    }
-  }
-}
-
-# Menggabungkan data "cpu" ke "data" dengan kondisi yang dioptimalkan
-setDT(data)  # Mengubah data.frame menjadi data.table
-setDT(cpu)   # Mengubah data.frame cpu menjadi data.table
-
-# Fungsi untuk menggabungkan data berdasarkan aturan Anda
-join_and_score <- function(data, cpu) {
-  data[, BestMatch := NA_character_]
-  data[, `CPU Score` := NA_real_]
-  
-  for (i in 1:nrow(data)) {
-    current_cpu <- data[i, CPU]
-    matching_rows <- cpu[tolower(Model) == tolower(current_cpu)]
-    
-    if (nrow(matching_rows) > 0) {
-      matching_row <- matching_rows[1]
-      matching_cpu <- matching_row$Model
-      
-      if (tolower(current_cpu) == tolower(matching_cpu)) {
-        data[i, `CPU Score` := matching_row$Score]
-        data[i, BestMatch := matching_cpu]
-      } else {
-        if (grepl("\\(", current_cpu) && grepl("\\(", matching_cpu)) {
-          current_cpu_clean <- gsub(".*?\\((.*?)\\).*", "\\1", current_cpu)
-          matching_cpu_clean <- gsub(".*?\\((.*?)\\).*", "\\1", matching_cpu)
-          similarity_clean <- 
-            stringdist::stringdist(tolower(current_cpu_clean), 
-                                   tolower(matching_cpu_clean), method = "jw")
-          
-          if (similarity_clean >= 0.8) {
-            data[i, `CPU Score` := matching_row$Score]
-            data[i, BestMatch := matching_cpu]
-          } else {
-            current_cpu_no_parentheses <- gsub("\\([^)]+\\)", "", current_cpu)
-            matching_cpu_no_parentheses <- gsub("\\([^)]+\\)", "", matching_cpu)
-            similarity_no_parentheses <- 
-              stringdist::stringdist(tolower(current_cpu_no_parentheses), 
-                                     tolower(matching_cpu_no_parentheses), method = "jw")
-            
-            if (similarity_no_parentheses >= 0.9) {
-              data[i, `CPU Score` := matching_row$Score]
-              data[i, BestMatch := matching_cpu]
-            }
-          }
-        } else {
-          current_cpu_no_parentheses <- gsub("\\([^)]+\\)", "", current_cpu)
-          matching_cpu_no_parentheses <- gsub("\\([^)]+\\)", "", matching_cpu)
-          similarity_no_parentheses <- 
-            stringdist::stringdist(tolower(current_cpu_no_parentheses), 
-                                   tolower(matching_cpu_no_parentheses), method = "jw")
-          
-          if (similarity_no_parentheses >= 0.9) {
-            data[i, `CPU Score` := matching_row$Score]
-            data[i, BestMatch := matching_cpu]
-          }
-        }
-      }
-    }
-  }
-  return(data)
-}
-
-# Panggil fungsi untuk menggabungkan data
-coba2 <- join_and_score(data[1:1000, ], cpu)
-```
-
-```{r}
-library(data.table)
-library(stringdist)
-
-# Fungsi untuk menghitung kesamaan antara dua teks
-similarity_and_cleanup <- function(text1, text2) {
-  text1_no_parentheses <- gsub("\\([^)]+\\)", "", text1)
-  text2_no_parentheses <- gsub("\\([^)]+\\)", "", text2)
-
-  if (text1_no_parentheses == text2_no_parentheses) {
-    return(0)
-  } else {
-    similarity_no_parentheses <- 
-      stringdist::stringdist(text1_no_parentheses, 
-                             text2_no_parentheses, method = "jw")
-    if (similarity_no_parentheses < 0.2) {
-      return(similarity_no_parentheses)
-    } else {
-      text1_inside_parentheses <- gsub(".*?\\((.*?)\\).*", "\\1", text1)
-      text2_inside_parentheses <- gsub(".*?\\((.*?)\\).*", "\\1", text2)
-      similarity_inside_parentheses <- 
-        stringdist::stringdist(text1_inside_parentheses, 
-                               text2_inside_parentheses, method = "jw")
-      
-      if (similarity_inside_parentheses >= 0.8) {
-        return(similarity_inside_parentheses)
-      } else {
-        similarity_without_parentheses <- 
-          stringdist::stringdist(text1_no_parentheses, 
-                                 text2_no_parentheses, method = "jw")
-        if (similarity_without_parentheses >= 0.9) {
-          return(similarity_without_parentheses)
-        } else {
-          return(NA)
-        }
-      }
-    }
-  }
-}
-
-# Menggabungkan data "cpu" ke "data" dengan kondisi yang dioptimalkan
-setDT(data)  # Mengubah data.frame menjadi data.table
-setDT(cpu)   # Mengubah data.frame cpu menjadi data.table
-
-# Fungsi untuk menggabungkan data berdasarkan aturan Anda
-join_and_score <- function(data, cpu) {
-  data[, BestMatch := NA_character_]
-  data[, `CPU Score` := NA_real_]
-  
-  for (i in 1:nrow(data)) {
-    current_cpu <- data[i, CPU]
-    matching_rows <- cpu[Model == current_cpu]
-    
-    if (nrow(matching_rows) > 0) {
-      matching_row <- matching_rows[1]
-      matching_cpu <- matching_row$Model
-      
-      if (current_cpu == matching_cpu) {
-        data[i, `CPU Score` := matching_row$Score]
-      } else {
-        if (grepl("\\(", current_cpu) && grepl("\\(", matching_cpu)) {
-          current_cpu_clean <- gsub(".*?\\((.*?)\\).*", "\\1", current_cpu)
-          matching_cpu_clean <- gsub(".*?\\((.*?)\\).*", "\\1", matching_cpu)
-          similarity_clean <- 
-            stringdist::stringdist(current_cpu_clean, 
-                                   matching_cpu_clean, method = "jw")
-          
-          if (similarity_clean >= 0.8) {
-            data[i, `CPU Score` := matching_row$Score]
-          } else {
-            current_cpu_no_parentheses <- gsub("\\([^)]+\\)", "", current_cpu)
-            matching_cpu_no_parentheses <- gsub("\\([^)]+\\)", "", matching_cpu)
-            similarity_no_parentheses <- 
-              stringdist::stringdist(current_cpu_no_parentheses,
-                                     matching_cpu_no_parentheses, method = "jw")
-            
-            if (similarity_no_parentheses >= 0.9) {
-              data[i, `CPU Score` := matching_row$Score]
-            }
-          }
-        } else {
-          current_cpu_no_parentheses <- gsub("\\([^)]+\\)", "", current_cpu)
-          matching_cpu_no_parentheses <- gsub("\\([^)]+\\)", "", matching_cpu)
-          similarity_no_parentheses <- 
-            stringdist::stringdist(current_cpu_no_parentheses,
-                                   matching_cpu_no_parentheses, method = "jw")
-          
-          if (similarity_no_parentheses >= 0.9) {
-            data[i, `CPU Score` := matching_row$Score]
-          }
-        }
-      }
-    }
-  }
-  return(data)
-}
-
-# Panggil fungsi untuk menggabungkan data
-coba <- join_and_score(data[1:1000, ], cpu)
-```
-
-```{r}
 cat("Banyaknya Laptop dengan Score CPU yang NA :", sum(is.na(coba2$`CPU Score`)))
+```
+
+```{r}
+library(stringi)
+
+# Fungsi untuk mengganti karakter non-ASCII dan karakter tidak terdeteksi dengan spasi
+clean_cpu_name <- function(cpu_name) {
+  # Mengganti karakter tidak terdeteksi dengan spasi
+  cleaned_name <- gsub("[\\h\\v\\n\\r\\f\\p{C}]+", " ", cpu_name, perl = TRUE)
+  # Menghapus spasi di awal dan akhir teks
+  cleaned_name <- trimws(cleaned_name)
+  return(cleaned_name)
+}
+clean_cpu_name("AMD  Ryzen 7 6800HS")
+clean_cpu_name("AMD  Ryzen 7 6800HS") == "AMD Ryzen 7 6800HS"
 ```
 
 ```{r}
@@ -1226,18 +1028,121 @@ Jika saya cari pada sheet CPU, terlihat bahwa tidak ada CPU NA yang ditemukan.
 
 Namun jika saya cari lagi pada `website` tadi, terlihat bahawa CPU yang dicari itu ada namun dengan nama yang sedikit berbeda. Ketika saya cari-cari di `internet`, telihat bahwa **tidak ada** hasil benchmark dari `AMD Ryzen 5 5650U`. Hanya ada `AMD Ryzen 5 PRO 5650U` . Karena itu, kami memutuskan untuk menganggap bahwa kedua CPU ini sama. Maka **Algoritmanya perlu diperbaiki lagi.**
 
-Sisa nya, CPU AMD Ryzen `HS` Series & `Apple` Saya tidak menemukan nya di `website` tadi. Sehingga perlu mencari di internet dan menambahkan manual ke `sheet` `CPU`.
+![](images/Screenshot 2023-09-19 222107-01.png)
+
+Terlihat bahwa ada semacam titik yang digaris bawahi oleh oranye. Terdapat masalah karakter **`non-ASCII`** yang tidak terlihat seperti spasi biasa.
+
+![](images/Screenshot 2023-09-19 224355.png){width="286"}
+
+Sisa nya, CPU `Apple` Saya tidak menemukan nya di `website` tadi. Sehingga perlu mencari di internet dan menambahkan manual ke `sheet` `CPU`.
+
+-   `Apple M1 (10 Core CPU, 14 Core GPU)` : [cpu-monkey.com](https://www.cpu-monkey.com/en/compare_cpu-apple_m1_pro_10_cpu_14_gpu-vs-apple_m1)
+
+-   `Apple M2 10-Core GPU` : [notebookcheck.net](https://www.notebookcheck.net/Apple-M2-10-Core-GPU-Benchmarks-and-Specs.632306.0.html) & [laptopmedia.com](https://laptopmedia.com/processor/apple-m2-10-core-gpu/)\
+    Memang aneh. Namun ternyata ketika saya cek di tempat sebelumnya memang tidak ada. Welp harus masukin manual memang.
+
+-   `Apple M2 (12-core CPU, 19-core GPU)` :
 
 Hanya perlu menghapus kata "PRO" dan `Space` Berlebih pada function `join_and_score`
 
 ```{r}
-# Fungsi untuk menggabungkan data berdasarkan aturan Anda
+# Fungsi untuk mengganti karakter tidak terdeteksi dengan spasi
+clean_cpu_name <- function(cpu_name) {
+  # Mengganti karakter tidak terdeteksi dengan spasi
+  cleaned_name <- gsub("[\\h\\v\\n\\r\\f\\p{C}]+", " ", cpu_name, perl = TRUE)
+  # Menghapus spasi di awal dan akhir teks
+  cleaned_name <- trimws(cleaned_name)
+  return(cleaned_name)
+}
+
+# Fungsi untuk mengMergekan data berdasarkan aturan Anda
+join_and_score <- function(data, cpu) {
+  data[, BestMatch := NA_character_]
+  data[, `CPU Score` := NA_real_]
+  
+  # Mengganti karakter tidak terdeteksi dengan spasi pada kolom `Model` di data `cpu`
+  cpu$Model <- clean_cpu_name(gsub("PRO", "", cpu$Model, ignore.case = TRUE))
+  
+  # Mengganti karakter tidak terdeteksi dengan spasi pada kolom `CPU` di data `data`
+  data$CPU <- clean_cpu_name(gsub("PRO", "", data$CPU, ignore.case = TRUE))
+  
+  for (i in 1:nrow(data)) {
+    current_cpu <- data[i, CPU]
+    current_cpu_clean <- clean_cpu_name(current_cpu)
+    
+    matching_rows <- cpu[tolower(Model) == tolower(current_cpu_clean)]
+    
+    if (nrow(matching_rows) > 0) {
+      matching_row <- matching_rows[1]
+      matching_cpu <- matching_row$Model
+      
+      if (tolower(current_cpu_clean) == tolower(matching_cpu)) {
+        data[i, `CPU Score` := matching_row$Score]
+        data[i, BestMatch := matching_cpu]
+      } else {
+        if (grepl("\\(", current_cpu_clean) && grepl("\\(", matching_cpu)) {
+          current_cpu_clean_parentheses <- 
+            gsub(".*?\\((.*?)\\).*", "\\1", current_cpu_clean)
+          matching_cpu_clean_parentheses <- 
+            gsub(".*?\\((.*?)\\).*", "\\1", matching_cpu)
+          similarity_clean <- 
+            stringdist::stringdist(tolower(current_cpu_clean_parentheses), 
+                                   tolower(matching_cpu_clean_parentheses), 
+                                   method = "jw")
+          
+          if (similarity_clean >= 0.8) {
+            data[i, `CPU Score` := matching_row$Score]
+            data[i, BestMatch := matching_cpu]
+          } else {
+            current_cpu_no_parentheses <- gsub("\\([^)]+\\)", "", current_cpu_clean)
+            matching_cpu_no_parentheses <- gsub("\\([^)]+\\)", "", matching_cpu)
+            similarity_no_parentheses <- 
+              stringdist::stringdist(tolower(current_cpu_no_parentheses), 
+                                     tolower(matching_cpu_no_parentheses), 
+                                     method = "jw")
+            
+            if (similarity_no_parentheses >= 0.9) {
+              data[i, `CPU Score` := matching_row$Score]
+              data[i, BestMatch := matching_cpu]
+            }
+          }
+        } else {
+          current_cpu_no_parentheses <- gsub("\\([^)]+\\)", "", current_cpu_clean)
+          matching_cpu_no_parentheses <- gsub("\\([^)]+\\)", "", matching_cpu)
+          similarity_no_parentheses <- 
+            stringdist::stringdist(tolower(current_cpu_no_parentheses), 
+                                   tolower(matching_cpu_no_parentheses), 
+                                   method = "jw")
+          
+          if (similarity_no_parentheses >= 0.9) {
+            data[i, `CPU Score` := matching_row$Score]
+            data[i, BestMatch := matching_cpu]
+          }
+        }
+      }
+    }
+  }
+  return(data)
+}
+
+# MengMergekan data "cpu" ke "data" dengan kondisi yang dioptimalkan
+setDT(data)  # Mengubah data.frame menjadi data.table
+setDT(cpu)   # Mengubah data.frame cpu menjadi data.table
+
+coba2 <- join_and_score(data[1:1000, ], cpu)
+```
+
+```{r}
+# Fungsi untuk mengMergekan data berdasarkan aturan Anda
 join_and_score <- function(data, cpu) {
   data[, BestMatch := NA_character_]
   data[, `CPU Score` := NA_real_]
   
   # Menghapus kata "PRO" dan spasi berlebih dari kolom `Model` di data `cpu`
   cpu$Model <- gsub("\\s+", " ", gsub("PRO", "", cpu$Model, ignore.case = TRUE))
+  
+  # Menghapus kata "PRO" dan spasi berlebih dari kolom `CPU` di data `data`
+  data$CPU <- gsub("\\s+", " ", gsub("PRO", "", data$CPU, ignore.case = TRUE))
   
   for (i in 1:nrow(data)) {
     current_cpu <- data[i, CPU]
@@ -1296,7 +1201,7 @@ join_and_score <- function(data, cpu) {
 ```
 
 ```{r}
-# Menggabungkan data "cpu" ke "data" dengan kondisi yang dioptimalkan
+# MengMergekan data "cpu" ke "data" dengan kondisi yang dioptimalkan
 setDT(data)  # Mengubah data.frame menjadi data.table
 setDT(cpu)   # Mengubah data.frame cpu menjadi data.table
 
@@ -1339,7 +1244,7 @@ similarity_and_cleanup <- function(text1, text2) {
   )
 }
 
-# Menggabungkan data "cpu" ke "data" berdasarkan kemiripan CPU
+# MengMergekan data "cpu" ke "data" berdasarkan kemiripan CPU
 coba <- data[1:1000,] %>%
   mutate(
     Similarities = sapply(CPU, function(x) similarity_and_cleanup(x, Model_cleaned)),
@@ -1361,7 +1266,7 @@ for (i in 1:nrow(coba)) {
   if (length(matching_rows) > 0) {
     CPU_model <- cpu$Model[matching_rows[1]] # Ambil baris pertama dengan model yang sama
     if (CPU_data == CPU_model) {
-      coba$`CPU Score`[i] <- cpu$Score[matching_rows[1]] # Gabungkan nilai kolom "Score"
+      coba$`CPU Score`[i] <- cpu$Score[matching_rows[1]] # Mergekan nilai kolom "Score"
     } else {
       if (grepl("\\(", CPU_data) && grepl("\\(", CPU_model)) {
         # Jika keduanya memiliki tanda kurung, hitung kesamaan di dalam tanda kurung
@@ -1369,11 +1274,11 @@ for (i in 1:nrow(coba)) {
         CPU_model_inside <- gsub(".*?\\((.*?)\\).*", "\\1", CPU_model)
         similarity_inside <- similarity_and_cleanup(CPU_data_inside, CPU_model_inside)
         if (similarity_inside > 0.8) {
-          coba$`CPU Score`[i] <- cpu$Score[matching_rows[1]] # Gabungkan nilai kolom "Score"
+          coba$`CPU Score`[i] <- cpu$Score[matching_rows[1]] # Mergekan nilai kolom "Score"
         } else {
           similarity_no_parentheses <- similarity_and_cleanup(CPU_data, CPU_model)
           if (similarity_no_parentheses > 0.9) {
-            coba$`CPU Score`[i] <- cpu$Score[matching_rows[1]] # Gabungkan nilai kolom "Score"
+            coba$`CPU Score`[i] <- cpu$Score[matching_rows[1]] # Mergekan nilai kolom "Score"
           } else {
             coba$`CPU Score`[i] <- NA
           }
@@ -1381,7 +1286,7 @@ for (i in 1:nrow(coba)) {
       } else {
         similarity_no_parentheses <- similarity_and_cleanup(CPU_data, CPU_model)
         if (similarity_no_parentheses > 0.9) {
-          coba$`CPU Score`[i] <- cpu$Score[matching_rows[1]] # Gabungkan nilai kolom "Score"
+          coba$`CPU Score`[i] <- cpu$Score[matching_rows[1]] # Mergekan nilai kolom "Score"
         } else {
           coba$`CPU Score`[i] <- NA
         }
@@ -1440,7 +1345,7 @@ similarity_and_cleanup <- function(text1, text2) {
 # Membuat indeks Model unik dari cpu
 indeks_model_unik <- data.frame(Model = unique(cpu$Model))
 
-# Menggabungkan data "data" dan indeks_model_unik
+# MengMergekan data "data" dan indeks_model_unik
 coba <- data[1:1000,] %>%
   rowwise() %>%
   fuzzyjoin::fuzzy_left_join(indeks_model_unik, by = c("CPU" = "Model"), 
@@ -1497,7 +1402,7 @@ similarity_and_cleanup <- function(text1, text2) {
   }
 }
 
-# Menggabungkan data "cpu" ke "data" berdasarkan kemiripan CPU
+# MengMergekan data "cpu" ke "data" berdasarkan kemiripan CPU
 coba <- data[1:1000, ] %>%
   rowwise() %>%
   mutate(
@@ -1536,7 +1441,7 @@ similarity_and_cleanup <- function(text1, text2) {
   return(similarity)
 }
 
-# Menggabungkan data dan melakukan perbandingan kesamaan
+# MengMergekan data dan melakukan perbandingan kesamaan
 coba <- stringdist_left_join(
   data[10,],
   cpu,
@@ -1576,7 +1481,7 @@ similarity_and_cleanup <- function(text1, text2) {
   }
 }
 
-# Menggabungkan data dan melakukan perbandingan kesamaan
+# MengMergekan data dan melakukan perbandingan kesamaan
 coba <- stringdist_left_join(
   data[10,] %>% # Membersihkan dan menghapus tanda kurung di kedua dataset
     mutate(CPU_cleaned = gsub("\\([^)]+\\)", "", CPU)),
@@ -1605,7 +1510,7 @@ similarity_and_cleanup <- function(text1, text2) {
   return(stringdist::stringdist(text1_cleaned, text2_cleaned, method = "jw"))
 }
 
-# Menggabungkan data dan melakukan perbandingan kesamaan
+# MengMergekan data dan melakukan perbandingan kesamaan
 coba <- stringdist_left_join(
   data[10,] %>% # Membersihkan dan menghapus tanda kurung di kedua dataset
     mutate(CPU_cleaned = gsub("\\([^)]+\\)", "", CPU)),
@@ -1625,7 +1530,7 @@ View(coba)
 ```
 
 ```{r}
-# Menggabungkan data
+# MengMergekan data
 data <- data %>%
    left_join(cpu, by = c("CPU" = "Model")) %>%
   rename("CPU Score" = "Score")
@@ -1704,13 +1609,9 @@ ggplot(data = data %>% count(`CPU Brand`) %>% # banyaknya laptop brand x
 
 ![](https://www.notebookcheck.net/fileadmin/Notebooks/Apple/apple_m1_gpu_perf.jpg){width="550"}
 
-Kami membuat Score untuk GPU dengan data benchmark dari website [notebookcheck.net](https://www.notebookcheck.net/Mobile-Graphics-Cards-Benchmark-List.844.0.html) yang berisikan score benchmark dari :
+Kami membuat Score untuk GPU dengan data benchmark dari website [notebookcheck.net](https://www.notebookcheck.net/Mobile-Graphics-Cards-Benchmark-List.844.0.html) Dengan setting :
 
-1.  3DMark Ice Storm GPU
-2.  3DMark Cloud Gate GPU
-3.  3DMark11 P GPU
-4.  3DMark Fire Strike Graphics
-5.  3DMark Time Spy Graphics
+![](images/Screenshot 2023-09-19 211800.png){width="621"}
 
 Berikut **Metode** kami :
 
@@ -1773,12 +1674,12 @@ gpu.score <- gpu %>%
   as.data.frame() %>% 
   mutate(Score = rowSums(across(where(is.numeric)))) %>% #Jumlahkan semua kolom
   select(one_of("Score")) #Ambil kolom score aja
-#Gabung data
+#Merge data
 gpu <- bind_cols(gpu %>% select(Model),  gpu.score %>% select(Score))
 kable(head(gpu)) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
 ```
 
-### Gabung
+### Merge
 
 ```{r}
 install_load('stringdist','fuzzyjoin','stringi')
@@ -1791,7 +1692,7 @@ similarity_and_cleanup <- function(text1, text2) {
   return(stringdist::stringdist(text1_cleaned, text2_cleaned, method = "jw"))
 }
 
-# Menggabungkan data dan melakukan perbandingan kesamaan
+# MengMergekan data dan melakukan perbandingan kesamaan
 data <- stringdist_left_join(
   data %>% # Membersihkan dan menghapus tanda kurung di kedua dataset
     mutate(GPU_cleaned = gsub("\\([^)]+\\)", "", GPU)),
@@ -1882,7 +1783,7 @@ clean_and_lowercase <- function(text) {
   return(text)
 }
 
-# Menggabungkan data dan membersihkan mereka
+# MengMergekan data dan membersihkan mereka
 coba <- data %>% select(-"GPU Score") %>%
   mutate(GPU_cleaned = clean_and_lowercase(GPU)) %>%
   stringdist_left_join(
@@ -1970,7 +1871,7 @@ coba <- data %>% select(-"GPU Score") %>%
 ```
 
 ```{r}
-# Menggabungkan data
+# MengMergekan data
 data <- data %>%
    left_join(gpu, by = c("GPU" = "Model")) %>%
   rename("GPU Score" = "Score")

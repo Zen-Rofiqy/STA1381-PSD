@@ -1,0 +1,795 @@
+---
+title: "Managing PSD kel 3"
+author: "Angga Fathan Rofiqy"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::downcute:
+    self_contained: true
+    thumbnails: true
+    lightbox: true
+    gallery: false
+    highlight: tango
+    code_folding: hide
+---
+
+### Setting
+
+`Function` biar gak perlu ganti `backslash` (`\`) jadi `slash` (`/`).
+
+```{r}
+path <- function() gsub  ( "\\\\",  "/",  readClipboard ()  )
+#Copy path, Panggil function di console
+#Copy r path, paste ke var yang diinginkan
+```
+
+Set Working Directory
+
+```{r setup, include=FALSE, echo=FALSE}
+require("knitr")
+opts_knit$set(root.dir = "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 5/8. Pengantar Sains Data/Proj")
+```
+
+`Function` biar gak perlu repot buat `install("")` atau `load()` *package.*
+
+```{r}
+#                      -=( Install & Load Package Function )=-
+install_load <- function (package1, ...)  {   
+
+   # convert arguments to vector
+   packages <- c(package1, ...)
+
+   # start loop to determine if each package is installed
+   for(package in packages){
+
+       # if package is installed locally, load
+       if(package %in% rownames(installed.packages()))
+          do.call('library', list(package))
+
+       # if package is not installed locally, download, then load
+       else {
+          install.packages(package)
+          do.call("library", list(package))
+       }
+   } 
+}
+```
+
+`Function` `position_stack_and_nudge`
+
+```{r}
+#                          -=( GGPLOT POSITION FUNCTION )=-
+library(ggplot2)
+position_stack_and_nudge <- function(x = 0, y = 0, vjust = 1, reverse = FALSE) {
+  ggproto(NULL, PositionStackAndNudge,
+    x = x,
+    y = y,
+    vjust = vjust,
+    reverse = reverse
+  )
+}
+
+#' @rdname ggplot2-ggproto
+#' @format NULL
+#' @usage NULL
+#' @noRd
+PositionStackAndNudge <- ggproto("PositionStackAndNudge", PositionStack,
+  x = 0,
+  y = 0,
+
+  setup_params = function(self, data) {
+    c(
+        list(x = self$x, y = self$y),
+        ggproto_parent(PositionStack, self)$setup_params(data)
+    )
+  },
+
+  compute_layer = function(self, data, params, panel) {
+    # operate on the stacked positions (updated in August 2020)
+    data = ggproto_parent(PositionStack, self)$compute_layer(data, params, panel)
+
+    x_orig <- data$x
+    y_orig <- data$y
+    # transform only the dimensions for which non-zero nudging is requested
+    if (any(params$x != 0)) {
+      if (any(params$y != 0)) {
+        data <- transform_position(data, function(x) x + params$x, function(y) y + params$y)
+      } else {
+        data <- transform_position(data, function(x) x + params$x, NULL)
+      }
+    } else if (any(params$y != 0)) {
+      data <- transform_position(data, function(x) x, function(y) y + params$y)
+    }
+    data$nudge_x <- data$x
+    data$nudge_y <- data$y
+    data$x <- x_orig
+    data$y <- y_orig
+
+    data
+  },
+
+  compute_panel = function(self, data, params, scales) {
+      ggproto_parent(PositionStack, self)$compute_panel(data, params, scales)
+  }
+)
+```
+
+*Theme* *Pie Chart.*
+
+```{r}
+install_load('ggrepel')
+#                             -=( Label Pie Chart )=-
+lab.p <- list(
+  geom_label_repel( aes(label = paste0(perc,"(",n,")")),
+          position = position_stack_and_nudge(vjust = 0.5, x = 0.65),
+          direction='y', fontface = 'bold', color = 'white',
+          box.padding = unit(0.35, "lines"),
+          point.padding = unit(0.5, "lines"), segment.color = '#454545',
+          size=10) 
+)
+#                           -=( THEME Pie Chart )=-
+theme.p <- list(
+  theme_void()  , 
+        theme(
+        text = element_text(size = 36),
+        axis.text.y = element_text(vjust = .5, face = "bold"),
+        plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5) )
+)
+```
+
+`Function` *Pie Chart*
+
+```{r}
+#                           -=( Pie Chart FUNCTION )=-
+plot.p <- function(dt, title = "Pice Chart"){
+  install_load("ggplot2", "dplyr", "viridis", "ggrepel", "tidyverse",'scales')
+  #DATA FRAME
+  df <- data.frame(ket = dt) %>%
+    #Frequency
+    group_by(ket) %>%
+    count() %>%
+    ungroup() %>%
+    mutate(perc = percent(n/sum(n), accuracy = 0.1, trim = FALSE))
+  
+  #PIE CHART
+  sp <- ggplot(data=df, aes(x = "", y = n, fill = ket)) +
+          geom_col(width = 1, color = "white", linewidth = 2,
+                   position = position_stack()) +
+        coord_polar(theta = "y") +
+        scale_alpha_manual(values = c("0"=0, "1"=1, "2"=0.7), guide=F) +
+        scale_x_discrete(breaks = NULL) +
+        scale_y_continuous(breaks = NULL) +
+        labs(title = title) + #Title
+        #COLORING
+        scale_fill_viridis(alpha = 0.75, #Opacity
+                           begin = 0.2, #Color pallte scale begins
+                           end = 0.5, #Color pallte scale ends
+                           direction = -1, #Flip color scale
+                           discrete = T, #Discrete Value
+                           option = "D") + #Color Palette
+        theme.p + #Theme
+        xlab("") + ylab("") + lab.p #Labels
+return(sp)
+}
+```
+
+# Tentang Data
+
+![](images/Screenshot%202023-09-18%20072128.png){width="521"}
+
+Data kelompok kami merupakan data hasil *web scraping* dari [laptopmedia.com](https://laptopmedia.com/specs/?size=n_100_n) dengan menggunakan *extension* *`web scraper`* dari chrome. Data ini memiliki 7 peubah yakni : `Name` (Nama laptop), `Price` (Harga), `CPU`, `GPU`, `RAM`, `Display` (layar), dan `Storage`.
+
+Data tersebut perlu dibersihkan dan dimanage sehingga dapat di olah pada analisis selanjutnya.
+
+### Data input
+
+```{r}
+install_load('readxl','dplyr','kableExtra')
+data <- read_xlsx("data.xlsx", sheet="Laptop")
+data <- data[,-c(1,2)]
+cat("Jumlah Kolom:", ncol(data), "\n")
+cat("Jumlah Baris:", nrow(data), "\n")
+
+kable(head(data)) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+### Cek Missing Data
+
+Penting untuk melihat ada tidaknya missing data.
+
+```{r}
+# Mencari indeks baris dan kolom yang mengandung NA
+na.idx <- which(is.na(data), arr.ind = TRUE)
+cat("Banyaknya data NA : ", nrow(na.idx))
+
+# Menampilkan data raw dengan baris dan kolom yang mengandung NA
+install_load('kableExtra','dplyr','DT')
+
+#Menampilkan tabel
+kable(data[                        # Subsetting
+                unique(na.idx[, 1]),   # Vektor indeks baris yang mengandung NA
+                unique(na.idx[, 2])  ] # Vektor indeks kolom yang mengandung NA
+      # Style Tabel
+      ) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+### Hapus Data NA
+
+Karena peubah diatas sulit untuk diduga maka kami putuskan untuk menghapus data `NA` tersebut.
+
+```{r}
+data <- data[ -unique(na.idx[, 1]),  ]
+cat("Jumlah Baris:", nrow(data), "\n")
+```
+
+# 1. Brand Classification
+
+![](https://cdn.mypressoffice.co.za/EmbeddedResourceHandler.ashx?guid=9aea7ce743a24c01894037ed39729778){width="556"}
+
+Klasifikasi brand ini diperlukan agar kita dapat melihat lebih jelas sebaran brand yang dijual pada *e-commerce* ini maupun untuk analisis selanjutnya.
+
+```{r}
+# Install dan muat paket stringr jika belum diinstal
+install_load('stringr')
+
+# Daftar kata kunci merek
+brands <- c(
+    "HP", "Hewlett-Packard", "Acer", "Dell", "Lenovo", "ASUS",
+    "MSI", "Alienware", "Apple", "LG", "Samsung", "Aorus", "Gigabyte",
+    "Razer", "Microsoft", "Panasonic", "Chuwi", "Toshiba", "Fusion5")
+
+# Fungsi untuk menetapkan merek berdasarkan kata kunci
+assign_brand <- function(data) {
+  for (brand_keywords in brands) {
+    if (any(str_detect(tolower(data), tolower(brand_keywords)))) {
+      return(brand_keywords[1])  # Ambil merek pertama yang cocok
+    }
+  }
+  return("Tidak Diketahui")
+}
+
+# Menambahkan kolom brand berdasarkan fungsi
+data$Brand <- sapply(data$Name, assign_brand)
+
+# Tampilkan hasil
+kable(head(data)) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+### a. Sebaran Brand Laptop
+
+```{r dpi=300, fig1, fig.height = 12, fig.width = 20, fig.align = "center"}
+# Membuat bar chart persentase
+ggplot(data = data %>% count(Brand) %>% # banyaknya laptop brand x
+  mutate(perc = round(n / sum(n) * 100)), #buat persentase
+       aes(x = reorder(Brand, -n), y = perc)) +
+  geom_bar(stat = "identity", fill='#2D99AE') +
+  geom_text(aes(label = prettyNum(n,big.mark = ",")
+                ), vjust = -0.5, size = 7, col="orange4", 
+            fontface = "bold") + # Tambahkan label
+  labs(x = "Brand", y = "Persentase (%)", 
+       title = "Sebaran Brand Laptop") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  theme_minimal() + # Tambahkan tema minimal
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, 
+                                   margin = margin(b = 10)),
+        axis.text.y = element_text(vjust = .5, face = "bold", 
+                                   margin = margin(l = 20)),
+        plot.title = element_text(hjust = 0.5, face = "bold"),
+        text = element_text(size = 30),
+        plot.subtitle = element_text(hjust = 0.5)
+        ) 
+```
+
+### b. Brand to dummy variable
+
+![](https://www.statology.org/wp-content/uploads/2021/02/dummy6.png){width="444"}
+
+Singkat nya peubah Dummy memisahkan setiap kategori ke beberapa kolom. Dengan isi `1` atau `TRUE` yang kategori nya sesuai, dan `0` atau `FALSE` untuk kategori lainnya. Seperti contoh gambar di atas.
+
+Namun cara diatas sangat memakan waktu dan memakan memori. Untung nya `R` dapat mengenali lebih *advance* yakni dengan tipe variabel `factor`. Karena `factor` memiliki `level` atau urutan nilai kategori yang bisa di ubah sesuka hati. Seperti ini `factor(data$Brand, levels = c('HP','Acer',...))`. Namun untuk *default* nya, `R` mengurutkan berdasarkan abjad.
+
+Terdapat Fungsi `relevel()` yang digunakan dalam konteks peubah dummy untuk menentukan referensi atau kategori dasar. Namun ini hanya menggantikan posisi `level 1`, dengan `ref` yang diberikan. Sisanya mengurut sesuai abjad.
+
+Ketika membuat peubah dummy untuk variabel kategorikal dengan **lebih dari dua kategori**, R secara otomatis **memilih satu kategori** sebagai **referensi** dan yang lainnya sebagai peubah dummy. Referensi yang diubah **dapat mempengaruhi hasil analisis regresi** karena perubahan dalam perbandingan dengan referensi. Jadi, pemilihan referensi ini perlu diperhatikan dalam konteks analisis statistik.
+
+Berikut beberapa pertimbangan untuk memilih referensi yang baik:
+
+1.  **Interpretasi yang Jelas:** Pilih kelompok referensi yang mudah diinterpretasikan. Ini akan membuat hasil analisis lebih mudah dipahami. Misalnya, jika Anda menganalisis jenis produk (A, B, C), mungkin produk yang paling umum atau biasa digunakan adalah pilihan yang baik untuk referensi.
+
+2.  **Pentingnya Variabel:** Pilih kelompok yang memiliki relevansi atau signifikansi tertentu dalam konteks analisis Anda sebagai referensi. Ini dapat membantu Anda memahami efek perbedaan antara kelompok tersebut dengan kelompok lain.
+
+3.  **Eksplanasi Variabel Lain:** Terkadang pemilihan referensi dapat memengaruhi hasil analisis. Misalnya, dalam analisis regresi logistik, referensi dapat mempengaruhi bagaimana koefisien variabel lain diinterpretasikan.
+
+4.  **Kemudahan Analisis:** Pilih kelompok referensi yang memudahkan perbandingan dengan kelompok lainnya. Ini dapat membuat hasil analisis lebih intuitif dan bermakna.
+
+5.  **Konteks Bisnis atau Penelitian:** Pertimbangkan konteks bisnis atau penelitian Anda. Misalnya, jika Anda sedang melakukan penelitian pasar, referensi yang cocok mungkin adalah produk atau merek yang paling dikenal atau paling banyak digunakan di pasar.
+
+6.  **Efeknya pada Regresi:** Pahami bahwa pemilihan referensi dapat mempengaruhi koefisien dan interpretasi dalam analisis regresi. Koefisien peubah dummy akan mengukur perbedaan antara kelompok referensi dengan kelompok lainnya.
+
+7.  **Perbandingan yang Relevan:** Pastikan perbandingan antara kelompok lain dengan kelompok referensi memiliki makna dalam konteks analisis Anda.
+
+Untuk peubah brand, kami memilih *Brand* `HP` Sebagai referensi, karena merupakan kategori dengan jumlah terbanyak.
+
+```{r}
+data <- data %>% 
+  mutate(`Brand` = relevel(as.factor(data$Brand), ref = "HP"))
+str(data$Brand)
+levels(data$Brand)
+```
+
+# 2. Price to Numeric
+
+![](images/Screenshot%202023-09-18%20073150-01.png){width="144"}
+
+`Price` Memiliki karakter `$` yang menandakan satuan `USD`. Agar dapat dianalisis lebih lanjut, kami menghapus `$` lalu menjadikannya sebagai peubah numerik dan membaginya dengan $100$, karena 2 digit dari belakang merupakan `cent` . Selain `Price (USD)` agar memudahkan dalam membaca nilai mata uang, kami juga membuat peubah tambahan yakni `Price (IDR)` dengan mengalikan setiap $1$ `USD` dengan $15,355.40$ (Nilai $1$ `USD` ke `IDR` Sekarang).
+
+```{r}
+data <- data %>%
+  mutate(`Price (USD)` = as.numeric(gsub("\\$", "", Price)) / 100,
+         `Price (IDR)` =  `Price (USD)` * 15355.40 ) %>%
+  select(-Price)
+kable(head(data)) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+### a. Sebaran Harga Laptop
+
+```{r dpi=300, fig2, fig.height = 9, fig.width = 16, fig.align = "center"}
+install_load('ggridges','hrbrthemes','viridis')
+ggplot(data, aes(x=`Price (USD)`, y=Brand, fill=Brand)) + geom_density_ridges() +
+  #COLORING
+  scale_fill_viridis(alpha = 0.75, #Opacity
+                     begin = 0.1, #Color pallte scale begins
+                     end = 0.9, #Color pallte scale ends
+                     direction = -1, #Flip color scale
+                     discrete = T, #Discrete Value
+                     option = "D") + #Color Palette
+  theme_modern_rc(axis_title_just = "center", axis_title_size = 12) +
+  theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
+  labs(x = "\nHarga (USD)",y = "Brand Laptop\n", 
+       title = "Sebaran Harga Brand Laptop")
+```
+
+```{r}
+summary(data$`Price (USD)`)
+```
+
+```{r}
+summary(data$`Price (IDR)`)
+```
+
+Dari sebarannya, terlhiat bahwa mayoritas sebaran berdasarkan brand nya, menjulur ke kanan. Artinya lebih banyak harga laptop yang lebih murah daripada yang mahal. Sekitar $75\%$ laptop harganya dibawah $1,800\$$ ($27.6$ jt `IDR`). Harga laptop paling murah yakni $110\$$ atau sekitar $1.7$ jt `IDR`. Dan Harga laptop paling mahal yakni $11,812\$$ atau sekitar $181$ jt `IDR`.
+
+Contoh Model Linear dengan peubah dummy.
+
+```{r}
+model <- lm(`Price (USD)` ~ `Brand`,data=data)
+summary(model)
+```
+
+Terlihat bahwa tidak ada *Brand* `HP` , karena `HP` dijadikan sebagai referensi sebelumnya.
+
+# 3. RAM to Numeric
+
+![](https://cdn.slidesharecdn.com/ss_thumbnails/ram-150924144319-lva1-app6892-thumbnail.jpg?width=640&height=640&fit=bounds){width="366"}
+
+Selanjutnya, kami menghapus "GB RAM" pada `RAM` dan mengubahnya menjadi numerik agar dapat dianalisis.
+
+```{r}
+data <- data %>%
+  mutate(`Ram (GB)` = as.numeric(gsub("GB RAM", "", RAM))) %>%
+  select(-RAM)
+kable(head(data)) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+### a. Sebaran RAM Laptop
+
+```{r dpi=300, fig3, fig.height = 12, fig.width = 20, fig.align = "center"}
+# Membuat bar chart persentase
+ggplot(data = data %>% count(`Ram (GB)`) %>% # banyaknya laptop brand x
+                  mutate(perc = round(n / sum(n) * 100)), #buat persentase, 
+       aes(x = reorder(`Ram (GB)`, -n), y = perc)) +
+  geom_bar(stat = "identity", fill='#2D99AE') +
+  geom_text(aes(label = prettyNum(n,big.mark = ",")
+                ), vjust = -0.5, size = 7, col="orange4", 
+            fontface = "bold") + # Tambahkan label
+  labs(x = "RAM (GB)", y = "Persentase (%)", 
+       title = "Sebaran RAM Laptop") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  theme_minimal() + # Tambahkan tema minimal
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, 
+                                   margin = margin(b = 1)),
+        axis.text.y = element_text(vjust = .5, face = "bold", 
+                                   margin = margin(l = 20)),
+        plot.title = element_text(hjust = 0.5, vjust =0.5,
+                                  face = "bold", margin = margin(b = 50)),
+        text = element_text(size = 30),
+        plot.subtitle = element_text(hjust = 0.5)
+        ) 
+```
+
+Terlihat bahwa `RAM` laptop terbanyak memiliki kapasitas $16$GB, sedangkan yang terkecil adalah $0$GB.
+
+![](images/Screenshot%202023-09-18%20080021.png)
+
+Ini memang agak aneh, tapi setelah kami cek kembali, ternyata memang ada laptop dengan `RAM` $0$GB.
+
+# 4. Storage to Numeric
+
+![](https://foto.kontan.co.id/ndzhEdzNLaXZ3QiVe92nzpZQE9E=/smart/2020/09/21/1786193659p.jpg){width="482"}
+
+Setelah itu kami akan mengubah `Storage` Menjadi numerik dengan cara memisahkan *"SSD" & "HDD"* ke kolom `Storage Type`.
+
+```{r}
+storage <- data %>%
+mutate(`Storage (GB)` = as.numeric(str_extract(Storage, "\\d+")),
+         `Storage Type` = str_extract(Storage, "(SSD|HDD)")) %>% 
+  select(`Storage (GB)`,`Storage Type`)
+kable(head(storage)) %>% 
+  kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+### a. Sebaran Storage Laptop
+
+**Pie Chart SSD & HDD**
+
+```{r dpi=300, fig4, fig.height = 20, fig.width = 23, fig.align = 'left'}
+plot.p(dt = storage$`Storage Type`, title = "Porporsi SSD dan HDD")
+```
+
+Terlihat bahwa $94.1\%$ laptop memiliki tipe peyimpanan `SSD`. Sunggu perbedaan yang sangat jauh.
+
+**Sebaran SSD**
+
+```{r dpi=300, fig5, fig.height = 12, fig.width = 20, fig.align = "center"}
+# Membuat bar chart persentase
+ggplot(data = storage %>%
+        filter(grepl("SSD", `Storage Type`, ignore.case = TRUE))
+        %>% count(`Storage (GB)`) %>% # banyaknya laptop brand x
+                  mutate(perc = round(n / sum(n) * 100)), #buat persentase, 
+       aes(x = reorder(`Storage (GB)`, -n), y = perc)) +
+  geom_bar(stat = "identity", fill='#2D99AE') +
+  geom_text(aes(label = prettyNum(n,big.mark = ",")
+                ), vjust = -0.5, size = 7, col="orange4", 
+            fontface = "bold") + # Tambahkan label
+  labs(x = "SSD (GB)", y = "Persentase (%)", 
+       title = "Sebaran SSD Laptop") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  theme_minimal() + # Tambahkan tema minimal
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, 
+                                   margin = margin(b = 1)),
+        axis.text.y = element_text(vjust = .5, face = "bold", 
+                                   margin = margin(l = 20)),
+        plot.title = element_text(hjust = 0.5, vjust =0.5,
+                                  face = "bold", margin = margin(b = 50)),
+        text = element_text(size = 30),
+        plot.subtitle = element_text(hjust = 0.5)
+        ) 
+```
+
+Laptop dengan total penyimpanan $1000$ GigaByte ( $1$ TerraByte) `SSD` merupakan total penyimpanan yang paling banyak dimiliki oleh laptop.
+
+```{r}
+kable(data[data$`Storage` == "16GB SSD", ]) %>% 
+  kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+Memang agak mengejutkan, bahwa ternyata ada laptop yang hanya memiliki penyimpanan $16$ GB `SSD` saja. Tidak ada keterangan Bahwa laptop tersebut memiliki penyimpanan *Hybrid* dengan tambahan `HDD`. Namun kami yakin laptop tersebut pasti memiliki penyimpanan `HDD` tambahan. Karena terlihat bahwa ada laptop yang memiliki Spesifikasi gahar dengan harga yang mahal pula, namun Storage hanya $16$ GB `SSD` saja. Laptop tersebut adalah `ASUS TUF Gaming A17` dengan harga $67.4$ jt `IDR`.
+
+Tapi karena keterbatasan informasi dari data hasil *scraping.* Kami akan melanjutkan dengan data ini dahulu saja. Jika memungkinkan untuk *scraping* ulang, maka akan kami *scraping ulang.*
+
+**Sebaran HDD**
+
+```{r dpi=300, fig6, fig.height = 12, fig.width = 20, fig.align = "center"}
+# Membuat bar chart persentase
+ggplot(data = storage %>%
+        filter(grepl("HDD", `Storage Type`, ignore.case = TRUE))
+        %>% count(`Storage (GB)`) %>% # banyaknya laptop brand x
+                  mutate(perc = round(n / sum(n) * 100)), #buat persentase, 
+       aes(x = reorder(`Storage (GB)`, -n), y = perc)) +
+  geom_bar(stat = "identity", fill='#2D99AE') +
+  geom_text(aes(label = prettyNum(n,big.mark = ",")
+                ), vjust = -0.5, size = 7, col="orange4", 
+            fontface = "bold") + # Tambahkan label
+  labs(x = "HDD (GB)", y = "Persentase (%)", 
+       title = "Sebaran HDD Laptop") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  theme_minimal() + # Tambahkan tema minimal
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, 
+                                   margin = margin(b = 1)),
+        axis.text.y = element_text(vjust = .5, face = "bold", 
+                                   margin = margin(l = 20)),
+        plot.title = element_text(hjust = 0.5, vjust =0.5,
+                                  face = "bold", margin = margin(b = 50)),
+        text = element_text(size = 30),
+        plot.subtitle = element_text(hjust = 0.5)
+        ) 
+```
+
+Kebanyakan laptop dengan tipe penyimpanan `HDD` memiliki total penyimpanan $1$ TerraByte.
+
+### b. Scoring Storage
+
+*Scoring* merupakan salah satu metode untuk mengurangi adanya *autokorelasi* pada analsis regresi. Untuk mengurangi adanya *autokorelasi* pada 2 peubah diatas yakni `Storage (GB)` dengan `Storage Type`, Maka kami melakukan *scoring* dengan mempertimbangkan hal berikut:
+
+-   Dalam **hal kinerja**, `SSD` dapat diperkirakan sekitar $5$ hingga $10$ kali **lebih cepat** daripada `HDD` dalam hal **kecepatan baca/tulis data**.
+
+-   Dalam **hal harga**, `SSD` dapat diperkirakan sekitar $2$ hingga $5$ kali **lebih mahal** per gigabyte dibandingkan `HDD`.
+
+-   Dalam **hal kapasitas**, `HDD` dapat memiliki kapasitas yang lebih besar hingga $2$ hingga $4$ kali lipat dari `SSD` dalam harga yang sama.
+
+**Pemberian bobot** yang lebih merata dengan menggunakan nilai tengah seperti $\frac{7.5}{3.5}$ untuk `SSD` dan $\frac{3.5}{7.5}$ untuk `HDD` adalah pendekatan yang **lebih seimbang** dan **simetris**. Ini memberikan penekanan yang relatif setara pada kedua faktor, baik kinerja (SSD) maupun kapasitas (HDD).
+
+Pendekatan ini **menghindari** pemberian bobot yang sangat ekstrem dan cenderung memberikan penilaian yang **lebih adil** terhadap kedua faktor tersebut.
+
+```{r}
+storage <- storage %>%
+  mutate(
+    `Storage Score` = ifelse(`Storage Type` == "SSD", `Storage (GB)` * (7.5/3.5), 
+                           `Storage (GB)` * (3.5/7.5))
+  )
+kable(head(storage)) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+### c. Merge Data
+
+```{r}
+data <- data %>%
+  mutate(`Storage Score` = storage$`Storage Score`)
+kable(head(data)) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+# 5. Display Classification & Scoring
+
+![](https://qph.cf2.quoracdn.net/main-qimg-f01ec3abcc2b0e19b19243602b6fd9db-lq){width="505"}
+
+Setelah Storage, kita lanjut ke peubah selanjutnya yakni `Display`. Ada beberapa komponen dalam display, terutama pada data yang kami miliki ada 4 komponen, Yakni `Screen Size`, `Resolution`, `Refresh Rate`, dan `Screen Type`. Kami melakukan pemisahan keempat komponen tersebut menjadi 4 kolom yang berbeda.
+
+### a. Refresh Rate
+
+![](https://image.coolblue.be/content/cffb24a1579732d98944c878b448c8ec){width="512"}
+
+Ada baiknya kita mengetahui bahwa:
+
+-   **Refresh rate** mengukur berapa kali layar dapat menggambar atau memperbarui **gambar per detik**, diukur dalam `Hertz (Hz)`.
+
+-   Refresh rate yang **lebih tinggi** dapat menghasilkan tampilan yang **lebih halus**, yang bermanfaat dalam gaming dan aplikasi bergerak cepat.
+
+-   Sebagian besar laptop memiliki refresh rate 60Hz, tetapi beberapa laptop gaming mungkin memiliki refresh rate 120Hz atau bahkan lebih tinggi.
+
+Karena kami melihat banyak sekali laptop tanpa *refresh rate.* Maka kami memutuskan untuk menambahkannya dengan refresh rate minimal pada laptop.
+
+Mengutip dari `chat gpt` bahwa **nilai minimal** refresh rate `(Hz)` pada layar laptop umumnya adalah **`60Hz`**. Layar dengan refresh rate `60Hz` sudah cukup umum digunakan dan memberikan tampilan yang lancar untuk sebagian besar tugas komputasi sehari-hari. Beberapa laptop gaming dan monitor mungkin memiliki refresh rate yang lebih tinggi, seperti `120Hz`, `144Hz`, atau bahkan lebih tinggi, yang dirancang untuk memberikan pengalaman gaming yang lebih halus.
+
+Refresh rate `30Hz` mungkin **terlalu rendah** dan dapat menyebabkan tampilan layar terlihat kurang responsif dan cenderung "berkedip" dalam beberapa kasus. Oleh karena itu, kami memutuskan untuk memberikan nilai `60Hz` kepada laptop yang tidak memiliki keterangan *refresh rate*.
+
+```{r}
+display <- data %>%
+  separate(Display, into = c("Screen Size (Inch)", "Resolution", 
+                             "Screen Type","Refresh Rate (Hz)" ), 
+           sep = ", ", remove = FALSE) %>%
+  mutate(
+    # Menghapus karakter " dan mengubah menjadi numerik
+    `Screen Size (Inch)` = as.numeric(gsub("[^0-9.]", "", `Screen Size (Inch)`)), 
+    #Tukar Kolom jika ada hz
+    temp = `Refresh Rate (Hz)`,
+    #Ubah hz jadi numerik
+    `Refresh Rate (Hz)` = ifelse(grepl("Hz", `Screen Type`), 
+                                 as.numeric(gsub("[^0-9.]", "", `Screen Type`)), 
+                      #Jika tidak ada, beri nilai minimal hz laptop yakni 60 hz
+                                 60), 
+    `Screen Type` = ifelse(grepl("Hz", `Screen Type`), temp, `Screen Type`)
+  ) %>%
+  select(`Screen Size (Inch)`, Resolution, `Screen Type`, `Refresh Rate (Hz)`)
+kable(head(display)) %>% 
+  kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+### Cek NA
+
+```{r}
+cat(" Jumlah Screen Size NA  :", sum(is.na(display$`Screen Size (Inch)`)), "\n",
+     "Jumlah Resolution NA   :", sum(is.na(display$Resolution)), "\n",
+     "Jumlah Screen Type NA  :", sum(is.na(display$`Screen Type`)), "\n",
+     "Jumlah Refresh Rate NA :", sum(is.na(display$`Refresh Rate (Hz)`)), "\n"
+    )
+na.idx <- which(is.na(display[,3]), arr.ind = TRUE)
+kable(data[ unique(na.idx[, 1]), unique(na.idx[, 2]) +3 ]) %>% 
+  kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+### b.1 Tipe Layar
+
+![](https://1.bp.blogspot.com/-_KgnaIgNqWA/YUyyjn3zXOI/AAAAAAAAIy0/caDzBcT5XuMX85NuhMw7G7lo9-qKDkIGQCLcBGAsYHQ/s1429/ASUS%2BOLED%2B03.jpg){width="636"}
+
+Penting untuk mengetahui bahwa:
+
+-   Tipe layar mengacu pada teknologi yang digunakan dalam pembuatan layar.
+
+-   Beberapa tipe layar umum meliputi:
+
+    -   **IPS (In-Plane Switching):** Layar jenis ini dikenal dengan sudut pandang yang luas dan reproduksi warna yang baik.
+
+    -   **OLED (Organic Light-Emitting Diode):** OLED menghasilkan warna yang kaya dan kontras tinggi.
+
+    -   **LCD (Liquid Crystal Display):** Layar LCD adalah jenis yang umum dan cenderung lebih terjangkau.
+
+    -   **TN (Twisted Nematic):** Biasanya digunakan dalam layar murah dan memiliki sudut pandang yang lebih terbatas.
+
+-   Tipe layar dapat mempengaruhi kualitas tampilan, reproduksi warna, dan sudut pandang.
+
+Seperti yang kita lihat pada `###Cek NA`, Yang `NA` Hanya tersisa pada *Screen Type* saja. Karena setiap layar pasti memiliki tipe nya oleh karena itu kami menanyakan kepada `chat gpt` *"Apa tipe layar minimal pada laptop?"* Berikut ulasannnya :\
+**Tipe layar minimal laptop** adalah **layar LCD** (Liquid Crystal Display). Layar LCD adalah teknologi layar yang paling umum digunakan dalam laptop dan perangkat komputer lainnya. LCD menggunakan kristal cair yang berada di antara dua lapisan kaca yang kemudian dikendalikan untuk mengatur cahaya dan menghasilkan gambar.
+
+Dengan demikian kami memutuskan untuk menambahkan Tipe LCD ke kolom *Screen Type* yang `NA`
+
+```{r}
+display <- display %>% 
+  mutate(`Screen Type` = ifelse(is.na(`Screen Type`), "LCD", `Screen Type`))
+kable(
+  display %>%
+  group_by(`Screen Type`) %>%
+  summarise(Total = n())
+) %>%  kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+### b.2 Screen Type Value Number
+
+Setelah melihat semua tipe layar yang ada, kami ingin mengubah tipe layar tersebut menjadi numerik berdasarkan kualitas nilai mereka. Kami meminta bantuan `chat gpt` untuk memberikan nilai tersebut. Sebelum itu penting untuk mengetahui kualitas tipe layar yang ada, sebagai berikut:
+
+1.  **OLED (Organic Light-Emitting Diode):**
+
+    -   OLED memiliki kualitas gambar yang luar biasa dengan kontras yang sangat tinggi, warna yang tajam, dan sudut pandang yang luas.
+
+    -   Reproduksi warna pada layar OLED sangat akurat dan hidup.
+
+    -   Tidak ada pencahayaan latar belakang, sehingga hitam murni dan kecerahan yang luar biasa.
+
+    -   Biasanya digunakan dalam TV premium dan beberapa monitor kelas atas.
+
+2.  **IPS (In-Plane Switching):**
+
+    -   IPS menawarkan reproduksi warna yang sangat baik dan sudut pandang yang luas.
+
+    -   Kontras yang baik dan gambar yang tajam, meskipun tidak sebaik OLED.
+
+    -   Digunakan dalam monitor profesional, laptop, dan beberapa TV.
+
+3.  **LCD (Liquid Crystal Display):**
+
+    -   LCD dengan panel IPS atau VA dapat memberikan kualitas gambar yang baik dengan harga yang lebih terjangkau.
+
+    -   Kualitas gambar bisa bervariasi tergantung pada jenis panel LCD.
+
+    -   Digunakan dalam berbagai perangkat, termasuk monitor, laptop, dan TV.
+
+4.  **TN (Twisted Nematic):**
+
+    -   TN memiliki waktu respon yang sangat cepat, cocok untuk permainan.
+
+    -   Namun, sudut pandang yang terbatas dan reproduksi warna yang kurang akurat.
+
+    -   Digunakan dalam monitor gaming yang terjangkau.
+
+Sehingga jika diberi nilai akan menjadi:
+
+1.  OLED (Organic Light-Emitting Diode): 9
+
+    -   OLED memiliki kualitas gambar terbaik dengan kontras tinggi, warna hidup, dan sudut pandang yang luas. Oleh karena itu, kita memberikan nilai tertinggi.
+
+2.  IPS (In-Plane Switching): 7
+
+    -   IPS menawarkan kualitas gambar yang sangat baik dan sudut pandang yang luas, meskipun tidak sebaik OLED. Tetapi nilai ini tetap tinggi karena IPS masih merupakan pilihan yang sangat baik.
+
+3.  LCD (Liquid Crystal Display): 5
+
+    -   LCD dengan panel IPS atau VA dapat memberikan kualitas gambar yang baik dengan harga yang lebih terjangkau. Nilai ini mencerminkan kualitas yang baik tetapi tidak sebaik OLED atau IPS.
+
+4.  TN (Twisted Nematic): 3
+
+    -   TN memiliki waktu respon yang cepat, tetapi sudut pandang yang terbatas dan reproduksi warna yang kurang akurat. Oleh karena itu, nilai ini lebih rendah.
+
+```{r}
+display <- display %>%
+  mutate(
+    `Screen Type` = case_when(
+      `Screen Type` == "OLED" ~ "9",  `Screen Type` == "IPS" ~ "7",   
+      `Screen Type` == "LCD" ~ "5",   `Screen Type` == "TN" ~ "3",    
+      TRUE ~ `Screen Type`
+    ), `Screen Type` = as.numeric(`Screen Type`)
+  )
+kable(head(display)) %>% 
+  kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+### c.1 Resolusi layar
+
+![](https://cdn.britannica.com/52/241752-050-39026C33/display-resolution-television-tv-screen.jpg){width="654"}
+
+Penting untuk mengetahui apa itu resolusi layar.
+
+-   Resolusi adalah jumlah piksel yang dapat ditampilkan pada layar.
+
+-   Resolusi umumnya diukur dalam format "lebar x tinggi" (misalnya, 1920 x 1080), yang menunjukkan jumlah piksel horizontal dan vertikal yang terdapat pada layar.
+
+-   Semakin tinggi resolusi, semakin tajam dan detail tampilan gambar dan teksnya.
+
+Karena kami lihat banyak sekali jenis resolusi layar yang punya nama, jadi kami memutuskan untuk **melihat semua jenis** nya.
+
+```{r}
+kable(
+  display %>%
+  group_by(`Resolution`) %>%
+  summarise(Total = n())
+) %>%  kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+Terlihat bahwa semua namanya adalah seberapa besar **kualitas resolusinya**, *Kecuali `PixelSense`*.
+
+**PixelSense** adalah tipe layar yang digunakan pada perangkat *Microsoft Surface*. Ini adalah **layar sentuh** yang sangat responsif dan mendukung penggunaan pena digital. Layar ini dirancang untuk produktivitas dan kreativitas.
+
+Karena perbedaan inilah, kami memutuskan untuk memberikan bobot pada tipe layar *PixelSense*, dengan *PixelSense* $(1.125)$ dan *PixelSense Flow* $(1.25)$.
+
+*"PixelSense"* dan *"PixelSense Flow"* memiliki karakteristik yang berbeda dalam hal kualitas gambar atau kemampuan layarnya. Sehingga memberikan bobot yang sedikit lebih tinggi kepada *"PixelSense Flow"* $(1.25)$ cukup mencerminkan perbedaan ini.
+
+### c.2 Multiply Resolution
+
+Setelah eksplorasi tentang macam-macam tipe layar dan memberi bobot pada mereka, kami akan mengalikan resolusi tersebut. Sehingga resmi menjadi peubah numerik.
+
+```{r}
+display <- display %>% 
+  mutate( # Mencari semua kemungkinan pasangan angka dalam kolom "Resolution"
+    Resolution_Num = str_extract_all(Resolution, "\\d{2,}"),
+    # Mengambil pasangan angka yang memiliki dua angka di dalamnya
+    Resolution_Num = sapply(Resolution_Num, 
+                            function(x) if (length(x) == 2) paste(x, collapse = "x") else NA)
+  ) %>% # Pisahkan "Width" dan "Height" dari "Resolution_Num"
+  separate(Resolution_Num, into = c("Width", "Height"), sep = "x", 
+           convert = TRUE, remove = FALSE) %>% 
+# Berikan bobot jika ada kata PixelSense dalam kolom resolusi
+  mutate(
+    Resolution = ifelse(grepl("PixelSense", Resolution), 
+                              Width * Height * 1.125, 
+                              Width * Height)
+  ) %>% select(-Resolution_Num, -Width, -Height) 
+kable(head(display)) %>%  kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+### d. Display Score
+
+Akhirnya setelah mengubah keempat peubah display diatas menjadi numerik, kami akan menghitung *total score* yang dimiliki. *Scoring* merupakan salah satu metode untuk mengurangi adanya *autokorelasi* pada analsis regresi. Adapun formula untuk *display score:*
+
+$$
+\frac{\mathbf{Resolution\times Screen.Type}}
+{\mathbf{Screen.Size}} + \mathbf{Refresh.Rate}
+$$
+
+`Resolution` dan `Screen Type` merupakan hal yang berfokus pada kualitas visual dan bisa dipadukan satu sama lain. Akan tetapi hal itu akan sia-sia jika `Screen Size` nya kecil. Bayangkan anda memiliki resolusi dan tipe layar yang tinggi, namun ukuran layar anda kecil. Apa yang ingin anda liat? Apakah anda menatap layar sangat dengat dengan mata anda? Tentu saja tidak!
+
+Berbeda dengan `Refresh Rate` yang berfokus pada kecepatan layar. Baik kualitas visual maupun ukuran tidak terlalu mempengaruhi nilai nya. Sehingga kaidah *score* nya dibuat terpisah dengan penjumlahan.
+
+```{r}
+display <- display %>% 
+  mutate_all(rescale, to = c(10, 100)) %>% 
+  mutate(`Display Score` = ((Resolution * `Screen Type`) / 
+                             `Screen Size (Inch)`) + `Refresh Rate (Hz)`)
+kable(head(display)) %>% 
+  kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+### Merge Data
+
+```{r}
+data <- data %>% bind_cols(`Display Score` = display$`Display Score`)
+kable(head(data)) %>% 
+  kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+# Referensi
+
+-   Theme : [Rmd Themes](https://cran.r-project.org/web/packages/rmdformats/readme/README.html)
+
+-   Hide Code : [Hide Code In RMD](https://bookdown.org/yihui/rmarkdown-cookbook/fold-show.html)
