@@ -14,9 +14,9 @@
 | `G1401211072`  |  Ignacia Manuela Bregina          |
 | `G1401211105`  |  Angel Martha Pradina Pangaribuan |
 ## Keterangan  
-1. Managing.rmd
+1. **Managing.rmd**  
    Manage & Cleaning data
-2. Analyze.rmd
+2. **Analyze.rmd**  
    Analisis data
   
 ## Link RPUBS  
