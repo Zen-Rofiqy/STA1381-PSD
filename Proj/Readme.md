@@ -1,30 +1,18 @@
 # Kelompok 3 Pararel 2  
 ### Anggota :  
-* G1401211004 - Asfiah Adiba
-* G1401211006 - Angga Fathan Rofiqy
-* G1401211015 - Farik Firsteadi Haristiyanto
-* G1401211016 - Aida Darajati
-* G1401211018 - Muhammad Farras Surya Dio Putra
-* G1401211024 - Davina Rachmadyanti
-* G1401211026 - Salsabila Dwi Rahmi
-* G1401211035 - Dinda Khamila Nurfatimah
-* G1401211041 - Andi Fatihatul Fuadiyah
-* G1401211072 - Ignacia Manuela Bregina
-* G1401211105 - Angel Martha Pradina Pangaribuan
-
 |    **NIM**   |              **Nama**             |
 |:------------:|:---------------------------------:|
-| G1401211004  |  Asfiah Adiba                     |
-| G1401211006  |  Angga Fathan Rofiqy              |
-| G1401211015  |  Farik Firsteadi Haristiyanto     |
-| G1401211016  |  Aida Darajati                    |
-| G1401211018  |  Muhammad Farras Surya Dio Putra  |
-| G1401211024  |  Davina Rachmadyanti              |
-| G1401211026  |  Salsabila Dwi Rahmi              |
-| G1401211035  |  Dinda Khamila Nurfatimah         |
-| G1401211041  |  Andi Fatihatul Fuadiyah          |
-| G1401211072  |  Ignacia Manuela Bregina          |
-| G1401211105  |  Angel Martha Pradina Pangaribuan |
+| `G1401211004`  |  Asfiah Adiba                     |
+| `G1401211006`  |  Angga Fathan Rofiqy              |
+| `G1401211015`  |  Farik Firsteadi Haristiyanto     |
+| `G1401211016`  |  Aida Darajati                    |
+| `G1401211018`  |  Muhammad Farras Surya Dio Putra  |
+| `G1401211024`  |  Davina Rachmadyanti              |
+| `G1401211026`  |  Salsabila Dwi Rahmi              |
+| `G1401211035`  |  Dinda Khamila Nurfatimah         |
+| `G1401211041`  |  Andi Fatihatul Fuadiyah          |
+| `G1401211072`  |  Ignacia Manuela Bregina          |
+| `G1401211105`  |  Angel Martha Pradina Pangaribuan |
 ## Keterangan  
 1. Managing.rmd
    Manage & Cleaning data
