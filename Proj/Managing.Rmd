@@ -2,7 +2,14 @@
 title: "Andat PSD kel 3"
 author: "Angga Fathan Rofiqy"
 date: "`r Sys.Date()`"
-output: html_document
+output:
+  rmdformats::downcute:
+    self_contained: true
+    thumbnails: true
+    lightbox: true
+    gallery: false
+    highlight: tango
+    code_folding: hide
 ---
 
 ### Setting
@@ -168,7 +175,7 @@ return(sp)
 
 # Tentang Data
 
-![](images/Screenshot 2023-09-18 072128.png){width="521"}
+![](images/Screenshot%202023-09-18%20072128.png){width="521"}
 
 Data kelompok kami merupakan data hasil *web scraping* dari [laptopmedia.com](https://laptopmedia.com/specs/?size=n_100_n) dengan menggunakan *extension* *`web scraper`* dari chrome. Data ini memiliki 7 peubah yakni : `Name` (Nama laptop), `Price` (Harga), `CPU`, `GPU`, `RAM`, `Display` (layar), dan `Storage`.
 
@@ -313,7 +320,7 @@ levels(data$Brand)
 
 # 2. Price to Numeric
 
-![](images/Screenshot 2023-09-18 073150-01.png){width="144"}
+![](images/Screenshot%202023-09-18%20073150-01.png){width="144"}
 
 `Price` Memiliki karakter `$` yang menandakan satuan `USD`. Agar dapat dianalisis lebih lanjut, kami menghapus `$` lalu menjadikannya sebagai peubah numerik dan membaginya dengan $100$, karena 2 digit dari belakang merupakan `cent` . Selain `Price (USD)` agar memudahkan dalam membaca nilai mata uang, kami juga membuat peubah tambahan yakni `Price (IDR)` dengan mengalikan setiap $1$ `USD` dengan $15,355.40$ (Nilai $1$ `USD` ke `IDR` Sekarang).
 
@@ -404,7 +411,7 @@ ggplot(data = data %>% count(`Ram (GB)`) %>% # banyaknya laptop brand x
 
 Terlihat bahwa `RAM` laptop terbanyak memiliki kapasitas $16$GB, sedangkan yang terkecil adalah $0$GB.
 
-![](images/Screenshot 2023-09-18 080021.png)
+![](images/Screenshot%202023-09-18%20080021.png)
 
 Ini memang agak aneh, tapi setelah kami cek kembali, ternyata memang ada laptop dengan `RAM` $0$GB.
 
@@ -813,7 +820,7 @@ Ada 2 contoh untuk benchmark CPU yang populer yakni **Cinebench** dan **Geekbenc
 
 Kami membuat Score untuk CPU dengan data benchmark dari website [notebookcheck.net](https://www.notebookcheck.net/Mobile-Processors-Benchmark-List.2436.0.html) dengan setting :
 
-![](images/Screenshot 2023-09-18 165425.png){width="734"}
+![](images/Screenshot%202023-09-18%20165425.png){width="734"}
 
 *Setting* ini agar mendapatkan seluruh data yang kami perlukan. Pastikan ***Checklist semua***yang ada **kecuali** `Show single scores on hover` , `Show only itmes with known benchmark results` , `Show Percent` dan `Still available (not archived)`.
 
@@ -829,7 +836,7 @@ Berikut **Metode** kami :
 
 3.  **Memberi Bobot pada setiap Benchmark\
     **`Chat GPT` memberi saran untuk nilai bobot masing-masing :\
-    ![](images/Screenshot 2023-09-18 140457.png)\
+    ![](images/Screenshot%202023-09-18%20140457.png)\
     Dengan cara perkalian matriks antara data benchmark $(\mathbf{B})$ dengan matriks diagonal bobot $(\mathbf{D})$:
 
     $$
@@ -857,20 +864,19 @@ Berikut **Metode** kami :
     **Menggunakan `rowSums()`
 
 5.  **Membagi nya dengan banyaknya Benchmark yang bukan 0 atau NA\
-    Agar adil** harus dibagi. Jadi mirip seperti **rata-rata**. Namun bedanya jika kolom `Bechmark A` = 0. Maka tidak akan dibagi. Misalnya : \
+    Agar adil** harus dibagi. Jadi mirip seperti **rata-rata**. Namun bedanya jika kolom `Bechmark A` = 0. Maka tidak akan dibagi. Misalnya :\
     `Benchmark A` : NA\
     `Benchmark B` : NA\
     `Benchmark C` : 1405\
     `Benchmark D` : 3329
 
-    `Score` : $\frac{A + B + C + D}{not.NA.nor.0}$
-    `Score` : $\frac{0 + 0 + 1405 + 3329}{0+0+1+1}$\
+    `Score` : $\frac{A + B + C + D}{not.NA.nor.0}$ `Score` : $\frac{0 + 0 + 1405 + 3329}{0+0+1+1}$\
     `Score` : $2367$\
     Sehingga akan diperoleh hasil yang **ADIL**
 
 Kenapa perlu *scaling?*. Mudahnya gini. Misalnya kita punya data dengan 2 `Score`. `Score 1` memiliki rentang nliai dari $10\ldots300$ sedangkan `Score 2` dengan rendant $1 \ldots 10$ . Untuk menghitung total score nya, tidak lah valid untuk langsung menjumlahkan nya.
 
-![](images/Screenshot 2023-09-18 090033.png){width="257"}
+![](images/Screenshot%202023-09-18%20090033.png){width="257"}
 
 Maka dari itu perlu scaling. Antara mengubah ke rentang skala `Score 1` atau mengubah ke `Score 2`. Seperti ini:
 
@@ -878,7 +884,7 @@ Maka dari itu perlu scaling. Antara mengubah ke rentang skala `Score 1` atau men
 rescale(c(10, 200, 230, 300), to = c(1, 10))
 ```
 
-![](images/Screenshot 2023-09-18 093917.png){width="240"}
+![](images/Screenshot%202023-09-18%20093917.png){width="240"}
 
 Pada kasus `Score CPU` , *Score* ini tidak memiliki rentang nilai yang pasti ($0 \ldots \infty$). Sehingga cukup `rescale(data, to = c(10, 100))` saja. Kami mengambil nilai terkecil yakni $10$ dan nilai terbesar yakni $100$ Sedangkan $0$ untuk yang `NA`.
 
@@ -1212,11 +1218,11 @@ cat("Banyaknya CPU dng Score yang NA :", nrow(NA.CPU.Score))
 kable(NA.CPU.Score) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
 ```
 
-![](images/Screenshot 2023-09-18 102128.png){width="527"}
+![](images/Screenshot%202023-09-18%20102128.png){width="527"}
 
 Jika saya cari pada sheet CPU, terlihat bahwa tidak ada CPU NA yang ditemukan.
 
-![](images/Screenshot 2023-09-18 103135.png)
+![](images/Screenshot%202023-09-18%20103135.png)
 
 Namun jika saya cari lagi pada `website` tadi, terlihat bahawa CPU yang dicari itu ada namun dengan nama yang sedikit berbeda. Ketika saya cari-cari di `internet`, telihat bahwa **tidak ada** hasil benchmark dari `AMD Ryzen 5 5650U`. Hanya ada `AMD Ryzen 5 PRO 5650U` . Karena itu, kami memutuskan untuk menganggap bahwa kedua CPU ini sama. Maka **Algoritmanya perlu diperbaiki lagi.**
 
@@ -2046,3 +2052,9 @@ install_load('openxlsx')
 write.xlsx(list("Data" = data, "Data NA=0" = data0, "Regresi" = reg), 
            file = "managed.xlsx")
 ```
+
+# Referensi
+
+-   Theme : [Rmd Themes](https://cran.r-project.org/web/packages/rmdformats/readme/README.html)
+
+-   Hide Code : [Hide Code In RMD](https://bookdown.org/yihui/rmarkdown-cookbook/fold-show.html)
