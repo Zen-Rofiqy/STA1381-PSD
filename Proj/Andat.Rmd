@@ -1,0 +1,55 @@
+---
+title: "Analisis Data PSD Kel 3"
+author: "Angga Fathan Rofiqy"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::downcute:
+    self_contained: true
+    thumbnails: true
+    lightbox: true
+    gallery: false
+    highlight: tango
+    code_folding: hide
+---
+
+### I. Setting
+
+`Function` biar gak perlu ganti `backslash` (`\`) jadi `slash` (`/`).
+
+```{r, warning=FALSE, message = FALSE}
+path <- function() gsub  ( "\\\\",  "/",  readClipboard ()  )
+#Copy path, Panggil function di console
+#Copy r path, paste ke var yang diinginkan
+```
+
+Set Working Directory
+
+```{r setup, include=FALSE, echo=FALSE, warning=FALSE, message = FALSE}
+require("knitr")
+opts_knit$set(root.dir = "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 5/8. Pengantar Sains Data/Proj")
+```
+
+`Function` biar gak perlu repot buat `install("")` atau `load()` *package.*
+
+```{r, warning=FALSE, message = FALSE}
+#                      -=( Install & Load Package Function )=-
+install_load <- function (package1, ...)  {   
+
+   # convert arguments to vector
+   packages <- c(package1, ...)
+
+   # start loop to determine if each package is installed
+   for(package in packages){
+
+       # if package is installed locally, load
+       if(package %in% rownames(installed.packages()))
+          do.call('library', list(package))
+
+       # if package is not installed locally, download, then load
+       else {
+          install.packages(package)
+          do.call("library", list(package))
+       }
+   } 
+}
+```
