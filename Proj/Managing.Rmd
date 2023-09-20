@@ -257,20 +257,21 @@ kable(head(data)) %>% kable_styling(bootstrap_options = "striped", full_width = 
 
 ### a. Sebaran Brand Laptop
 
-```{r dpi=300, fig1, fig.height = 12, fig.width = 20, fig.align = "center"}
+```{r dpi=300, fig1, fig.height = 14, fig.width = 20, fig.align = "center", warning=FALSE}
 # Membuat bar chart persentase
 ggplot(data = data %>% count(Brand) %>% # banyaknya laptop brand x
   mutate(perc = round(n / sum(n) * 100)), #buat persentase
        aes(x = reorder(Brand, -n), y = perc)) +
   geom_bar(stat = "identity", fill='#2D99AE') +
   geom_text(aes(label = prettyNum(n,big.mark = ",")
-                ), vjust = -0.5, size = 7, col="orange4", 
+                ), vjust = -0.5, size = 8, col="orange4", 
             fontface = "bold") + # Tambahkan label
-  labs(x = "Brand", y = "Persentase (%)", 
+  labs(x = "\nBrand", y = "Persentase (%)", 
        title = "Sebaran Brand Laptop") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  theme_modern_rc(axis_title_just = "center", base_size = 25, 
+                  axis_title_size = 30, plot_title_size = 35) +
   scale_y_continuous(labels = scales::percent_format(scale = 1)) +
-  theme_minimal() + # Tambahkan tema minimal
   theme(axis.text.x = element_text(angle = 45, hjust = 1, 
                                    margin = margin(b = 10)),
         axis.text.y = element_text(vjust = .5, face = "bold", 
@@ -344,7 +345,8 @@ ggplot(data, aes(x=`Price (USD)`, y=Brand, fill=Brand)) + geom_density_ridges() 
                      direction = -1, #Flip color scale
                      discrete = T, #Discrete Value
                      option = "D") + #Color Palette
-  theme_modern_rc(axis_title_just = "center", axis_title_size = 12) +
+  theme_modern_rc(axis_title_just = "center", base_size = 16, 
+                  axis_title_size = 25, plot_title_size = 30) +
   theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
   labs(x = "\nHarga (USD)",y = "Brand Laptop\n", 
        title = "Sebaran Harga Brand Laptop")
@@ -384,20 +386,21 @@ kable(head(data)) %>% kable_styling(bootstrap_options = "striped", full_width = 
 
 ### a. Sebaran RAM Laptop
 
-```{r dpi=300, fig3, fig.height = 12, fig.width = 20, fig.align = "center"}
+```{r dpi=300, fig3, fig.height = 14, fig.width = 20, fig.align = "center", warning=FALSE}
 # Membuat bar chart persentase
 ggplot(data = data %>% count(`Ram (GB)`) %>% # banyaknya laptop brand x
                   mutate(perc = round(n / sum(n) * 100)), #buat persentase, 
        aes(x = reorder(`Ram (GB)`, -n), y = perc)) +
   geom_bar(stat = "identity", fill='#2D99AE') +
   geom_text(aes(label = prettyNum(n,big.mark = ",")
-                ), vjust = -0.5, size = 7, col="orange4", 
+                ), vjust = -0.5, size = 8, col="orange4", 
             fontface = "bold") + # Tambahkan label
-  labs(x = "RAM (GB)", y = "Persentase (%)", 
+  labs(x = "\nRAM (GB)", y = "Persentase (%)", 
        title = "Sebaran RAM Laptop") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  theme_modern_rc(axis_title_just = "center", base_size = 25, 
+                  axis_title_size = 30, plot_title_size = 35) +
   scale_y_continuous(labels = scales::percent_format(scale = 1)) +
-  theme_minimal() + # Tambahkan tema minimal
   theme(axis.text.x = element_text(angle = 45, hjust = 1, 
                                    margin = margin(b = 1)),
         axis.text.y = element_text(vjust = .5, face = "bold", 
@@ -442,7 +445,7 @@ Terlihat bahwa $94.1\%$ laptop memiliki tipe peyimpanan `SSD`. Sunggu perbedaan 
 
 **Sebaran SSD**
 
-```{r dpi=300, fig5, fig.height = 12, fig.width = 20, fig.align = "center"}
+```{r dpi=300, fig5, fig.height = 14, fig.width = 20, fig.align = "center", warning=FALSE}
 # Membuat bar chart persentase
 ggplot(data = storage %>%
         filter(grepl("SSD", `Storage Type`, ignore.case = TRUE))
@@ -451,13 +454,14 @@ ggplot(data = storage %>%
        aes(x = reorder(`Storage (GB)`, -n), y = perc)) +
   geom_bar(stat = "identity", fill='#2D99AE') +
   geom_text(aes(label = prettyNum(n,big.mark = ",")
-                ), vjust = -0.5, size = 7, col="orange4", 
+                ), vjust = -0.5, size = 8, col="orange4", 
             fontface = "bold") + # Tambahkan label
-  labs(x = "SSD (GB)", y = "Persentase (%)", 
+  labs(x = "\nSSD (GB)", y = "Persentase (%)", 
        title = "Sebaran SSD Laptop") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  theme_modern_rc(axis_title_just = "center", base_size = 25, 
+                  axis_title_size = 30, plot_title_size = 35) +
   scale_y_continuous(labels = scales::percent_format(scale = 1)) +
-  theme_minimal() + # Tambahkan tema minimal
   theme(axis.text.x = element_text(angle = 45, hjust = 1, 
                                    margin = margin(b = 1)),
         axis.text.y = element_text(vjust = .5, face = "bold", 
@@ -482,7 +486,7 @@ Tapi karena keterbatasan informasi dari data hasil *scraping.* Kami akan melanju
 
 **Sebaran HDD**
 
-```{r dpi=300, fig6, fig.height = 12, fig.width = 20, fig.align = "center"}
+```{r dpi=300, fig6, fig.height = 14, fig.width = 20, fig.align = "center", warning=FALSE}
 # Membuat bar chart persentase
 ggplot(data = storage %>%
         filter(grepl("HDD", `Storage Type`, ignore.case = TRUE))
@@ -491,13 +495,14 @@ ggplot(data = storage %>%
        aes(x = reorder(`Storage (GB)`, -n), y = perc)) +
   geom_bar(stat = "identity", fill='#2D99AE') +
   geom_text(aes(label = prettyNum(n,big.mark = ",")
-                ), vjust = -0.5, size = 7, col="orange4", 
+                ), vjust = -0.5, size = 10, col="orange4", 
             fontface = "bold") + # Tambahkan label
-  labs(x = "HDD (GB)", y = "Persentase (%)", 
+  labs(x = "\nHDD (GB)", y = "Persentase (%)", 
        title = "Sebaran HDD Laptop") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  theme_modern_rc(axis_title_just = "center", base_size = 25, 
+                  axis_title_size = 30, plot_title_size = 35) +
   scale_y_continuous(labels = scales::percent_format(scale = 1)) +
-  theme_minimal() + # Tambahkan tema minimal
   theme(axis.text.x = element_text(angle = 45, hjust = 1, 
                                    margin = margin(b = 1)),
         axis.text.y = element_text(vjust = .5, face = "bold", 
@@ -1147,20 +1152,21 @@ data <- data %>%
   ))
 ```
 
-```{r dpi=300, fig7, fig.height = 12, fig.width = 20, fig.align = "center"}
+```{r dpi=300, fig7, fig.height = 14, fig.width = 20, fig.align = "center", warning=FALSE}
 # Membuat bar chart persentase
 ggplot(data = data %>% count(`CPU Brand`) %>% # banyaknya laptop brand x
                   mutate(perc = round(n / sum(n) * 100)), #buat persentase, 
        aes(x = reorder(`CPU Brand`, -n), y = perc)) +
   geom_bar(stat = "identity", fill='#2D99AE') +
   geom_text(aes(label = prettyNum(n,big.mark = ",")
-                ), vjust = -0.5, size = 7, col="orange4", 
+                ), vjust = -0.5, size = 10, col="orange4", 
             fontface = "bold") + # Tambahkan label
   labs(x = "Brand", y = "Persentase (%)", 
        title = "Sebaran Brand GPU Laptop") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  theme_modern_rc(axis_title_just = "center", base_size = 25, 
+                  axis_title_size = 30, plot_title_size = 35) +
   scale_y_continuous(labels = scales::percent_format(scale = 1)) +
-  theme_minimal() + # Tambahkan tema minimal
   theme(axis.text.x = element_text(angle = 45, hjust = 1, 
                                    margin = margin(b = 1)),
         axis.text.y = element_text(vjust = .5, face = "bold", 
@@ -1188,6 +1194,8 @@ ggplot(data, aes(x=`CPU Score`, y='')) +
   geom_boxplot(fill='orange', color='black',
                      outlier.size=4, outlier.color='orange', 
                      alpha=0.7, notch=T, width=0.2) +
+  #Mean Marker
+  stat_summary(fun = mean, geom = "point", shape = 16, size = 4, color = "cyan3") +
   #COLORING
   scale_fill_viridis(alpha = 0.75, #Opacity
                      begin = 0.1, #Color pallte scale begins
@@ -1195,17 +1203,18 @@ ggplot(data, aes(x=`CPU Score`, y='')) +
                      direction = -1, #Flip color scale
                      discrete = T, #Discrete Value
                      option = "D") + #Color Palette
-  theme_modern_rc(axis_title_just = "center", axis_title_size = 12) +
+  theme_modern_rc(axis_title_just = "center", base_size = 15, 
+                  axis_title_size = 25, plot_title_size = 30) +
   theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
-  labs(x = "\nCPU Score", 
+  labs(x = "\nCPU Score", y="", 
        title = "Sebaran CPU Score")
 ```
 
-Jika melihat pada density plot nya, terlihat bahwa sebarannya memiliki *trimodal*, atau 3 puncak. Dengan median atau nilai tengahnya yang hampir berada di tengah atau sekitar yang terlihat pada
+Jika melihat pada violin plot nya, terlihat bahwa sebarannya memiliki *trimodal*, atau 3 puncak. Dengan median atau nilai tengahnya yang hampir berada di tengah atau sekitar yang terlihat pada $260$ Score. Nilai itu berdekatan dengan nilai Mean nya yang ditandai dengan warna biru muda. Dari boxplotnya saja memang terlihat berpusat pada nilai tengahnya. Namun berkat adanya violin plot, kita dapat melihat bahwa ini merupakan ***trimodal distribution**.*
 
 **Sebaran CPU Score Per Brand**
 
-```{r dpi=300, fig8, fig.height = 9, fig.width = 16, fig.align = "center"}
+```{r dpi=300, fig8, fig.height = 9, fig.width = 16, fig.align = "center", warning=FALSE}
 install_load('ggridges','hrbrthemes','viridis')
 ggplot(data, aes(x=`CPU Score`, y=`CPU Brand`, fill=`CPU Brand`)) + 
   geom_density_ridges() +
@@ -1216,15 +1225,36 @@ ggplot(data, aes(x=`CPU Score`, y=`CPU Brand`, fill=`CPU Brand`)) +
                      direction = -1, #Flip color scale
                      discrete = T, #Discrete Value
                      option = "D") + #Color Palette
-  theme_modern_rc(axis_title_just = "center", axis_title_size = 12) +
+  theme_modern_rc(axis_title_just = "center", base_size = 15, 
+                  axis_title_size = 25, plot_title_size = 30) +
   theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
   labs(x = "\nCPU Score",y = "Brand CPU\n", 
        title = "Sebaran CPU Score Per Brand")
 ```
 
+Sedangkan jika berdasarkan brand nya. Sebaran nya seperti berikut.
+
 # 7. Scoring GPU
 
 ![](https://www.notebookcheck.net/fileadmin/Notebooks/Apple/apple_m1_gpu_perf.jpg){width="550"}
+
+Mirip seperti `CPU` lah pokoknya. Salah satu contoh *benchmark* `GPU` yang terkenal adalah **3DMARK.**
+
+![](https://play3r.net/wp-content/uploads/2015/07/3DMark.jpg){width="548"}
+
+**3DMark** adalah sebuah aplikasi benchmark yang digunakan untuk mengukur dan membandingkan kinerja komputer, khususnya dalam hal grafis dan gaming. Ini adalah salah satu alat yang paling populer digunakan oleh gamer, pengembang perangkat keras, dan pengguna komputer umum untuk menguji sejauh mana kemampuan grafis komputer mereka.
+
+3DMark mencakup berbagai tes yang dirancang untuk mengukur berbagai aspek kinerja grafis, termasuk:
+
+1.  **Graphics Test**: Ini mengukur kemampuan kartu grafis dalam menghasilkan grafik yang rumit dan berkinerja tinggi dalam permainan 3D. Grafik yang lebih baik, seperti tekstur, efek cahaya, bayangan, dan partikel, digunakan dalam pengujian ini untuk memeriksa kemampuan kartu grafis.
+
+2.  **Physics Test**: Ini mengukur seberapa baik CPU dan GPU bekerja bersama dalam mengelola fisika simulasi dalam permainan. Ini mencakup simulasi pergerakan benda, tabrakan, dan lainnya.
+
+3.  **Combined Test**: Ini adalah kombinasi dari tes grafis dan fisik untuk mengukur kinerja total sistem saat menjalankan permainan 3D yang intensif.
+
+4.  **Time Spy (DX12) dan Fire Strike (DX11)**: Ini adalah dua benchmark yang populer yang mendukung teknologi grafis DirectX 12 dan DirectX 11. Mereka menguji kemampuan komputer Anda dalam menjalankan game yang sesuai dengan teknologi tersebut.
+
+Hasil benchmark 3DMark digunakan untuk membandingkan komputer atau kartu grafis berbeda dalam hal kinerja grafis. Semakin tinggi skor yang diperoleh dalam tes 3DMark, semakin baik kemampuan grafis komputer tersebut. Selain itu, hasil benchmark juga dapat digunakan untuk menentukan apakah komputer Anda mampu menjalankan permainan tertentu dengan baik atau memerlukan peningkatan perangkat keras.
 
 Kami membuat Score untuk GPU dengan data benchmark dari website [notebookcheck.net](https://www.notebookcheck.net/Mobile-Graphics-Cards-Benchmark-List.844.0.html) Dengan setting :
 
@@ -1235,17 +1265,16 @@ Berikut **Metode** kami :
 1.  **Scaling data benchmark**\
     Agar nilai setiap benchmark berada dalam skala yang sama (10 sampai 100)
 
-2.  **Mengubah data NA menjadi 0\
-    **Agar dapat dijumlahkan.
+2.  **Mengubah data `NA` menjadi** $0$**\
+    ***Not Available* atau Data yang tidak ada harus diubah menjadi $0$ Agar dapat dijumlahkan.
 
 3.  **Memberi Bobot pada setiap Benchmark\
-    **AI memberi saran untuk nilai bobot masing-masing :\
-    ![](images/Screenshot%202023-09-06%20231040.png){width="411"}
-
-4.  Dengan cara perkalian matriks antara data benchmark $(\mathbf{B})$ dengan matriks diagonal bobot $(\mathbf{D})$:
+    **`Chat GPT` memberi saran untuk nilai bobot masing-masing :\
+    ![](images/Screenshot 2023-09-20 091849.png)\
+    Dengan cara perkalian matriks antara data benchmark $(\mathbf{B})$ dengan matriks diagonal bobot $(\mathbf{D})$:
 
     $$
-    \mathbf{B}_{n\times11} \boldsymbol{\cdot} \mathbf{D}_{11\times11} 
+    \mathbf{B}_{n\times24} \boldsymbol{\cdot} \mathbf{D}_{24\times24} 
     $$\
     dimana $n=$ Banyaknya baris data
 
@@ -1256,76 +1285,189 @@ Berikut **Metode** kami :
        b_{n.1} & b_{n.2} & \cdots & b_{n.11}\\
     \end{pmatrix}
     \boldsymbol{\cdot}
-    \begin{pmatrix}   
-       5 & 0 & 0 & 0 & 0 \\   
-       0 & 5 & 0 & 0 & 0 \\   
-       0 & 0 & 5 & 0 & 0 \\   
-       0 & 0 & 0 & 7 & 0 \\ 
-       0 & 0 & 0 & 0 & 7   
+    \begin{pmatrix}      
+    1 & 0 & 0 & \cdots & 0 \\      
+    0 & 2 & 0 & \cdots & 0 \\      
+    0 & 0 & 1 & \cdots & 0 \\      
+    \vdots & \vdots & \vdots & \ddots & \vdots \\    
+    0 & 0 & 0 & \cdots & 1   
     \end{pmatrix}
     $$
 
-5.  **Menjumlahkan Total Score dari masing-masing Benchmark\
-    **Dengan begini, Score GPU pun diperoleh.
+4.  **Menjumlahkan Total Score dari masing-masing Benchmark\
+    **Menggunakan `rowSums()`
 
-### Seleksi Data
+5.  **Membagi nya dengan banyaknya Benchmark yang bukan** $0$ **atau `NA`\
+    Agar adil** harus dibagi. Jadi mirip seperti **rata-rata**. Namun bedanya jika kolom `Bechmark A` = $0$. Maka tidak akan dibagi. Misalnya :\
+    `Benchmark A` : `NA`\
+    `Benchmark B` : `NA`\
+    `Benchmark C` : $1405$\
+    `Benchmark D` : $3329$
+
+    `Score` : $\frac{A + B + C + D}{not.NA.nor.0}$ `Score` : $\frac{0 + 0 + 1405 + 3329}{0+0+1+1}$\
+    `Score` : $2367$\
+    Sehingga akan diperoleh hasil yang **ADIL**
+
+6.  **Mengubah `NaN` menjadi** $0$**\
+    **Tak lupa untuk mengubah *Not a Number* menjadi $0$. Ini dihasilkan ketika satu baris $0$ semua
+
+### a. Seleksi Data
 
 ```{r}
-#Data Benchmark CPU
-gpu <- read_xlsx("data.xlsx", sheet="GPU") %>%
-       select(1, 11:ncol(.)) %>% #Ambil data benchmark nya saja 
-  #Ubah jadi numerik, hapus n123
-  mutate_at(vars(-1), ~as.numeric(gsub("n[0-9]+$", "", .))) #Ubah jadi numerik
+#Data Benchmark GPU
+gpu <- read_xlsx("data_new.xlsx", sheet="GPU") %>%
+       select(1, 18:ncol(.)) %>% #Ambil data benchmark nya saja 
+  #Hapus selain numerik dan setelahnya, lalu Ubah jadi numerik
+  mutate_at(vars(-1), ~as.numeric(gsub("[^0-9.].*$", "", .))) 
 cat("Jumlah Baris:", nrow(gpu), "\n")
 kable(head(gpu)) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
 ```
 
-### Scoring
+### b. Scoring
 
 ```{r}
 gpu.score <- gpu %>%
-  mutate_at(vars(2:ncol(gpu)), rescale, to = c(0, 10)) %>% #Scaling
+  mutate_at(vars(2:ncol(gpu)), rescale, to = c(10, 100)) %>% #Scaling
   mutate_at(vars(2:ncol(gpu)), ~ ifelse(is.na(.), 0, .)) %>% #Na = 0
   select(-one_of("Model")) %>% #Pilih kolom benchmark
-  as.matrix() %*% diag(c(5,5,5,7,7)) %>%  #Beri bobot
+  as.matrix() %*% diag(c(1, 2, 1, 1, 1, 3, 2, 3,
+                         2, 1, 1, 2, 1, 2, 3, 2, 
+                         3, 2, 2, 2, 2, 1, 2, 2)) %>%  #Beri bobot
   as.data.frame() %>% 
   mutate(Score = rowSums(across(where(is.numeric)))) %>% #Jumlahkan semua kolom
-  select(one_of("Score")) #Ambil kolom score aja
-#Merge data
+  # Bagi dengan jumlah kolom yang tidak sama dengan 0
+  mutate(Score = Score / rowSums(across(where(is.numeric)) != 0)) %>% 
+  mutate(Score = ifelse(is.na(Score), 0, Score)) %>% #NaN = 0
+  select(one_of("Score"))  #Ambil kolom score aja
+#Merge data ke cpu
 gpu <- bind_cols(gpu %>% select(Model),  gpu.score %>% select(Score))
 kable(head(gpu)) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
 ```
 
-### Merge
+### c. Merge Data
+
+Agak disayangkan, kami blm berhasil membuat fungsi `join_and_score` bisa digunakan untuk data `gpu` juga. Tapi tidak apa, kami hanya perlu mengganti cpu ke gpu
 
 ```{r}
-install_load('stringdist','fuzzyjoin','stringi')
-# Fungsi untuk menghitung kesamaan antara dua teks
-similarity_and_cleanup <- function(text1, text2) {
-  # Menghilangkan tanda kurung dan mengganti beberapa spasi dengan satu spasi
-  text1_cleaned <- gsub("\\s+", " ", gsub("\\([^)]+\\)", "", tolower(text1)))
-  text2_cleaned <- gsub("\\s+", " ", gsub("\\([^)]+\\)", "", tolower(text2)))
-  
-  return(stringdist::stringdist(text1_cleaned, text2_cleaned, method = "jw"))
+# Fungsi untuk mengganti karakter tidak terdeteksi dengan spasi
+clean_name <- function(name) {
+  # Mengganti karakter tidak terdeteksi dengan spasi
+  cleaned_name <- gsub("[\\h\\v\\n\\r\\f\\p{C}]+", " ", name, perl = TRUE)
+  # Menghapus spasi di awal dan akhir teks
+  cleaned_name <- trimws(cleaned_name)
+  return(cleaned_name)
 }
 
-# MengMergekan data dan melakukan perbandingan kesamaan
-data <- stringdist_left_join(
-  data %>% # Membersihkan dan menghapus tanda kurung di kedua dataset
-    mutate(GPU_cleaned = gsub("\\([^)]+\\)", "", GPU)),
-  gpu %>%
-    mutate(Model_cleaned = gsub("\\([^)]+\\)", "", Model)),
-  by = c("GPU_cleaned" = "Model_cleaned"),
-  method = "jw",
-  max_dist = 0.2
-) %>%
-  rowwise() %>%
-  mutate(
-    GPU_final = ifelse(similarity_and_cleanup(GPU, Model) < 0.2, Model, GPU)
-  ) %>%
-  select(-Model_cleaned, -GPU_cleaned, -GPU_final, -Model) %>% rename("GPU Score" = "Score")
+# Fungsi untuk mencari model GPU yang paling mirip
+find_similar <- function(target, data) {
+  
+  #adis untuk menghitung jarak (distance) antara target_gpu dan setiap model GPU
+  distances <- adist(target, data$Model, 
+  #untuk memungkinkan pencocokan parsial (hanya sebagian dari string yang cocok)
+                     partial = TRUE, 
+  #ase-insensitive, sehingga tidak memedulikan huruf besar atau kecil.
+                     ignore.case = TRUE)
+  #mencari indeks model dengan jarak terkecil (yang paling mirip) 
+  best_match_index <- which.min(distances)
+  best_match_model <- gpu_data$Model[best_match_index]
+  return(best_match_model)
+}
 
-kable(head(data)) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
+# Fungsi untuk mengMergekan data jika ada yang sama
+join_and_score2 <- function(data, gpu) {
+  #Buat Kolom baru, set sebagai NA
+  data[, BestMatch := NA_character_]
+  data[, `GPU Score` := NA_real_]
+  
+  # Mengganti karakter tidak terdeteksi dengan spasi pada kolom `Model` di data `gpu`
+  gpu$Model <- clean_name(gsub("PRO", "", gpu$Model, ignore.case = TRUE))
+  
+  # Mengganti karakter tidak terdeteksi dengan spasi pada kolom `GPU` di data `data`
+  data$GPU <- clean_name(gsub("PRO", "", data$GPU, ignore.case = TRUE))
+  
+  for (i in 1:nrow(data)) {
+    #Ambil dan bersihkan kolom GPU pada data baris i
+    current_gpu <- clean_name(data[i, GPU])
+    
+    #Cari Model yang sama dengan GPU pada data baris i
+    matching_rows <- gpu[tolower(Model) == tolower(current_gpu)] #Lowercase
+    
+    #Jika sama 100%, maka gabung
+    if (nrow(matching_rows) > 0) {
+      #[1] artinya Jika lebih dari 2, ambil yang pertama
+      data[i, `GPU Score` := matching_rows[1]$Score] 
+      data[i, BestMatch := matching_rows[1]$Model]
+      
+    #Jika tidak ada yang sama, maka cek kesamaan
+    } else { 
+      matching_rows <- cpu[stringdist::stringdist(tolower(Model), 
+                                                tolower(current_cpu), 
+                                                method = "jw") >= 0.9]
+      matching_rows <- cpu[find_similar(current_gpu, gpu),]
+      #Jika ada yang mirip, maka gabung
+        if (nrow(matching_rows) > 0) {
+          #[1] artinya Jika lebih dari 2, ambil yang pertama
+          data[i, `GPU Score` := matching_rows[1]$Score] 
+          data[i, BestMatch := matching_rows[1]$Model]
+          
+        #Jika tidak ada yang sama, maka cek kesamaan
+        }
+      }
+  }
+  return(data)
+}
+
+# MengMergekan data "cpu" ke "data" dengan kondisi yang dioptimalkan
+setDT(data)  # Mengubah data.frame menjadi data.table
+setDT(gpu)   # Mengubah data.frame cpu menjadi data.table
+
+#Panggil fungsi
+coba <- join_and_score2(data[1:1000,], gpu)
+```
+
+```{r}
+cat("Banyaknya Laptop dengan Score GPU yang NA :", sum(is.na(coba$`GPU Score`)))
+```
+
+```{r}
+NA.gpu_score <- coba %>%
+  group_by(GPU) %>% 
+  summarise(NA.gpu_score = sum(is.na(`GPU Score`))) %>%
+  filter(NA.gpu_score > 0)
+cat("Banyaknya GPU dng Score yang NA :", nrow(NA.gpu_score))
+kable(NA.gpu_score) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+```{r}
+current_gpu <- "AMD Radeon RX Vega 6 (R2000/3000, 15W)"
+current_gpu_no_parentheses <- gsub("\\([^)]+\\)", "", current_gpu)
+
+coba <- gpu[stringdist::stringdist(
+            #Cari Model tanpa tanda kurung yang mirip sekitar 90% 
+            #dengan GPU data tanpa tanda kurung
+                        tolower(gsub("\\([^)]+\\)", "", Model)), 
+                        tolower(current_gpu_no_parentheses), 
+                        method = "jw") >= 0.90, ]
+install_load('fuzzywuzzyR')
+# Fungsi untuk mencari model GPU yang paling mirip
+find_similar <- function(target, data) {
+  
+  #adis untuk menghitung jarak (distance) antara target_gpu dan setiap model GPU
+  distances <- adist(target, data$Model, 
+  #untuk memungkinkan pencocokan parsial (hanya sebagian dari string yang cocok)
+                     partial = TRUE, 
+  #ase-insensitive, sehingga tidak memedulikan huruf besar atau kecil.
+                     ignore.case = TRUE)
+  #mencari indeks model dengan jarak terkecil (yang paling mirip) 
+  best_match_index <- which.min(distances)
+  best_match_model <- data$Model[best_match_index]
+  return(best_match_model)
+}
+
+current_gpu <- "AMD Radeon RX Vega 6 (R2000/3000, 15W)"
+coba <- find_similar(current_gpu, gpu)
+
+print(coba)
 ```
 
 ### Cek NA
@@ -1578,3 +1720,100 @@ write.xlsx(list("Data" = data, "Data NA=0" = data0, "Regresi" = reg),
 -   Hide Code : [Hide Code In RMD](https://bookdown.org/yihui/rmarkdown-cookbook/fold-show.html)
 
 -   Notes : [Hanya Orang Gabut yang baca ini](https://github.com/Zen-Rofiqy/STA1381-PSD/blob/main/Proj/Curhat.txt)
+
+### Arsip
+
+![](images/Screenshot 2023-09-20 153804.png)
+
+```{r, eval=FALSE, warning=FALSE}
+# Fungsi untuk mengganti karakter tidak terdeteksi dengan spasi
+clean_name <- function(name) {
+  # Mengganti karakter tidak terdeteksi dengan spasi
+  cleaned_name <- gsub("[\\h\\v\\n\\r\\f\\p{C}]+", " ", name, perl = TRUE)
+  # Menghapus spasi di awal dan akhir teks
+  cleaned_name <- trimws(cleaned_name)
+  return(cleaned_name)
+}
+
+# Fungsi untuk mengMergekan data berdasarkan Algoritma
+join_and_score <- function(data, cpu) {
+  #Buat Kolom baru, set sebagai NA
+  data[, BestMatch := NA_character_]
+  data[, `CPU Score` := NA_real_]
+  
+  # Mengganti karakter tidak terdeteksi dengan spasi pada kolom `Model` di data `cpu`
+  cpu$Model <- clean_name(gsub("PRO", "", cpu$Model, ignore.case = TRUE))
+  
+  # Mengganti karakter tidak terdeteksi dengan spasi pada kolom `CPU` di data `data`
+  data$CPU <- clean_name(gsub("PRO", "", data$CPU, ignore.case = TRUE))
+  
+  for (i in 1:nrow(data)) {
+    #Ambil dan bersihkan kolom CPU pada data baris i
+    current_cpu <- clean_name(data[i, CPU])
+    
+    #Cari Model yang sama dengan CPU pada data baris i
+    matching_rows <- cpu[tolower(Model) == tolower(current_cpu)] #Lowercase
+    
+    #Jika sama 100%, maka gabung
+    if (nrow(matching_rows) > 0) {
+      #[1] artinya Jika lebih dari 2, ambil yang pertama
+      data[i, `CPU Score` := matching_rows[1]$Score] 
+      data[i, BestMatch := matching_rows[1]$Model]
+      
+    #Jika tidak ada yang sama, maka bersihkan
+    } else { 
+      
+        #Cek CPU pada data apakah punya tanda kurung?
+        if (grepl("\\(", current_cpu)) {
+          
+            #Cek apakah luar kurung nya mirip 90%?
+            #Hapus tanda kurung & isinya
+            current_cpu_no_parentheses <- gsub("\\([^)]+\\)", "", current_cpu)
+            
+            
+            matching_rows <- cpu[stringdist::stringdist(
+            #Cari Model tanpa tanda kurung yang mirip sekitar 90% 
+            #dengan CPU data tanpa tanda kurung
+                        tolower(gsub("\\([^)]+\\)", "", Model)), 
+                        tolower(current_cpu_no_parentheses), 
+                        method = "jw") >= 0.90 & 
+            #Sekaligus cek apakah isi dalam tanda kurung keduanya
+            #mirip 80%?
+                        stringdist::stringdist(
+                            tolower(gsub(".*?\\((.*?)\\).*", "\\1", Model)), 
+                            tolower(gsub(".*?\\((.*?)\\).*", "\\1", current_cpu)), 
+                            method = "jw") >= 0.80]
+            
+            #Jika Ya
+            if (nrow(matching_rows) > 0){
+                #Maka gabung
+                data[i, `CPU Score` := matching_rows[1]$Score] 
+                data[i, BestMatch := matching_rows[1]$Model]
+            } 
+            
+        #Jika tidak ada tanda kurung
+        #Cek apakah mirip 90%?
+        } else {
+          matching_rows <- cpu[stringdist::stringdist(tolower(Model), 
+                                                tolower(current_cpu), 
+                                                method = "jw") >= 0.9]
+          
+          #Jika mirip 90%
+          if (nrow(matching_rows) > 0) {
+            #Maka gabung
+            data[i, `CPU Score` := matching_rows[1]$Score] 
+            data[i, BestMatch := matching_rows[1]$Model]
+          }
+        }
+      }
+  }
+  return(data)
+}
+
+# MengMergekan data "cpu" ke "data" dengan kondisi yang dioptimalkan
+setDT(data)  # Mengubah data.frame menjadi data.table
+setDT(cpu)   # Mengubah data.frame cpu menjadi data.table
+
+#Panggil fungsi
+data <- join_and_score(data, cpu)
+```
