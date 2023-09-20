@@ -901,7 +901,7 @@ Pada kasus `Score CPU` , *Score* ini tidak memiliki rentang nilai yang pasti ($0
 
 ```{r, warning=FALSE, message = FALSE}
 #Data Benchmark CPU
-cpu <- read_xlsx("data_new.xlsx", sheet="CPU") %>%
+cpu <- read_xlsx("data.xlsx", sheet="CPU") %>%
        select(1, 15:ncol(.)) %>% #Ambil data benchmark nya saja 
   #Hapus selain numerik dan setelahnya, lalu Ubah jadi numerik
   mutate_at(vars(-1), ~as.numeric(gsub("[^0-9.].*$", "", .))) 
@@ -1351,7 +1351,7 @@ Berikut **Metode** kami :
 
 ```{r, warning=FALSE, message = FALSE}
 #Data Benchmark GPU
-gpu <- read_xlsx("data_new.xlsx", sheet="GPU") %>%
+gpu <- read_xlsx("data.xlsx", sheet="GPU") %>%
        select(1, 18:ncol(.)) %>% #Ambil data benchmark nya saja 
   #Hapus selain numerik dan setelahnya, lalu Ubah jadi numerik
   mutate_at(vars(-1), ~as.numeric(gsub("[^0-9.].*$", "", .))) 
