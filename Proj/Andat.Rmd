@@ -1,5 +1,5 @@
 ---
-title: "Analisis Data PSD Kel 3"
+title: \vspace{3.5in}"Analisis Data PSD Kel 3"
 author: "Angga Fathan Rofiqy"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
@@ -7,13 +7,33 @@ output:
     self_contained: true
     thumbnails: true
     lightbox: true
-    gallery: false
+    gallery: true
     highlight: tango
     code_folding: hide
     toc_depth: 3
+    number_sections: true
+    fig_caption: true
 pkgdown:
   as_is: true
 ---
+
+\newpage
+
+# adds new page after title
+
+\tableofcontents \# adds table of contents
+
+\listoffigures
+
+# fig1
+
+\listoftables
+
+# tab1
+
+\newpage
+
+# page2
 
 ### I. Setting
 
@@ -60,12 +80,38 @@ install_load <- function (package1, ...)  {
 ### Data Input
 
 ```{r, warning=FALSE, message = FALSE}
-install_load('readxl','dplyr','kableExtra')
+install_load('readxl','dplyr','kableExtra','DT')
 raw.data <- read_xlsx("managed.xlsx", sheet="Data")
 cat("Jumlah Kolom:", ncol(data), "\n")
 cat("Jumlah Baris:", nrow(data), "\n")
 
-kable(head(raw.data)) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
+datatable(raw.data)
+```
+
+```{r dpi=300, fig1, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+install_load('hrbrthemes','ggplot2')
+# Membuat bar chart persentase
+ggplot(data = raw.data %>% count(Brand) %>% # banyaknya laptop brand x
+  mutate(perc = round(n / sum(n) * 100)), #buat persentase
+       aes(x = reorder(Brand, -n), y = perc)) +
+  geom_bar(stat = "identity", fill='#2D99AE') +
+  geom_text(aes(label = prettyNum(n,big.mark = ",")
+                ), vjust = -0.5, size = 8, col="orange4", 
+            fontface = "bold") + # Tambahkan label
+  labs(x = "\nBrand", y = "Persentase (%)", 
+       title = "Sebaran Brand Laptop") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  theme_modern_rc(axis_title_just = "center", base_size = 25, 
+                  axis_title_size = 30, plot_title_size = 35) +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, 
+                                   margin = margin(b = 10)),
+        axis.text.y = element_text(vjust = .5, face = "bold", 
+                                   margin = margin(l = 20)),
+        plot.title = element_text(hjust = 0.5, face = "bold"),
+        text = element_text(size = 30),
+        plot.subtitle = element_text(hjust = 0.5)
+        ) 
 ```
 
 # H1
@@ -110,8 +156,18 @@ Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gin
 
 # Referensi
 
+-   Rmd : [Read This Nerd!](https://bookdown.org/yihui/rmarkdown-cookbook/kableextra.html)
+
+-   DT : [DT](https://rstudio.github.io/DT/)
+
 -   Theme : [Rmd Themes](https://cran.r-project.org/web/packages/rmdformats/readme/README.html)
 
 -   Hide Code : [Hide Code In RMD](https://bookdown.org/yihui/rmarkdown-cookbook/fold-show.html)
 
+-   Kable : [Kable1](https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html), [Kable2](https://haozhu233.github.io/kableExtra/kableExtra_in_other_HTML_themes.html)
+
+-   Other Rmd settings : [Set1](https://stackoverflow.com/questions/23957278/how-to-add-table-of-contents-in-rmarkdown), [Set2](https://www.overleaf.com/learn/latex/Table_of_contents)
+
 -   Notes : [Hanya Orang Gabut yang baca ini](https://github.com/Zen-Rofiqy/STA1381-PSD/blob/main/Proj/Curhat.txt)
+
+-   <https://packer.john-coene.com/#/guide/style>
