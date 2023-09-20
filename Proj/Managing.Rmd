@@ -1,7 +1,7 @@
 ---
 title: "Managing PSD kel 3"
 author: "Angga Fathan Rofiqy"
-date: "`r Sys.Date()`"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
   rmdformats::downcute:
     self_contained: true
