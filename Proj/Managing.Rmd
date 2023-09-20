@@ -16,7 +16,7 @@ output:
 
 `Function` biar gak perlu ganti `backslash` (`\`) jadi `slash` (`/`).
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 path <- function() gsub  ( "\\\\",  "/",  readClipboard ()  )
 #Copy path, Panggil function di console
 #Copy r path, paste ke var yang diinginkan
@@ -24,14 +24,14 @@ path <- function() gsub  ( "\\\\",  "/",  readClipboard ()  )
 
 Set Working Directory
 
-```{r setup, include=FALSE, echo=FALSE, warning=FALSE}
+```{r setup, include=FALSE, echo=FALSE, warning=FALSE, message = FALSE}
 require("knitr")
 opts_knit$set(root.dir = "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 5/8. Pengantar Sains Data/Proj")
 ```
 
 `Function` biar gak perlu repot buat `install("")` atau `load()` *package.*
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 #                      -=( Install & Load Package Function )=-
 install_load <- function (package1, ...)  {   
 
@@ -56,7 +56,7 @@ install_load <- function (package1, ...)  {
 
 `Function` `position_stack_and_nudge`
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 #                          -=( GGPLOT POSITION FUNCTION )=-
 library(ggplot2)
 position_stack_and_nudge <- function(x = 0, y = 0, vjust = 1, reverse = FALSE) {
@@ -115,7 +115,7 @@ PositionStackAndNudge <- ggproto("PositionStackAndNudge", PositionStack,
 
 *Theme* *Pie Chart.*
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 install_load('ggrepel')
 #                             -=( Label Pie Chart )=-
 lab.p <- list(
@@ -139,7 +139,7 @@ theme.p <- list(
 
 `Function` *Pie Chart*
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 #                           -=( Pie Chart FUNCTION )=-
 plot.p <- function(dt, title = "Pice Chart"){
   install_load("ggplot2", "dplyr", "viridis", "ggrepel", "tidyverse",'scales')
@@ -183,7 +183,7 @@ Data tersebut perlu dibersihkan dan dimanage sehingga dapat di olah pada analisi
 
 ### Data input
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 install_load('readxl','dplyr','kableExtra')
 data <- read_xlsx("data.xlsx", sheet="Laptop")
 data <- data[,-c(1,2)]
@@ -197,7 +197,7 @@ kable(head(data)) %>% kable_styling(bootstrap_options = "striped", full_width = 
 
 Penting untuk melihat ada tidaknya missing data.
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 # Mencari indeks baris dan kolom yang mengandung NA
 na.idx <- which(is.na(data), arr.ind = TRUE)
 cat("Banyaknya data NA : ", nrow(na.idx))
@@ -217,7 +217,7 @@ kable(data[                        # Subsetting
 
 Karena peubah diatas sulit untuk diduga maka kami putuskan untuk menghapus data `NA` tersebut.
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 data <- data[ -unique(na.idx[, 1]),  ]
 cat("Jumlah Baris:", nrow(data), "\n")
 ```
@@ -228,7 +228,7 @@ cat("Jumlah Baris:", nrow(data), "\n")
 
 Klasifikasi brand ini diperlukan agar kita dapat melihat lebih jelas sebaran brand yang dijual pada *e-commerce* ini maupun untuk analisis selanjutnya.
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 # Install dan muat paket stringr jika belum diinstal
 install_load('stringr')
 
@@ -257,7 +257,7 @@ kable(head(data)) %>% kable_styling(bootstrap_options = "striped", full_width = 
 
 ### a. Sebaran Brand Laptop
 
-```{r dpi=300, fig1, fig.height = 14, fig.width = 20, fig.align = "center", warning=FALSE}
+```{r dpi=300, fig1, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
 install_load('hrbrthemes')
 # Membuat bar chart persentase
 ggplot(data = data %>% count(Brand) %>% # banyaknya laptop brand x
@@ -313,7 +313,7 @@ Berikut beberapa pertimbangan untuk memilih referensi yang baik:
 
 Untuk peubah brand, kami memilih *Brand* `HP` Sebagai referensi, karena merupakan kategori dengan jumlah terbanyak.
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 data <- data %>% 
   mutate(`Brand` = relevel(as.factor(data$Brand), ref = "HP"))
 str(data$Brand)
@@ -326,7 +326,7 @@ levels(data$Brand)
 
 `Price` Memiliki karakter `$` yang menandakan satuan `USD`. Agar dapat dianalisis lebih lanjut, kami menghapus `$` lalu menjadikannya sebagai peubah numerik dan membaginya dengan $100$, karena 2 digit dari belakang merupakan `cent` . Selain `Price (USD)` agar memudahkan dalam membaca nilai mata uang, kami juga membuat peubah tambahan yakni `Price (IDR)` dengan mengalikan setiap $1$ `USD` dengan $15,355.40$ (Nilai $1$ `USD` ke `IDR` Sekarang).
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 data <- data %>%
   mutate(`Price (USD)` = as.numeric(gsub("\\$", "", Price)) / 100,
          `Price (IDR)` =  `Price (USD)` * 15355.40 ) %>%
@@ -336,7 +336,7 @@ kable(head(data)) %>% kable_styling(bootstrap_options = "striped", full_width = 
 
 ### a. Sebaran Harga Laptop
 
-```{r dpi=300, fig2, fig.height = 9, fig.width = 16, fig.align = "center", warning=FALSE}
+```{r dpi=300, fig2, fig.height = 9, fig.width = 16, fig.align = "center", message = FALSE, warning=FALSE}
 install_load('ggridges','hrbrthemes','viridis')
 ggplot(data, aes(x=`Price (USD)`, y=Brand, fill=Brand)) + geom_density_ridges() +
   #COLORING
@@ -353,11 +353,11 @@ ggplot(data, aes(x=`Price (USD)`, y=Brand, fill=Brand)) + geom_density_ridges() 
        title = "Sebaran Harga Brand Laptop")
 ```
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 summary(data$`Price (USD)`)
 ```
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 summary(data$`Price (IDR)`)
 ```
 
@@ -365,7 +365,7 @@ Dari sebarannya, terlhiat bahwa mayoritas sebaran berdasarkan brand nya, menjulu
 
 Contoh Model Linear dengan peubah dummy.
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 model <- lm(`Price (USD)` ~ `Brand`,data=data)
 summary(model)
 ```
@@ -378,7 +378,7 @@ Terlihat bahwa tidak ada *Brand* `HP` , karena `HP` dijadikan sebagai referensi 
 
 Selanjutnya, kami menghapus "GB RAM" pada `RAM` dan mengubahnya menjadi numerik agar dapat dianalisis.
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 data <- data %>%
   mutate(`Ram (GB)` = as.numeric(gsub("GB RAM", "", RAM))) %>%
   select(-RAM)
@@ -387,7 +387,7 @@ kable(head(data)) %>% kable_styling(bootstrap_options = "striped", full_width = 
 
 ### a. Sebaran RAM Laptop
 
-```{r dpi=300, fig3, fig.height = 14, fig.width = 20, fig.align = "center", warning=FALSE}
+```{r dpi=300, fig3, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
 # Membuat bar chart persentase
 ggplot(data = data %>% count(`Ram (GB)`) %>% # banyaknya laptop brand x
                   mutate(perc = round(n / sum(n) * 100)), #buat persentase, 
@@ -425,7 +425,7 @@ Ini memang agak aneh, tapi setelah kami cek kembali, ternyata memang ada laptop 
 
 Setelah itu kami akan mengubah `Storage` Menjadi numerik dengan cara memisahkan *"SSD" & "HDD"* ke kolom `Storage Type`.
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 storage <- data %>%
 mutate(`Storage (GB)` = as.numeric(str_extract(Storage, "\\d+")),
          `Storage Type` = str_extract(Storage, "(SSD|HDD)")) %>% 
@@ -438,7 +438,7 @@ kable(head(storage)) %>%
 
 **Pie Chart SSD & HDD**
 
-```{r dpi=300, fig4, fig.height = 20, fig.width = 23, fig.align = 'left', warning=FALSE}
+```{r dpi=300, fig4, fig.height = 20, fig.width = 23, fig.align = 'left', message = FALSE, warning=FALSE}
 plot.p(dt = storage$`Storage Type`, title = "Porporsi SSD dan HDD")
 ```
 
@@ -446,7 +446,7 @@ Terlihat bahwa $94.1\%$ laptop memiliki tipe peyimpanan `SSD`. Sunggu perbedaan 
 
 **Sebaran SSD**
 
-```{r dpi=300, fig5, fig.height = 14, fig.width = 20, fig.align = "center", warning=FALSE}
+```{r dpi=300, fig5, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
 # Membuat bar chart persentase
 ggplot(data = storage %>%
         filter(grepl("SSD", `Storage Type`, ignore.case = TRUE))
@@ -476,7 +476,7 @@ ggplot(data = storage %>%
 
 Laptop dengan total penyimpanan $1000$ GigaByte ( $1$ TerraByte) `SSD` merupakan total penyimpanan yang paling banyak dimiliki oleh laptop.
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 kable(data[data$`Storage` == "16GB SSD", ]) %>% 
   kable_styling(bootstrap_options = "striped", full_width = FALSE)
 ```
@@ -487,7 +487,7 @@ Tapi karena keterbatasan informasi dari data hasil *scraping.* Kami akan melanju
 
 **Sebaran HDD**
 
-```{r dpi=300, fig6, fig.height = 14, fig.width = 20, fig.align = "center", warning=FALSE}
+```{r dpi=300, fig6, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
 # Membuat bar chart persentase
 ggplot(data = storage %>%
         filter(grepl("HDD", `Storage Type`, ignore.case = TRUE))
@@ -531,7 +531,7 @@ Kebanyakan laptop dengan tipe penyimpanan `HDD` memiliki total penyimpanan $1$ T
 
 Pendekatan ini **menghindari** pemberian bobot yang sangat ekstrem dan cenderung memberikan penilaian yang **lebih adil** terhadap kedua faktor tersebut.
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 storage <- storage %>%
   mutate(
     `Storage Score` = ifelse(`Storage Type` == "SSD", `Storage (GB)` * (7.5/3.5), 
@@ -542,7 +542,7 @@ kable(head(storage)) %>% kable_styling(bootstrap_options = "striped", full_width
 
 ### c. Merge Data
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 data <- data %>%
   mutate(`Storage Score` = storage$`Storage Score`)
 kable(head(data)) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
@@ -572,7 +572,7 @@ Mengutip dari `chat gpt` bahwa **nilai minimal** refresh rate `(Hz)` pada layar 
 
 Refresh rate `30Hz` mungkin **terlalu rendah** dan dapat menyebabkan tampilan layar terlihat kurang responsif dan cenderung "berkedip" dalam beberapa kasus. Oleh karena itu, kami memutuskan untuk memberikan nilai `60Hz` kepada laptop yang tidak memiliki keterangan *refresh rate*.
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 display <- data %>%
   separate(Display, into = c("Screen Size (Inch)", "Resolution", 
                              "Screen Type","Refresh Rate (Hz)" ), 
@@ -596,7 +596,7 @@ kable(head(display)) %>%
 
 ### - Cek NA
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 cat(" Jumlah Screen Size NA  :", sum(is.na(display$`Screen Size (Inch)`)), "\n",
      "Jumlah Resolution NA   :", sum(is.na(display$Resolution)), "\n",
      "Jumlah Screen Type NA  :", sum(is.na(display$`Screen Type`)), "\n",
@@ -632,7 +632,7 @@ Seperti yang kita lihat pada `###Cek NA`, Yang `NA` Hanya tersisa pada *Screen T
 
 Dengan demikian kami memutuskan untuk menambahkan Tipe LCD ke kolom *Screen Type* yang `NA`
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 display <- display %>% 
   mutate(`Screen Type` = ifelse(is.na(`Screen Type`), "LCD", `Screen Type`))
 kable(
@@ -698,7 +698,7 @@ Sehingga jika diberi nilai akan menjadi:
 
     -   TN memiliki waktu respon yang cepat, tetapi sudut pandang yang terbatas dan reproduksi warna yang kurang akurat. Oleh karena itu, nilai ini lebih rendah.
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 display <- display %>%
   mutate(
     `Screen Type` = case_when(
@@ -725,7 +725,7 @@ Penting untuk mengetahui apa itu resolusi layar.
 
 Karena kami lihat banyak sekali jenis resolusi layar yang punya nama, jadi kami memutuskan untuk **melihat semua jenis** nya.
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 kable(
   display %>%
   group_by(`Resolution`) %>%
@@ -745,7 +745,7 @@ Karena perbedaan inilah, kami memutuskan untuk memberikan bobot pada tipe layar 
 
 Setelah eksplorasi tentang macam-macam tipe layar dan memberi bobot pada mereka, kami akan mengalikan resolusi tersebut. Sehingga resmi menjadi peubah numerik.
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 display <- display %>% 
   mutate( # Mencari semua kemungkinan pasangan angka dalam kolom "Resolution"
     Resolution_Num = str_extract_all(Resolution, "\\d{2,}"),
@@ -777,7 +777,7 @@ $$
 
 Berbeda dengan `Refresh Rate` yang berfokus pada kecepatan layar. Baik kualitas visual maupun ukuran tidak terlalu mempengaruhi nilai nya. Sehingga kaidah *score* nya dibuat terpisah dengan penjumlahan.
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 display <- display %>% 
   mutate_all(rescale, to = c(10, 100)) %>% 
   mutate(`Display Score` = ((Resolution * `Screen Type`) / 
@@ -788,7 +788,7 @@ kable(head(display)) %>%
 
 ### e. Merge Data
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 data <- data %>% bind_cols(`Display Score` = display$`Display Score`)
 kable(head(data)) %>% 
   kable_styling(bootstrap_options = "striped", full_width = FALSE)
@@ -889,7 +889,7 @@ Kenapa perlu *scaling?*. Mudahnya gini. Misalnya kita punya data dengan 2 `Score
 
 Maka dari itu perlu scaling. Antara mengubah ke rentang skala `Score 1` atau mengubah ke `Score 2`. Seperti ini:
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 rescale(c(10, 200, 230, 300), to = c(1, 10))
 ```
 
@@ -899,7 +899,7 @@ Pada kasus `Score CPU` , *Score* ini tidak memiliki rentang nilai yang pasti ($0
 
 ### a. Seleksi Data
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 #Data Benchmark CPU
 cpu <- read_xlsx("data_new.xlsx", sheet="CPU") %>%
        select(1, 15:ncol(.)) %>% #Ambil data benchmark nya saja 
@@ -911,7 +911,7 @@ kable(head(cpu)) %>% kable_styling(bootstrap_options = "striped", full_width = F
 
 ### b. Scoring
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 install_load('scales')
 cpu.score <- cpu %>%
   mutate_at(vars(2:ncol(cpu)), rescale, to = c(10, 100)) %>% #Scaling
@@ -944,7 +944,17 @@ Namun ternyata algoritma diatas blm 100% benar. Penjelsan di \@###Arsip
 
 Ini fungsi untuk cek yang 100% mirip. Segala kesalahan penulisan disamakan. Jika yang memang tidak sama maka tidak akan dipaksa sama. Misalnya ![](images/Screenshot%202023-09-19%20222107-01.png){width="330"}
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
+install_load('data.table')
+# Fungsi untuk mengganti karakter tidak terdeteksi dengan spasi
+clean_name <- function(name) {
+  # Mengganti karakter tidak terdeteksi dengan spasi
+  cleaned_name <- gsub("[\\h\\v\\n\\r\\f\\p{C}]+", " ", name, perl = TRUE)
+  # Menghapus spasi di awal dan akhir teks
+  cleaned_name <- trimws(cleaned_name)
+  return(cleaned_name)
+}
+
 # Fungsi untuk mengMergekan data berdasarkan Algoritma
 join_and_score1.1 <- function(data, cpu) {
   #Buat Kolom baru, set sebagai NA
@@ -984,13 +994,13 @@ coba <- join_and_score1.1(data, cpu)
 
 ### d. Cek NA
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 cat("Banyaknya Laptop dengan Score CPU yang NA :", sum(is.na(coba$`CPU Score`)))
 ```
 
 Cek CPU apa saja yang NA, dan berapa jumlahnya.
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 NA.CPU.Score <- coba %>%
   group_by(CPU) %>% 
   summarise(NA.CPU.Score = sum(is.na(`CPU Score`))) %>%
@@ -1073,20 +1083,11 @@ Hasilnya tidak ada lagi error. Namun ternyata tersisa 1 `NA`. Yakni ![](images/S
 
 Kami pun mencari pada website, ternyata memang tidak ada. Dan ***Surprisingly*** ternyata memang tidak ada data benchmark nya di internet. Sehingga bisa jadi itu karena sangat tidak terkenal dan sangat butut, maka memang tidak pantas untuk di benchmark. Maka dari itu kami putuskan untuk memberikan nilai $0$ pada `CPU` `Intel Core i3-10210Y` .
 
-### c2. Cek NA 2
+### c2. Merge Data 2
 
 Sedangkan ini fungsi untuk memaksa mencari yang paling sama. Karena keterbatasan waktu. Kami akan menggunakan fungsi in untuk penggabungan data.
 
-```{r, warning=FALSE}
-# Fungsi untuk mengganti karakter tidak terdeteksi dengan spasi
-clean_name <- function(name) {
-  # Mengganti karakter tidak terdeteksi dengan spasi
-  cleaned_name <- gsub("[\\h\\v\\n\\r\\f\\p{C}]+", " ", name, perl = TRUE)
-  # Menghapus spasi di awal dan akhir teks
-  cleaned_name <- trimws(cleaned_name)
-  return(cleaned_name)
-}
-
+```{r, warning=FALSE, message = FALSE}
 # Fungsi untuk mencari model CPU yang paling mirip
 find_similar <- function(target, data) {
   
@@ -1112,13 +1113,13 @@ join_and_score2.1 <- function(data, cpu) {
   cpu$Model <- clean_name(cpu$Model)
   
   # Mengganti karakter tidak terdeteksi dengan spasi pada kolom `CPU` di data `data`
-  data$GPU <- clean_name(data$CPU)
+  data$CPU <- clean_name(data$CPU)
   
   for (i in 1:nrow(data)) {
-    #Ambil dan bersihkan kolom GPU pada data baris i
+    #Ambil dan bersihkan kolom CPU pada data baris i
     current_cpu <- clean_name(data[i, CPU])
     
-    #Cari Model yang sama dengan GPU pada data baris i
+    #Cari Model yang sama dengan CPU pada data baris i
     matching_rows <- cpu[tolower(Model) == tolower(current_cpu)] #Lowercase
     
     #Jika sama 100%, maka gabung
@@ -1154,15 +1155,15 @@ setDT(cpu)   # Mengubah data.frame cpu menjadi data.table
 data <- join_and_score2.1(data, cpu)
 ```
 
-```{r, warning=FALSE}
-data <- data %>% select(-BestMatch,-pu)
+```{r, warning=FALSE, message = FALSE}
+data <- data %>% select(-BestMatch)
 kable(head(data)) %>% 
   kable_styling(bootstrap_options = "striped", full_width = FALSE)
 ```
 
 Membuat `CPU Score` dari `Intel Core i3-10210Y` menjadi $0$ .
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 data <- data %>%
   mutate(`CPU Score` = if_else(is.na(`CPU Score`), 0, `CPU Score`))
 ```
@@ -1173,7 +1174,7 @@ data <- data %>%
 
 Kami penasaran bagaimana sebaran dari brand `CPU` yang ada.
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 data <- data %>%
   mutate(`CPU Brand` = case_when(
     grepl("Intel", CPU) ~ "Intel",
@@ -1185,7 +1186,7 @@ data <- data %>%
   ))
 ```
 
-```{r dpi=300, fig7, fig.height = 14, fig.width = 20, fig.align = "center", warning=FALSE}
+```{r dpi=300, fig7, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
 # Membuat bar chart persentase
 ggplot(data = data %>% count(`CPU Brand`) %>% # banyaknya laptop brand x
                   mutate(perc = round(n / sum(n) * 100)), #buat persentase, 
@@ -1217,7 +1218,7 @@ Terlihat bahwa *brand* `CPU` yang erbanyak adalah tim biru (`intel`), diikuti ol
 
 **Sebaran CPU Score**
 
-```{r dpi=300, fig8, fig.height = 9, fig.width = 16, fig.align = "center", warning=FALSE}
+```{r dpi=300, fig8, fig.height = 9, fig.width = 16, fig.align = "center", message = FALSE, warning=FALSE}
 install_load('ggridges','hrbrthemes','viridis')
 ggplot(data, aes(x=`CPU Score`, y='')) + 
   #Violin
@@ -1247,7 +1248,7 @@ Jika melihat pada violin plot nya, terlihat bahwa sebarannya memiliki *trimodal*
 
 **Sebaran CPU Score Per Brand**
 
-```{r dpi=300, fig9, fig.height = 9, fig.width = 16, fig.align = "center", warning=FALSE}
+```{r dpi=300, fig9, fig.height = 9, fig.width = 16, fig.align = "center", message = FALSE, warning=FALSE}
 install_load('ggridges','hrbrthemes','viridis')
 ggplot(data, aes(x=`CPU Score`, y=`CPU Brand`, fill=`CPU Brand`)) + 
   geom_density_ridges() +
@@ -1292,6 +1293,8 @@ Hasil benchmark 3DMark digunakan untuk membandingkan komputer atau kartu grafis 
 Kami membuat Score untuk GPU dengan data benchmark dari website [notebookcheck.net](https://www.notebookcheck.net/Mobile-Graphics-Cards-Benchmark-List.844.0.html) Dengan setting :
 
 ![](images/Screenshot%202023-09-19%20211800.png){width="621"}
+
+Agar perhitungannya maksimal dan presisi, kami menggunakan seluruh *benchmark* yang ada, yakni sebanyak $24$ data *benchmark.*
 
 Berikut **Metode** kami :
 
@@ -1346,7 +1349,7 @@ Berikut **Metode** kami :
 
 ### a. Seleksi Data
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 #Data Benchmark GPU
 gpu <- read_xlsx("data_new.xlsx", sheet="GPU") %>%
        select(1, 18:ncol(.)) %>% #Ambil data benchmark nya saja 
@@ -1358,7 +1361,7 @@ kable(head(gpu)) %>% kable_styling(bootstrap_options = "striped", full_width = F
 
 ### b. Scoring
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 gpu.score <- gpu %>%
   mutate_at(vars(2:ncol(gpu)), rescale, to = c(10, 100)) %>% #Scaling
   mutate_at(vars(2:ncol(gpu)), ~ ifelse(is.na(.), 0, .)) %>% #Na = 0
@@ -1383,7 +1386,7 @@ Agak disayangkan, kami blm berhasil membuat fungsi `join_and_score` bisa digunak
 
 Ini fungsi yang 100% sama.
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 # Fungsi untuk mengMergekan data berdasarkan Algoritma
 join_and_score1.2 <- function(data, gpu) {
   #Buat Kolom baru, set sebagai NA
@@ -1406,7 +1409,7 @@ join_and_score1.2 <- function(data, gpu) {
     #Jika sama 100%, maka gabung
     if (nrow(matching_rows) > 0) {
       #[1] artinya Jika lebih dari 2, ambil yang pertama
-      data[i, `CPU Score` := matching_rows[1]$Score] 
+      data[i, `GPU Score` := matching_rows[1]$Score] 
       data[i, BestMatch := matching_rows[1]$Model]
     } 
   }
@@ -1423,20 +1426,24 @@ coba <- join_and_score1.2(data, gpu)
 
 ### d. Cek NA
 
-```{r, warning=FALSE}
-cat("Banyaknya Laptop dengan Score CPU yang NA :", sum(is.na(coba$`GPU Score`)))
+```{r, warning=FALSE, message = FALSE}
+cat("Banyaknya Laptop dengan Score GPU yang NA :", sum(is.na(coba$`GPU Score`)))
 ```
+
+Agak gila ya dari $10,000$ data hanya $11.91 \%$ data yang tidak `NA`.
 
 Cek GPU apa saja yang NA, dan berapa jumlahnya.
 
-```{r, warning=FALSE}
-NA.CPU.Score <- coba %>%
-  group_by(CPU) %>% 
-  summarise(NA.CPU.Score = sum(is.na(`CPU Score`))) %>%
-  filter(NA.CPU.Score > 0)
-cat("Banyaknya CPU dng Score yang NA :", nrow(NA.CPU.Score))
-kable(NA.CPU.Score) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```{r, warning=FALSE, message = FALSE}
+NA.GPU.Score <- coba %>%
+  group_by(GPU) %>% 
+  summarise(NA.GPU.Score = sum(is.na(`GPU Score`))) %>%
+  filter(NA.GPU.Score > 0)
+cat("Banyaknya GPU dng Score yang NA :", nrow(NA.GPU.Score))
+kable(NA.GPU.Score) %>% kable_styling(bootstrap_options = "striped", full_width = FALSE)
 ```
+
+Tapi walau begitu, ternyata hanya $218$ jenis data `GPU` yang `NA` .
 
 Jika kami ada waktu untuk mencari satu persatu. Maka kami akan input data `GPU` manual lagi.
 
@@ -1444,31 +1451,7 @@ Jika kami ada waktu untuk mencari satu persatu. Maka kami akan input data `GPU` 
 
 Sedangkan ini fungsi yang memaksa sama. (Mencari yang paling mirip)
 
-```{r, warning=FALSE}
-# Fungsi untuk mengganti karakter tidak terdeteksi dengan spasi
-clean_name <- function(name) {
-  # Mengganti karakter tidak terdeteksi dengan spasi
-  cleaned_name <- gsub("[\\h\\v\\n\\r\\f\\p{C}]+", " ", name, perl = TRUE)
-  # Menghapus spasi di awal dan akhir teks
-  cleaned_name <- trimws(cleaned_name)
-  return(cleaned_name)
-}
-
-# Fungsi untuk mencari model GPU yang paling mirip
-find_similar <- function(target, data) {
-  
-  #adist untuk menghitung jarak (distance) antara target_gpu dan setiap model GPU
-  distances <- adist(target, data$Model, 
-  #untuk memungkinkan pencocokan parsial (hanya sebagian dari string yang cocok)
-                     partial = TRUE, 
-  #ase-insensitive, sehingga tidak memedulikan huruf besar atau kecil.
-                     ignore.case = TRUE)
-  #mencari indeks model dengan jarak terkecil (yang paling mirip) 
-  best_match_index <- which.min(distances)
-  best_match_model <- data$Model[best_match_index]
-  return(best_match_model)
-}
-
+```{r, warning=FALSE, message = FALSE}
 # Fungsi untuk mengMergekan data jika ada yang sama
 join_and_score2.2 <- function(data, gpu) {
   #Buat Kolom baru, set sebagai NA
@@ -1521,9 +1504,15 @@ setDT(gpu)   # Mengubah data.frame gpu menjadi data.table
 data <- join_and_score2.2(data, gpu)
 ```
 
+```{r, warning=FALSE, message = FALSE}
+data <- data %>% select(-BestMatch)
+kable(head(data)) %>% 
+  kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
 Data *Benchmark* GPU `Imagination PowerVR GX6250` Memang tidak ada dalam *website* [notebookcheck.net](https://www.notebookcheck.net/Mobile-Graphics-Cards-Benchmark-List.844.0.html). Padahal website tersebut memiliki data terlengkap. Ini berarti, saking tidak terkenalnya GPU tersebut, dalam website yang lengkap saja tidak masuk. Tidak mungkin GPU yang memiliki *Benchmark Score* yang bagus tidak masuk kedalam *website* terserbut. Sehinggga kami memutuskan untuk memberi nilai 0 kepada GPU tersebut.
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 data <- data %>%
   mutate(`GPU Score` = ifelse(is.na(`GPU Score`), 0, `GPU Score`))
 ```
@@ -1534,7 +1523,7 @@ data <- data %>%
 
 Kami penasaran bagaimana sebaran dari brand `CPU` yang ada.
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 data <- data %>%
   mutate(`GPU Brand` = case_when(
     str_detect(GPU, "NVIDIA") ~ "NVIDIA",
@@ -1548,7 +1537,7 @@ data <- data %>%
   ))
 ```
 
-```{r dpi=300, fig10, fig.height = 14, fig.width = 20, fig.align = "center", warning=FALSE}
+```{r dpi=300, fig10, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
 # Membuat bar chart persentase
 ggplot(data = data %>% count(`GPU Brand`) %>% # banyaknya laptop brand x
                   mutate(perc = round(n / sum(n) * 100)), #buat persentase, 
@@ -1578,7 +1567,7 @@ ggplot(data = data %>% count(`GPU Brand`) %>% # banyaknya laptop brand x
 
 **Sebaran GPU Score**
 
-```{r dpi=300, fig11, fig.height = 9, fig.width = 16, fig.align = "center", warning=FALSE}
+```{r dpi=300, fig11, fig.height = 9, fig.width = 16, fig.align = "center", message = FALSE, warning=FALSE}
 install_load('ggridges','hrbrthemes','viridis')
 ggplot(data, aes(x=`GPU Score`, y='')) + 
   #Violin
@@ -1587,7 +1576,7 @@ ggplot(data, aes(x=`GPU Score`, y='')) +
   #Boxplot
   geom_boxplot(fill='orange', color='black',
                      outlier.size=4, outlier.color='orange', 
-                     alpha=0.7, notch=T, width=0.2) +
+                     alpha=0.7, notch=T, width=0.1) +
   #Mean Marker
   stat_summary(fun = mean, geom = "point", shape = 16, size = 4, color = "cyan3") +
   #COLORING
@@ -1606,7 +1595,7 @@ ggplot(data, aes(x=`GPU Score`, y='')) +
 
 **Sebaran GPU Score Per Brand**
 
-```{r dpi=300, fig12, fig.height = 9, fig.width = 16, fig.align = "center", warning=FALSE}
+```{r dpi=300, fig12, fig.height = 9, fig.width = 16, fig.align = "center", message = FALSE, warning=FALSE}
 install_load('ggridges','hrbrthemes','viridis')
 ggplot(data, aes(x=`GPU Score`, y=`GPU Brand`, fill=`GPU Brand`)) + 
   geom_density_ridges() +
@@ -1628,9 +1617,9 @@ ggplot(data, aes(x=`GPU Score`, y=`GPU Brand`, fill=`GPU Brand`)) +
 
 ### Urutkan Kolom
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 data <- data %>%
-  relocate(Name, Brand, `Price (USD)`, `Ram (GB)`, CPU, `CPU Brand`, 
+  relocate(Name, Brand, `Price (USD)`, `Price (IDR)`, `Ram (GB)`, CPU, `CPU Brand`, 
            `CPU Score`, GPU, `GPU Brand`, `GPU Score`, Display, 
            `Display Score`, Storage, `Storage Score`)
 kable(head(data)) %>% 
@@ -1639,23 +1628,22 @@ kable(head(data)) %>%
 
 ### Pisah data dengan kasus NA = 0
 
-```{r, warning=FALSE}
-data0 <- data %>% 
-  mutate_if(is.numeric, ~replace_na(., 0))
-```
-
 ### Pisah data regresi
 
-```{r, warning=FALSE}
-reg <- data0 %>% 
-  select( "Price (USD)","Ram (GB)", "CPU Score", "GPU Score","Display Score", "Storage Score")
+```{r, warning=FALSE, message = FALSE}
+reg.usd <- data %>% 
+  select( "Price (USD)", "Brand" ,"Ram (GB)", "CPU Score", 
+          "GPU Score","Display Score", "Storage Score")
+reg.idr <- data %>% 
+  select( "Price (IDR)", "Brand" ,"Ram (GB)", "CPU Score", 
+          "GPU Score","Display Score", "Storage Score")
 ```
 
 ### Export
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 install_load('openxlsx')
-write.xlsx(list("Data" = data, "Data NA=0" = data0, "Regresi" = reg), 
+write.xlsx(list("Data" = data, "Regresi (USD)" = reg.usd, "Regresi (IDR)"=reg.idr), 
            file = "managed.xlsx")
 ```
 
@@ -1671,7 +1659,7 @@ write.xlsx(list("Data" = data, "Data NA=0" = data0, "Regresi" = reg),
 
 ![](images/Screenshot%202023-09-20%20153804.png)
 
-```{r, eval=FALSE, warning=FALSE}
+```         
 # Fungsi untuk mengganti karakter tidak terdeteksi dengan spasi
 clean_name <- function(name) {
   # Mengganti karakter tidak terdeteksi dengan spasi
@@ -1761,7 +1749,7 @@ setDT(data)  # Mengubah data.frame menjadi data.table
 setDT(cpu)   # Mengubah data.frame cpu menjadi data.table
 
 #Panggil fungsi
-data <- join_and_score(data, cpu)
+coba <- join_and_score(data, cpu)
 ```
 
 ![](images/Screenshot%202023-09-20%20182351.png){width="349"}
