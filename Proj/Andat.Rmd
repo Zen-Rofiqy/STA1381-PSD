@@ -85,7 +85,33 @@ raw.data <- read_xlsx("managed.xlsx", sheet="Data")
 cat("Jumlah Kolom:", ncol(data), "\n")
 cat("Jumlah Baris:", nrow(data), "\n")
 
-datatable(raw.data)
+datatable(raw.data, filter = 'top', 
+          options = list(pageLength = 5, autoWidth = TRUE))
+```
+
+```{r}
+jenis_kelamin <- c("Pria", "Wanita", "Pria", "Wanita", "Wanita")
+pekerjaan <- c("Guru", "Dokter", "Guru", "Pengacara", "Dokter")
+
+# Membuat tabel kontingensi antara jenis kelamin dan pekerjaan
+tabel_kontingensi <- table(jenis_kelamin, pekerjaan)
+tabel_kontingensi
+str(tabel_kontingensi)
+```
+
+```{r}
+install_load('rmdformats')
+# Contoh data tabel dua dimensi (contingency table)
+data(airquality)
+tab <- table(airquality$Month, airquality$Ozone > 25)
+pilltabs(tab)
+```
+
+```{r}
+data <- matrix(c(30, 20, 40, 60), nrow = 2)
+rownames(data) <- c("Group A", "Group B")
+colnames(data) <- c("Category 1", "Category 2")
+pilltabs(data)
 ```
 
 ```{r dpi=300, fig1, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
@@ -155,6 +181,8 @@ Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gin
 Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu
 
 # Referensi
+
+-   Rpubs : <https://rpubs.com/Prass_Code/911845>
 
 -   Rmd : [Read This Nerd!](https://bookdown.org/yihui/rmarkdown-cookbook/kableextra.html)
 
