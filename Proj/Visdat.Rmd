@@ -80,7 +80,7 @@ install_load('dplyr', 'tidyr', 'gapminder', 'ggplot2',  'ggalt', 'forcats',
              'R.utils', 'png','grid', 'ggpubr', 'scales', 'bbplot')
 ```
 
-```{r, message = FALSE, warning=FALSE}
+```{r,include=FALSE, echo=FALSE, message = FALSE, warning=FALSE}
 install_load('ggplot2')
 theme1 <- list(
   geom_text(aes(label = prettyNum(n,big.mark = ",")
@@ -116,11 +116,25 @@ theme2 <- list(
         panel.grid.minor = element_blank()
         ) 
 )
+theme3 <- list(
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, 
+                                   margin = margin(b = 10, t=-20)),
+        axis.text.y = element_text(vjust = 0.5, face = "bold", 
+                                   margin = margin(l = 20, r = 0)),
+        plot.title = element_text(hjust = 0.5, face = "bold"),
+        text = element_text(size = 30),
+        plot.subtitle = element_text(hjust = 0.5),
+        panel.background = element_rect(fill = 'transparent'),
+        plot.background = element_rect(fill='transparent', color=NA),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()
+        ) 
+)
 ```
 
 ## Bar Chart Vertikal
 
-```{r dpi=300, fig1, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+```{r dpi=300, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
 # Membuat bar chart persentase
 gg.data <- raw.data %>% count(Brand) %>% # banyaknya laptop brand x
   mutate(perc = round(n / sum(n) * 100)) 
@@ -131,7 +145,7 @@ ggplot(data = gg.data, #buat persentase
            fill= ifelse(gg.data$Brand == "HP",  "#1380A1", "#dddddd")) +
   geom_hline(yintercept = 0, size = 1, colour="#333333") +
   labs(x = "\nBrand", y = "Persentase (%)", 
-       title = "Sebaran Brand Laptop") +
+       title = "Sebaran Brand Laptop\n") +
   scale_y_continuous(labels = scales::percent_format(scale = 1)) + theme1
   
 bar.brand_laptop 
@@ -142,7 +156,7 @@ ggsave("01_Sebaran Brand Laptop.png", bar.brand_laptop, path = export.chart,
 
 ## Bar Chart Horizontal
 
-```{r dpi=300, fig1, fig.height = 20, fig.width = 14, fig.align = "center", message = FALSE, warning=FALSE}
+```{r dpi=300, fig.height = 20, fig.width = 17, fig.align = "center", message = FALSE, warning=FALSE}
 bar.brand_laptop.h <-
 ggplot(data = gg.data, #buat persentase
        aes(x = reorder(Brand, n), y = perc)) +
@@ -150,15 +164,142 @@ ggplot(data = gg.data, #buat persentase
            fill= ifelse(gg.data$Brand == "HP",  "#1380A1", "#dddddd")) +
   geom_hline(yintercept = 0, size = 1, colour="#333333") +
   labs(x = "\nBrand", y = "Persentase (%)", 
-       title = "Sebaran Brand Laptop") + coord_flip() +
+       title = "Sebaran Brand Laptop\n") + coord_flip() +
   scale_y_continuous(labels = scales::percent_format(scale = 1),
                      expand = c(0, 5)) + theme2 
   
 bar.brand_laptop.h 
 #Export Chart
 ggsave("02_Sebaran Brand Laptop.png", bar.brand_laptop.h, path = export.chart,
+        dpi = 300, height = 20, width = 17)
+```
+
+# Harga {.tabset}
+
+## Sebaran Harga
+
+```{r dpi=300, fig.height = 10, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+install_load('ggtext')
+ggplot(raw.data, aes(x=`Price (IDR)`/1000, 
+                     y='')) +
+  #Violin
+  geom_violin(scale="count", fill='#edc611', color=NA, alpha=0.5, 
+                    trim = FALSE) +
+  #Boxplot
+  geom_boxplot(fill='grey90', color='black',
+                     outlier.size=2, outlier.color='grey50', 
+                     notch=T, width=0.2) +
+  #Mean Marker
+  stat_summary(fun = mean, geom = "point", shape = 16, size = 4, 
+               color = "#d65c2d") +
+  theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
+  labs(x = "\nHarga (Ribu IDR)", y='',
+       title = "Sebaran Harga Brand Laptop") + theme3 +
+  #Tambah Mean Value
+  geom_richtext(
+    data = data.frame(x = mean(raw.data$`Price (IDR)`) / 1000, y = 1.25, 
+                      label = paste("Mean:", 
+                                    round(mean(raw.data$`Price (IDR)`) / 1000, 
+                                          2))),
+    aes(x, y, label = label), size = 7, color = "#d65c2d", 
+    fill = "white", box.color = "#d65c2d", parse = TRUE
+  ) +
+  #Tambah panah
+  geom_segment(aes(x = mean(raw.data$`Price (IDR)`) / 1000, 
+                   xend = mean(raw.data$`Price (IDR)`) / 1000, 
+                   y = 1, 
+                   yend = 1.225), 
+               arrow = arrow(type = "closed", length = unit(0.1, "inches")), 
+               lineend = "round", color = "#d65c2d")
+```
+
+## Sebaran Harga Tiap Brand
+
+```{r dpi=300, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+install_load('ggridges','viridis')
+raw.data$Brand <- factor(raw.data$Brand, 
+                  levels= raw.data %>% count(Brand) %>% 
+                                        arrange(n, desc(Brand)) %>%
+                                        pull(Brand) )
+harga.brand <- 
+ggplot(raw.data, aes(x=`Price (IDR)`/1000, y=Brand, fill=Brand)) + 
+  geom_density_ridges() +
+  #COLORING
+  scale_fill_viridis(alpha = 0.75, #Opacity
+                     begin = 0.1, #Color pallte scale begins
+                     end = 0.9, #Color pallte scale ends
+                     direction = -1, #Flip color scale
+                     discrete = T, #Discrete Value
+                     option = "D") + #Color Palette
+  theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
+  labs(x = "\nHarga (Ribu IDR)",y = "Brand Laptop\n", 
+       title = "Sebaran Harga Brand Laptop") + theme3 +
+  annotate(
+  geom = "richtext",
+  x = -Inf, y = 1.25,
+  label = "<b>Tidak ada sebaran</b> pada merek laptop <b>Toshiba</b>, <b>Chuwi</b>, dan <b>Fusion5</b>\n\n karena jumlah data untuk ketiga merek tersebut sangat terbatas, yaitu <b>kurang dari 3</b>.",
+  vjust = 0, label.padding = unit(0.2, "lines"),
+  parse = TRUE,
+  hjust = -0.05, size = 7
+)
+
+harga.brand
+#Export Chart
+ggsave("04_Sebaran Harga Laptop Per Brand.png", harga.brand, path = export.chart,
         dpi = 300, height = 14, width = 20)
 ```
+
+# Storage {.tabset}
+
+## Pie Chart, Proporsi HDD dan SSD
+
+## Bar Chart HDD
+
+## Bar Chart SSD
+
+## Sebaran Storage Score
+
+## Scatterplot Storage Score & Price
+
+```{r}
+
+```
+
+# Display {.tabset}
+
+## Bar Chart Screen Size
+
+## Bar Chart Resolution
+
+## Bar Chart Screen Type
+
+## Bar Chart Refresh Rate
+
+## Sebaran Display Score
+
+## Scatterplot Display Score & Price
+
+# RAM {.tabset}
+
+## Bar Chart RAM
+
+## Scatterplot RAM & Price
+
+# CPU {.tabset}
+
+## Bar Chart CPU Brand
+
+## Sebaran CPU Score
+
+## Scatterplot CPU & Price
+
+# GPU {.tabset}
+
+## Bar Chart GPU Brand
+
+## Sebaran GPU Score
+
+## Scatterplot GPU & Price
 
 # Referensi
 
