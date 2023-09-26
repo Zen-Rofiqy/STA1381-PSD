@@ -31,6 +31,11 @@ require("knitr")
 opts_knit$set(root.dir = "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 5/8. Pengantar Sains Data/Proj")
 ```
 
+```{r}
+#Export chart
+export.chart <- "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 5/8. Pengantar Sains Data/Proj/Chart"
+```
+
 ```{r, include=FALSE, echo=FALSE, warning=FALSE, message = FALSE}
 #                      -=( Install & Load Package Function )=-
 install_load <- function (package1, ...)  {   
@@ -75,115 +80,85 @@ install_load('dplyr', 'tidyr', 'gapminder', 'ggplot2',  'ggalt', 'forcats',
              'R.utils', 'png','grid', 'ggpubr', 'scales', 'bbplot')
 ```
 
-## Bar Chart
-
-```{r dpi=300, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
-install_load('bbplot')
-ggplot(data = raw.data %>% count(Brand) %>% # banyaknya laptop brand x
-         mutate(perc = round(n / sum(n) * 100), #buat persentase
-                ), 
-       aes(x = reorder(Brand, -n), y = perc,
-           fill = ifelse(Brand == "HP", "Highlighted", "Normal") )) +
-  geom_bar(stat="identity", position="identity") +
-  geom_hline(yintercept = 0, size = 1, colour="#333333") +
-  bbc_style() +
-  coord_flip() +
-  labs(title="Reunion is highest",
-       subtitle = "Highest African life expectancy, 2007",
-       x = "\nBrand", y = "Persentase (%)",) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, 
-                                   margin = margin(b = 10)),
-        axis.text.y = element_text(vjust = .5, face = "bold", 
-                                   margin = margin(l = 20)),
-        plot.title = element_text(hjust = 0.5, face = "bold"),
-        text = element_text(size = 30),
-        plot.subtitle = element_text(hjust = 0.5),
-        panel.grid.major.x = element_line(color="#cbcbcb"), 
-        panel.grid.major.y=element_blank()
-        ) 
-```
-
-```{r dpi=300, fig1, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
-install_load('hrbrthemes','ggplot2')
-# Membuat bar chart persentase
-gg.data <- raw.data %>% count(Brand) %>% # banyaknya laptop brand x
-  mutate(perc = round(n / sum(n) * 100)) 
-ggplot(data = gg.data, #buat persentase
-       aes(x = reorder(Brand, -n), y = perc)) +
-  geom_bar(stat = "identity", col=NA,
-           fill= ifelse(gg.data$Brand == "HP",  "#1380A1", "#dddddd")) +
+```{r, message = FALSE, warning=FALSE}
+install_load('ggplot2')
+theme1 <- list(
   geom_text(aes(label = prettyNum(n,big.mark = ",")
                 ), vjust = -0.5, size = 8, col="orange4", 
-            fontface = "bold") + # Tambahkan label
-  labs(x = "\nBrand", y = "Persentase (%)", 
-       title = "Sebaran Brand Laptop") +
-  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+            fontface = "bold"), # Tambahkan label
   theme(axis.text.x = element_text(angle = 45, hjust = 1, 
-                                   margin = margin(b = 10)),
-        axis.text.y = element_text(vjust = .5, face = "bold", 
-                                   margin = margin(l = 20)),
+                                   margin = margin(b = 10, t=-20)),
+        axis.text.y = element_text(vjust = 0.5, face = "bold", 
+                                   margin = margin(l = 20, r = 0)),
         plot.title = element_text(hjust = 0.5, face = "bold"),
         text = element_text(size = 30),
         plot.subtitle = element_text(hjust = 0.5),
         panel.background = element_rect(fill = 'transparent'),
         plot.background = element_rect(fill='transparent', color=NA),
-        panel.grid.major = element_line(colour = "grey90")
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()
         ) 
+)
+theme2 <- list(
+  geom_text(aes(label = prettyNum(n,big.mark = ",")
+                ), hjust = -0.5, size = 8, col="orange4", 
+            fontface = "bold"), # Tambahkan label
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, 
+                                   margin = margin(b = 10)),
+        axis.text.y = element_text(vjust = 0.5, face = "bold", 
+                                   margin = margin(l = 20, r = -90)),
+        plot.title = element_text(hjust = 0.5, face = "bold"),
+        text = element_text(size = 30),
+        plot.subtitle = element_text(hjust = 0.5),
+        panel.background = element_rect(fill = 'transparent'),
+        plot.background = element_rect(fill='transparent', color=NA),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()
+        ) 
+)
 ```
 
-# H1
+## Bar Chart Vertikal
 
-## Quarterly Results {.tabset}
+```{r dpi=300, fig1, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+# Membuat bar chart persentase
+gg.data <- raw.data %>% count(Brand) %>% # banyaknya laptop brand x
+  mutate(perc = round(n / sum(n) * 100)) 
+bar.brand_laptop <-
+ggplot(data = gg.data, #buat persentase
+       aes(x = reorder(Brand, -n), y = perc)) +
+  geom_bar(stat = "identity", col=NA,
+           fill= ifelse(gg.data$Brand == "HP",  "#1380A1", "#dddddd")) +
+  geom_hline(yintercept = 0, size = 1, colour="#333333") +
+  labs(x = "\nBrand", y = "Persentase (%)", 
+       title = "Sebaran Brand Laptop") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) + theme1
+  
+bar.brand_laptop 
+#Export Chart
+ggsave("01_Sebaran Brand Laptop.png", bar.brand_laptop, path = export.chart,
+        dpi = 300, height = 14, width = 20)
+```
 
-### By Product
+## Bar Chart Horizontal
 
-(tab content)
-
-### By Region
-
-(tab content) Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu
-
-## H2
-
-> OH gitu
-
-Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu
-
-### H3
-
-![](images/Screenshot%202023-09-21%20035218.png)
-
-Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu
-
-#### H4
-
-Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu
-
-# H1
-
-## Quarterly Results {.tabset .tabset-fade .tabset-pills}
-
-Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu
-
-### H3
-
-Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu
-
-## H2
-
-Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu
-
-#### H4
-
-Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu
-
-## H2
-
-Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu
-
-# H1
-
-Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu
+```{r dpi=300, fig1, fig.height = 20, fig.width = 14, fig.align = "center", message = FALSE, warning=FALSE}
+bar.brand_laptop.h <-
+ggplot(data = gg.data, #buat persentase
+       aes(x = reorder(Brand, n), y = perc)) +
+  geom_bar(stat = "identity", col=NA,
+           fill= ifelse(gg.data$Brand == "HP",  "#1380A1", "#dddddd")) +
+  geom_hline(yintercept = 0, size = 1, colour="#333333") +
+  labs(x = "\nBrand", y = "Persentase (%)", 
+       title = "Sebaran Brand Laptop") + coord_flip() +
+  scale_y_continuous(labels = scales::percent_format(scale = 1),
+                     expand = c(0, 5)) + theme2 
+  
+bar.brand_laptop.h 
+#Export Chart
+ggsave("02_Sebaran Brand Laptop.png", bar.brand_laptop.h, path = export.chart,
+        dpi = 300, height = 14, width = 20)
+```
 
 # Referensi
 
