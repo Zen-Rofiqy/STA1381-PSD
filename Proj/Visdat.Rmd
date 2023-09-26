@@ -1,0 +1,212 @@
+---
+title: "Visualisasi dan Eksplorasi Data PSD Kel 3"
+author: "Angga Fathan Rofiqy"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  rmdformats::downcute:
+    self_contained: true
+    thumbnails: false
+    lightbox: true
+    gallery: true
+    highlight: tango
+    code_folding: hide
+    toc_depth: 3
+    number_sections: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
+    fig_caption: true
+pkgdown:
+  as_is: true
+---
+
+```{r, include=FALSE, echo=FALSE, warning=FALSE, message = FALSE}
+path <- function() gsub  ( "\\\\",  "/",  readClipboard ()  )
+#Copy path, Panggil function di console
+#Copy r path, paste ke var yang diinginkan
+```
+
+```{r setup, include=FALSE, echo=FALSE, warning=FALSE, message = FALSE}
+require("knitr")
+opts_knit$set(root.dir = "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 5/8. Pengantar Sains Data/Proj")
+```
+
+```{r, include=FALSE, echo=FALSE, warning=FALSE, message = FALSE}
+#                      -=( Install & Load Package Function )=-
+install_load <- function (package1, ...)  {   
+
+   # convert arguments to vector
+   packages <- c(package1, ...)
+
+   # start loop to determine if each package is installed
+   for(package in packages){
+
+       # if package is installed locally, load
+       if(package %in% rownames(installed.packages()))
+          do.call('library', list(package))
+
+       # if package is not installed locally, download, then load
+       else {
+          install.packages(package)
+          do.call("library", list(package))
+       }
+   } 
+}
+```
+
+### Data Input
+
+```{r, warning=FALSE, message = FALSE}
+install_load('readxl','dplyr','kableExtra','DT')
+raw.data <- read_xlsx("managed.xlsx", sheet="Data")
+cat("Jumlah Kolom:", ncol(data), "\n")
+cat("Jumlah Baris:", nrow(data), "\n")
+
+datatable(raw.data, filter = 'top', 
+          options = list(pageLength = 5))
+```
+
+# Brand Laptop {.tabset}
+
+```{r, include=FALSE, echo=FALSE, warning=FALSE, message = FALSE}
+install_load('devtools')
+if(!require(bbplot)) devtools::install_github('bbc/bbplot')
+install_load('dplyr', 'tidyr', 'gapminder', 'ggplot2',  'ggalt', 'forcats', 
+             'R.utils', 'png','grid', 'ggpubr', 'scales', 'bbplot')
+```
+
+## Bar Chart
+
+```{r dpi=300, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+install_load('bbplot')
+ggplot(data = raw.data %>% count(Brand) %>% # banyaknya laptop brand x
+         mutate(perc = round(n / sum(n) * 100), #buat persentase
+                ), 
+       aes(x = reorder(Brand, -n), y = perc,
+           fill = ifelse(Brand == "HP", "Highlighted", "Normal") )) +
+  geom_bar(stat="identity", position="identity") +
+  geom_hline(yintercept = 0, size = 1, colour="#333333") +
+  bbc_style() +
+  coord_flip() +
+  labs(title="Reunion is highest",
+       subtitle = "Highest African life expectancy, 2007",
+       x = "\nBrand", y = "Persentase (%)",) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, 
+                                   margin = margin(b = 10)),
+        axis.text.y = element_text(vjust = .5, face = "bold", 
+                                   margin = margin(l = 20)),
+        plot.title = element_text(hjust = 0.5, face = "bold"),
+        text = element_text(size = 30),
+        plot.subtitle = element_text(hjust = 0.5),
+        panel.grid.major.x = element_line(color="#cbcbcb"), 
+        panel.grid.major.y=element_blank()
+        ) 
+```
+
+```{r dpi=300, fig1, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+install_load('hrbrthemes','ggplot2')
+# Membuat bar chart persentase
+gg.data <- raw.data %>% count(Brand) %>% # banyaknya laptop brand x
+  mutate(perc = round(n / sum(n) * 100)) 
+ggplot(data = gg.data, #buat persentase
+       aes(x = reorder(Brand, -n), y = perc)) +
+  geom_bar(stat = "identity", col=NA,
+           fill= ifelse(gg.data$Brand == "HP",  "#1380A1", "#dddddd")) +
+  geom_text(aes(label = prettyNum(n,big.mark = ",")
+                ), vjust = -0.5, size = 8, col="orange4", 
+            fontface = "bold") + # Tambahkan label
+  labs(x = "\nBrand", y = "Persentase (%)", 
+       title = "Sebaran Brand Laptop") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, 
+                                   margin = margin(b = 10)),
+        axis.text.y = element_text(vjust = .5, face = "bold", 
+                                   margin = margin(l = 20)),
+        plot.title = element_text(hjust = 0.5, face = "bold"),
+        text = element_text(size = 30),
+        plot.subtitle = element_text(hjust = 0.5),
+        panel.background = element_rect(fill = 'transparent'),
+        plot.background = element_rect(fill='transparent', color=NA),
+        panel.grid.major = element_line(colour = "grey90")
+        ) 
+```
+
+# H1
+
+## Quarterly Results {.tabset}
+
+### By Product
+
+(tab content)
+
+### By Region
+
+(tab content) Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu
+
+## H2
+
+> OH gitu
+
+Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu
+
+### H3
+
+![](images/Screenshot%202023-09-21%20035218.png)
+
+Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu
+
+#### H4
+
+Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu
+
+# H1
+
+## Quarterly Results {.tabset .tabset-fade .tabset-pills}
+
+Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu
+
+### H3
+
+Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu
+
+## H2
+
+Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu
+
+#### H4
+
+Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu
+
+## H2
+
+Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu
+
+# H1
+
+Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu
+
+# Referensi
+
+-   GGplot : [Extras](https://towardsdatascience.com/themes-to-spice-up-visualizations-with-ggplot2-3e275038dafa) , [BBplot](https://bbc.github.io/rcookbook/)
+
+-   
+
+-   
+
+-   Rpubs : <https://rpubs.com/Prass_Code/911845>
+
+-   Rmd : [Read This Nerd!](https://bookdown.org/yihui/rmarkdown-cookbook/kableextra.html)
+
+-   DT : [DT](https://rstudio.github.io/DT/)
+
+-   Theme : [Rmd Themes](https://cran.r-project.org/web/packages/rmdformats/readme/README.html)
+
+-   Hide Code : [Hide Code In RMD](https://bookdown.org/yihui/rmarkdown-cookbook/fold-show.html)
+
+-   Kable : [Kable1](https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html), [Kable2](https://haozhu233.github.io/kableExtra/kableExtra_in_other_HTML_themes.html)
+
+-   Other Rmd settings : [Set1](https://stackoverflow.com/questions/23957278/how-to-add-table-of-contents-in-rmarkdown), [Set2](https://www.overleaf.com/learn/latex/Table_of_contents), [Set3](https://bookdown.org/yihui/rmarkdown/html-document.html)
+
+-   Notes : [Hanya Orang Gabut yang baca ini](https://github.com/Zen-Rofiqy/STA1381-PSD/blob/main/Proj/Curhat.txt)
+
+-   <https://packer.john-coene.com/#/guide/style>

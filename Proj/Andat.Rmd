@@ -5,13 +5,16 @@ date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
   rmdformats::downcute:
     self_contained: true
-    thumbnails: true
+    thumbnails: false
     lightbox: true
     gallery: true
     highlight: tango
     code_folding: hide
     toc_depth: 3
     number_sections: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
     fig_caption: true
 pkgdown:
   as_is: true
@@ -89,31 +92,6 @@ datatable(raw.data, filter = 'top',
           options = list(pageLength = 5, autoWidth = TRUE))
 ```
 
-```{r}
-jenis_kelamin <- c("Pria", "Wanita", "Pria", "Wanita", "Wanita")
-pekerjaan <- c("Guru", "Dokter", "Guru", "Pengacara", "Dokter")
-
-# Membuat tabel kontingensi antara jenis kelamin dan pekerjaan
-tabel_kontingensi <- table(jenis_kelamin, pekerjaan)
-tabel_kontingensi
-str(tabel_kontingensi)
-```
-
-```{r}
-install_load('rmdformats')
-# Contoh data tabel dua dimensi (contingency table)
-data(airquality)
-tab <- table(airquality$Month, airquality$Ozone > 25)
-pilltabs(tab)
-```
-
-```{r}
-data <- matrix(c(30, 20, 40, 60), nrow = 2)
-rownames(data) <- c("Group A", "Group B")
-colnames(data) <- c("Category 1", "Category 2")
-pilltabs(data)
-```
-
 ```{r dpi=300, fig1, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
 install_load('hrbrthemes','ggplot2')
 # Membuat bar chart persentase
@@ -142,13 +120,25 @@ ggplot(data = raw.data %>% count(Brand) %>% # banyaknya laptop brand x
 
 # H1
 
-Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu
+## Quarterly Results {.tabset}
+
+### By Product
+
+(tab content)
+
+### By Region
+
+(tab content) Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu
 
 ## H2
+
+> OH gitu
 
 Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu
 
 ### H3
+
+![](images/Screenshot%202023-09-21%20035218.png)
 
 Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu
 
@@ -157,6 +147,8 @@ Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gin
 Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu
 
 # H1
+
+## Quarterly Results {.tabset .tabset-fade .tabset-pills}
 
 Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu
 
@@ -194,7 +186,7 @@ Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gini oh gitu Jadi gin
 
 -   Kable : [Kable1](https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html), [Kable2](https://haozhu233.github.io/kableExtra/kableExtra_in_other_HTML_themes.html)
 
--   Other Rmd settings : [Set1](https://stackoverflow.com/questions/23957278/how-to-add-table-of-contents-in-rmarkdown), [Set2](https://www.overleaf.com/learn/latex/Table_of_contents)
+-   Other Rmd settings : [Set1](https://stackoverflow.com/questions/23957278/how-to-add-table-of-contents-in-rmarkdown), [Set2](https://www.overleaf.com/learn/latex/Table_of_contents), [Set3](https://bookdown.org/yihui/rmarkdown/html-document.html)
 
 -   Notes : [Hanya Orang Gabut yang baca ini](https://github.com/Zen-Rofiqy/STA1381-PSD/blob/main/Proj/Curhat.txt)
 
