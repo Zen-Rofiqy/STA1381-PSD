@@ -72,12 +72,7 @@ datatable(raw.data, filter = 'top',
 
 # Brand Laptop {.tabset}
 
-```{r, include=FALSE, echo=FALSE, warning=FALSE, message = FALSE}
-install_load('devtools')
-if(!require(bbplot)) devtools::install_github('bbc/bbplot')
-install_load('dplyr', 'tidyr', 'gapminder', 'ggplot2',  'ggalt', 'forcats', 
-             'R.utils', 'png','grid', 'ggpubr', 'scales', 'bbplot')
-```
+![](https://media.licdn.com/dms/image/D5612AQE5uZNqFhkoZw/article-cover_image-shrink_720_1280/0/1681661151014?e=2147483647&v=beta&t=3Vb9PptDBLu_JtHDiHlJNslfx3PrbLzwnSZDdVZKBe0)
 
 ```{r,include=FALSE, echo=FALSE, message = FALSE, warning=FALSE}
 install_load('ggplot2')
@@ -125,7 +120,7 @@ theme1.2 <- list(
 # Membuat bar chart persentase
 gg.data <- data %>% count(Brand) %>% # banyaknya laptop brand x
   mutate(perc = round(n / sum(n) * 100)) 
-bar.brand_laptop <-
+chart <-
 ggplot(data = gg.data, #buat persentase
        aes(x = reorder(Brand, -n), y = perc)) +
   geom_bar(stat = "identity", col=NA,
@@ -134,16 +129,16 @@ ggplot(data = gg.data, #buat persentase
        title = "Sebaran Brand Laptop\n") +
   scale_y_continuous(labels = scales::percent_format(scale = 1)) + theme1.1
   
-bar.brand_laptop 
+chart 
 #Export Chart
-ggsave("01.1_Sebaran Brand Laptop.png", bar.brand_laptop, path = export.chart,
+ggsave("01.1_Sebaran Brand Laptop.png", chart, path = export.chart,
         dpi = 300, height = 14, width = 20)
 ```
 
 ## Bar Chart Horizontal
 
 ```{r dpi=300, fig.height = 20, fig.width = 17, fig.align = "center", message = FALSE, warning=FALSE}
-bar.brand_laptop.h <-
+chart <-
 ggplot(data = gg.data, #buat persentase
        aes(x = reorder(Brand, n), y = perc)) +
   geom_bar(stat = "identity", col=NA,
@@ -153,9 +148,9 @@ ggplot(data = gg.data, #buat persentase
   scale_y_continuous(labels = scales::percent_format(scale = 1),
                      expand = c(0, 5)) + theme1.2 
   
-bar.brand_laptop.h 
+chart 
 #Export Chart
-ggsave("01.2_Sebaran Brand Laptop.png", bar.brand_laptop.h, path = export.chart,
+ggsave("01.2_Sebaran Brand Laptop.png", chart, path = export.chart,
         dpi = 300, height = 20, width = 17)
 ```
 
@@ -182,7 +177,7 @@ theme2 <- list(
 
 ```{r dpi=300, fig.height = 10, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
 install_load('ggtext')
-harga <-
+chart <-
 ggplot(data, aes(x=`Price (IDR)`/1000, 
                      y='')) +
   #Violin
@@ -214,9 +209,9 @@ ggplot(data, aes(x=`Price (IDR)`/1000,
                    yend = 1.225), 
                arrow = arrow(type = "closed", length = unit(0.1, "inches")), 
                lineend = "round", color = "cyan2")
-harga
+chart
 #Export Chart
-ggsave("02.1_Sebaran Harga Laptop.png", harga, path = export.chart,
+ggsave("02.1_Sebaran Harga Laptop.png", chart, path = export.chart,
         dpi = 300, height = 10, width = 20)
 ```
 
@@ -228,7 +223,7 @@ data$Brand <- factor(data$Brand,
                   levels= data %>% count(Brand) %>% 
                                         arrange(n, desc(Brand)) %>%
                                         pull(Brand) )
-harga.brand <- 
+chart <- 
 ggplot(data, aes(x=`Price (IDR)`/1000, y=Brand, fill=Brand)) + 
   geom_density_ridges() +
   #COLORING
@@ -237,7 +232,7 @@ ggplot(data, aes(x=`Price (IDR)`/1000, y=Brand, fill=Brand)) +
                      end = 0.9, #Color pallte scale ends
                      direction = -1, #Flip color scale
                      discrete = T, #Discrete Value
-                     option = "G") + #Color Palette
+                     option = "B") + #Color Palette
   theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
   labs(x = "\nHarga (Ribu IDR)",y = "Brand Laptop\n", 
        title = "Sebaran Harga Brand Laptop \n") + theme2 +
@@ -250,13 +245,15 @@ ggplot(data, aes(x=`Price (IDR)`/1000, y=Brand, fill=Brand)) +
   hjust = -0.1, size = 7, fill=NA
 )
 
-harga.brand
+chart
 #Export Chart
-ggsave("02.2_Sebaran Harga Laptop .png", harga.brand, path = export.chart,
+ggsave("02.2_Sebaran Harga Laptop .png", chart, path = export.chart,
         dpi = 300, height = 14, width = 20)
 ```
 
 # Storage {.tabset}
+
+![](https://ventraip.com.au/wp-content/uploads/2021/04/hdd-ssd.jpg)
 
 ```{r,include=FALSE, echo=FALSE, message = FALSE, warning=FALSE}
 theme3 <- list(
@@ -294,26 +291,28 @@ gg.data <- data %>%
   arrange(desc(count))
 
 # Buat pie chart
-pie <- 
+chart <- 
 ggplot(gg.data, aes(x = "", y = count, fill = `Storage Type`)) +
   geom_bar(stat = "identity", col=NA) +
   geom_label_repel(aes(label = paste0(`Storage Type`, "\n", 
                                     round(count / sum(count) * 100), 
                                     "% (", count, ")" ) ), 
                   position = position_stack(vjust = 0.5), size = 10,
-                  label.padding = unit(1, "lines")) +
+                  label.padding = unit(1, "lines"), col="white") +
   coord_polar(theta = "y") +
-  scale_fill_manual(values =c(SSD = "#1380A1", HDD = "#dddddd")) +
+  scale_fill_manual(values =c(SSD = "#3788A1", HDD = "#504E58")) +
   theme_void() +
   labs(title = "\nProporsi SSD dan HDD") + theme3
-pie 
+chart 
 
 #Export Chart
-ggsave("03.1_Proporsi SSD dan HDD.png", pie, path = export.chart,
+ggsave("03.1_Proporsi SSD dan HDD.png", chart, path = export.chart,
         dpi = 300, height = 14, width = 14)
 ```
 
 ## Bar Chart SSD
+
+![](https://www.itechtics.com/wp-content/uploads/2014/11/4-Ways-To-Determine-The-Type-Of-Drive-HDD-or-SSD-Installed-In-Your-Computer.jpg)
 
 ### Variasi {.tabset}
 
@@ -327,53 +326,32 @@ gg.data <- data %>%
                   mutate(perc = round(n / sum(n) * 100)) %>% #buat persentase, 
                   arrange(desc(n)) %>%   # Urutkan
                   mutate(top3 = row_number() <= 3) # Top 3 n terbanyak
-bar.ssd <-
+chart <-
 ggplot(data = gg.data,
        aes(x = reorder(`Storage (GB)`, `Storage (GB)`), y = perc)) +
   geom_bar(stat = "identity", col=NA,
-           fill = ifelse(gg.data$top3,  c("#1380A1", "#178CA8", "#189DB2"),
+           fill = ifelse(gg.data$top3,  c("#3788A1", "#5494A3", "#65AEB9"),
                          "#dddddd")
            ) + 
   labs(x = "SSD (GB)", y = "Persentase (%)\n", 
        title = "Sebaran SSD Laptop\n") +
   scale_y_continuous(labels = scales::percent_format(scale = 1)) +
   theme1.1
-bar.ssd 
+chart 
 #Export Chart
-ggsave("03.2_Sebaran SSD Laptop.png", bar.ssd, path = export.chart,
+ggsave("03.2_Sebaran SSD Laptop.png", chart, path = export.chart,
         dpi = 300, height = 14, width = 20)
-```
-
-#### Sebaran Horizontal
-
-```{r dpi=300, fig.height = 20, fig.width = 14, fig.align = "center", message = FALSE, warning=FALSE}
-bar.ssd.h <-
-ggplot(data = gg.data,
-       aes(x = reorder(`Storage (GB)`, `Storage (GB)`), y = perc)) +
-  geom_bar(stat = "identity", col=NA,
-           fill = ifelse(gg.data$top3,  c("#1380A1", "#178CA8", "#189DB2"),
-                         "#dddddd")
-           ) +
-  labs(x = "SSD (GB)", y = "Persentase (%)", 
-       title = "Sebaran SSD Laptop\n") +
-  scale_y_continuous(labels = scales::percent_format(scale = 1),
-                     expand = c(0, 4)) +
-  theme1.2 + coord_flip()
-bar.ssd.h 
-#Export Chart
-ggsave("03.3_Sebaran SSD Laptop.png", bar.ssd.h, path = export.chart,
-        dpi = 300, height = 20, width = 14)
 ```
 
 #### Urut
 
 ```{r dpi=300, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
 # Membuat bar chart persentase
-bar.ssd.urut <-
+chart <-
 ggplot(data = gg.data,
        aes(x = reorder(`Storage (GB)`, -n), y = perc)) +
   geom_bar(stat = "identity", col=NA,
-           fill = ifelse(gg.data$top3,  c("#1380A1", "#178CA8", "#189DB2"),
+           fill = ifelse(gg.data$top3,  c("#3788A1", "#5494A3", "#65AEB9"),
                          "#dddddd")
            ) +
   geom_text(aes(label = prettyNum(n,big.mark = ",")
@@ -383,20 +361,20 @@ ggplot(data = gg.data,
        title = "Sebaran SSD Laptop\n") +
   scale_y_continuous(labels = scales::percent_format(scale = 1)) +
   theme1.1
-bar.ssd.urut
+chart
 #Export Chart
-ggsave("03.4_Sebaran SSD Laptop_Urut.png", bar.ssd.urut, path = export.chart,
+ggsave("03.3_Sebaran SSD Laptop_Urut.png", chart, path = export.chart,
         dpi = 300, height = 14, width = 20)
 ```
 
 #### Urut horizontal
 
 ```{r dpi=300, fig.height = 20, fig.width = 14, fig.align = "center", message = FALSE, warning=FALSE}
-bar.ssd.urut.h <-
+chart <-
 ggplot(data = gg.data,
        aes(x = reorder(`Storage (GB)`, n), y = perc)) +
   geom_bar(stat = "identity", col=NA,
-           fill = ifelse(gg.data$top3,  c("#1380A1", "#178CA8", "#189DB2"),
+           fill = ifelse(gg.data$top3,  c("#3788A1", "#5494A3", "#65AEB9"),
                          "#dddddd")
            ) +
   labs(x = "SSD (GB)", y = "Persentase (%)", 
@@ -404,13 +382,15 @@ ggplot(data = gg.data,
   scale_y_continuous(labels = scales::percent_format(scale = 1),
                      expand = c(0, 4)) +
   theme1.2 + coord_flip()
-bar.ssd.urut.h 
+chart 
 #Export Chart
-ggsave("03.5_Sebaran SSD Laptop_Urut.png", bar.ssd.urut.h, path = export.chart,
+ggsave("03.4_Sebaran SSD Laptop_Urut.png", chart, path = export.chart,
         dpi = 300, height = 20, width = 14)
 ```
 
 ## Bar Chart HDD
+
+![](https://www.itechtics.com/wp-content/uploads/2014/11/4-Ways-To-Determine-The-Type-Of-Drive-HDD-or-SSD-Installed-In-Your-Computer.jpg)
 
 ### Variasi {.tabset}
 
@@ -424,53 +404,32 @@ gg.data <- data %>%
                   mutate(perc = round(n / sum(n) * 100)) %>% #buat persentase, 
                   arrange(desc(n)) %>%   # Urutkan
                   mutate(top1 = row_number() <= 1) # Top 1 n terbanyak
-bar.hdd <-
+chart <-
 ggplot(data = gg.data,
        aes(x = reorder(`Storage (GB)`, `Storage (GB)`), y = perc)) +
   geom_bar(stat = "identity", col=NA,
-           fill = ifelse(gg.data$top1,  c("#1380A1"),
+           fill = ifelse(gg.data$top1,  c("#3788A1"),
                          "#dddddd")
            ) + 
   labs(x = "HDD (GB)", y = "Persentase (%)\n", 
        title = "Sebaran HDD Laptop\n") +
   scale_y_continuous(labels = scales::percent_format(scale = 1)) +
   theme1.1
-bar.hdd 
+chart 
 #Export Chart
-ggsave("03.6_Sebaran HDD Laptop.png", bar.hdd, path = export.chart,
+ggsave("03.5_Sebaran HDD Laptop.png", chart, path = export.chart,
         dpi = 300, height = 14, width = 20)
-```
-
-#### Sebaran Horizontal
-
-```{r dpi=300, fig.height = 20, fig.width = 14, fig.align = "center", message = FALSE, warning=FALSE}
-bar.hdd.h <-
-ggplot(data = gg.data,
-       aes(x = reorder(`Storage (GB)`, `Storage (GB)`), y = perc)) +
-  geom_bar(stat = "identity", col=NA,
-           fill = ifelse(gg.data$top1,  c("#1380A1"),
-                         "#dddddd")
-           ) +
-  labs(x = "HDD (GB)", y = "Persentase (%)", 
-       title = "Sebaran HDD Laptop\n") +
-  scale_y_continuous(labels = scales::percent_format(scale = 1),
-                     expand = c(0, 9)) +
-  theme1.2 + coord_flip()
-bar.hdd.h 
-#Export Chart
-ggsave("03.7_Sebaran HDD Laptop.png", bar.hdd.h, path = export.chart,
-        dpi = 300, height = 20, width = 14)
 ```
 
 #### Urut
 
 ```{r dpi=300, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
 # Membuat bar chart persentase
-bar.hdd.urut <-
+chart <-
 ggplot(data = gg.data,
        aes(x = reorder(`Storage (GB)`, -n), y = perc)) +
   geom_bar(stat = "identity", col=NA,
-           fill = ifelse(gg.data$top1,  c("#1380A1"),
+           fill = ifelse(gg.data$top1,  c("#3788A1"),
                          "#dddddd")
            ) +
   geom_text(aes(label = prettyNum(n,big.mark = ",")
@@ -480,20 +439,20 @@ ggplot(data = gg.data,
        title = "Sebaran HDD Laptop\n") +
   scale_y_continuous(labels = scales::percent_format(scale = 1)) +
   theme1.1
-bar.hdd.urut
+chart
 #Export Chart
-ggsave("03.8_Sebaran HDD Laptop_Urut.png", bar.hdd.urut, path = export.chart,
+ggsave("03.6_Sebaran HDD Laptop_Urut.png", chart, path = export.chart,
         dpi = 300, height = 14, width = 20)
 ```
 
 #### Urut Horizontal
 
 ```{r dpi=300, fig.height = 20, fig.width = 14, fig.align = "center", message = FALSE, warning=FALSE}
-bar.hdd.urut.h <-
+chart <-
 ggplot(data = gg.data,
        aes(x = reorder(`Storage (GB)`, n), y = perc)) +
   geom_bar(stat = "identity", col=NA,
-           fill = ifelse(gg.data$top1,  c("#1380A1"),
+           fill = ifelse(gg.data$top1,  c("#3788A1"),
                          "#dddddd")
            ) +
   labs(x = "HDD (GB)", y = "Persentase (%)", 
@@ -501,9 +460,9 @@ ggplot(data = gg.data,
   scale_y_continuous(labels = scales::percent_format(scale = 1),
                      expand = c(0, 9)) +
   theme1.2 + coord_flip()
-bar.hdd.urut.h 
+chart 
 #Export Chart
-ggsave("03.9_Sebaran HDD Laptop_Urut.png", bar.hdd.urut.h, path = export.chart,
+ggsave("03.7_Sebaran HDD Laptop_Urut.png", chart, path = export.chart,
         dpi = 300, height = 20, width = 14)
 ```
 
@@ -511,15 +470,15 @@ ggsave("03.9_Sebaran HDD Laptop_Urut.png", bar.hdd.urut.h, path = export.chart,
 
 ```{r dpi=300, fig.height = 10, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
 install_load('ggtext')
-ss <-
+chart <-
 ggplot(data, aes(x=`Storage Score`, 
                      y='')) +
   #Violin
-  geom_violin(scale="count", fill='#fdbe4a', color='black', alpha=0.9, 
+  geom_violin(scale="count", fill='#3788A1', color='black', alpha=0.9, 
                     trim = FALSE) +
   #Boxplot
-  geom_boxplot(fill='#9d5692', color='black',
-                     outlier.size=2, outlier.color='#9d5692', 
+  geom_boxplot(fill='#504E58', color='black',
+                     outlier.size=2, outlier.color='#504E58', 
                      notch=T, width=0.2) +
   #Mean Marker
   stat_summary(fun = mean, geom = "point", shape = 16, size = 4, 
@@ -533,8 +492,8 @@ ggplot(data, aes(x=`Storage Score`,
                       label = paste("Mean:", 
                                     round(mean(data$`Storage Score`) , 
                                           2))),
-    aes(x, y, label = label), size = 7, color = "#d65c2d", 
-    fill = "white", box.color = "#d65c2d", parse = TRUE
+    aes(x, y, label = label), size = 7, color = "#504E58", 
+    fill = "white", box.color = "#504E58", parse = TRUE
   ) +
   #Tambah panah
   geom_segment(aes(x = mean(data$`Storage Score`) , 
@@ -543,9 +502,9 @@ ggplot(data, aes(x=`Storage Score`,
                    yend = 1.225), 
                arrow = arrow(type = "closed", length = unit(0.1, "inches")), 
                lineend = "round", color = "cyan2")
-ss
+chart
 #Export Chart
-ggsave("03.10_Sebaran Storage Score.png", ss, path = export.chart,
+ggsave("03.8_Sebaran Storage Score.png", chart, path = export.chart,
         dpi = 300, height = 10, width = 20)
 ```
 
@@ -556,24 +515,19 @@ data$`Storage Type` <- factor(data$`Storage Type`,
                   levels= data %>% count(`Storage Type`) %>% 
                                         arrange(n, desc(`Storage Type`)) %>%
                                         pull(`Storage Type`) )
-ss.t <- 
+chart <- 
 ggplot(data, aes(x=`Storage Score`, y=`Storage Type`, fill=`Storage Type`)) + 
   geom_density_ridges() +
   #COLORING
-  scale_fill_viridis(alpha = 0.75, #Opacity
-                     begin = 0.25, #Color pallte scale begins
-                     end = 0.9, #Color pallte scale ends
-                     direction = -1, #Flip color scale
-                     discrete = T, #Discrete Value
-                     option = "B") + #Color Palette
+  scale_fill_manual(values =c(SSD = "#3788A1", HDD = "#504E58")) +
   theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
   labs(x = "\nStorage Score",y = "Tipe Storage\n", 
        title = "Sebaran Storage Score Per Tipe\n") + theme2 
 
 
-ss.t
+chart
 #Export Chart
-ggsave("03.11_Sebaran Storage Score Per Tipe.png", ss.t, path = export.chart,
+ggsave("03.9_Sebaran Storage Score Per Tipe.png", chart, path = export.chart,
         dpi = 300, height = 10, width = 20)
 ```
 
@@ -584,16 +538,16 @@ data$Brand <- factor(data$Brand,
                   levels= data %>% count(Brand) %>% 
                                         arrange(n, desc(Brand)) %>%
                                         pull(Brand) )
-ss.brand <- 
+chart <- 
 ggplot(data, aes(x=`Storage Score`, y=Brand, fill=Brand)) + 
   geom_density_ridges() +
   #COLORING
   scale_fill_viridis(alpha = 0.75, #Opacity
-                     begin = 0.25, #Color pallte scale begins
+                     begin = 0.1, #Color pallte scale begins
                      end = 0.9, #Color pallte scale ends
                      direction = -1, #Flip color scale
                      discrete = T, #Discrete Value
-                     option = "B") + #Color Palette
+                     option = "G") + #Color Palette
   theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
   labs(x = "\nHarga (Ribu IDR)",y = "Brand Laptop\n", 
        title = "Sebaran Storage Score \n") + theme2 +
@@ -606,37 +560,39 @@ ggplot(data, aes(x=`Storage Score`, y=Brand, fill=Brand)) +
   hjust = -0.1, size = 7
 )
 
-ss.brand
+chart
 #Export Chart
-ggsave("03.12_Sebaran Storage Score Laptop .png", 
-       ss.brand, path = export.chart,
+ggsave("03.10_Sebaran Storage Score Laptop .png", 
+       chart, path = export.chart,
         dpi = 300, height = 14, width = 20)
 ```
 
 ## Scatterplot Storage Score & Price
 
 ```{r dpi=300, fig.height = 20, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
-scat.ss <-
+chart <-
 ggplot(data = data, aes(x = `Storage Score`, y = `Price (IDR)`/1000, color = `Storage Type`)) +
   geom_point(alpha = 0.5, size = 7) +
   geom_smooth(method = "lm", formula = y ~ x, se = FALSE, size = 0.5) +
   labs(title='Scatterplot Storage Score dengan Price\n',
     x = "\nStorage Score", y = "Ribu IDR\n", color = "Storage Type") +
-  scale_color_manual(values = c("SSD" = "#1380A1", "HDD" = "orange")) +
+  scale_color_manual(values = c("SSD" = "#3788A1", "HDD" = "#504E58")) +
   theme3.2 +
   geom_text(aes(x = 30000, 
                 y = 100000, 
                 label = paste("R =", round(cor(data$`Storage Score`, 
                                                data$`Price (IDR)`), 2))),
             color = "black", size = 20)
-scat.ss
+chart
 #Export Chart
-ggsave("03.13_Scatteplot Storage Score degan Price.png", 
-       scat.ss, path = export.chart,
-        dpi = 300, height = 10, width = 20)
+ggsave("03.11_Scatteplot Storage Score degan Price.png", 
+       chart, path = export.chart,
+        dpi = 300, height = 20, width = 20)
 ```
 
 # Display {.tabset}
+
+![](https://assets2.razerzone.com/images/pnx.assets/b860fdc473e861a943ee9a026125ac88/display-screen-technology-hero-desktop.jpg)
 
 Pisahkan data.
 
@@ -662,6 +618,12 @@ data <- data %>%
 
 ## Bar Chart Screen Size
 
+![](https://pop.h-cdn.co/assets/17/01/4000x2000/landscape-1483651026-img-20170105-114151.jpg)
+
+### Variasi {.tabset}
+
+#### Sebaran
+
 ```{r dpi=300, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
 # Membuat bar chart persentase
 gg.data <- data %>%
@@ -669,11 +631,11 @@ gg.data <- data %>%
                   mutate(perc = round(n / sum(n) * 100)) %>% #buat persentase, 
                   arrange(desc(n)) %>%   # Urutkan
                   mutate(top1 = row_number() <= 1) # Top 1 n terbanyak
-screen_size <-
+chart <-
 ggplot(data = gg.data,
-       aes(x = reorder(`Screen Size (Inch)`, -n), y = perc)) +
+       aes(x = reorder(`Screen Size (Inch)`, `Screen Size (Inch)`), y = perc)) +
   geom_bar(stat = "identity", col=NA,
-           fill = ifelse(gg.data$top1,  c("#1380A1"),
+           fill = ifelse(gg.data$top1,  c("#6F3E98"),
                          "#dddddd")
            ) +
   geom_text(aes(label = prettyNum(n,big.mark = ",")
@@ -683,13 +645,38 @@ ggplot(data = gg.data,
        title = "Bar Chart Screen Size Laptop\n") +
   scale_y_continuous(labels = scales::percent_format(scale = 1)) +
   theme1.1
-screen_size
+chart
 #Export Chart
-ggsave("04.1_Bar Chart Screen Size Laptop_Urut.png", screen_size, path = export.chart,
+ggsave("04.1_Bar Chart Screen Size Laptop.png", chart, path = export.chart,
+        dpi = 300, height = 14, width = 20)
+```
+
+#### Urut
+
+```{r dpi=300, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+chart <-
+ggplot(data = gg.data,
+       aes(x = reorder(`Screen Size (Inch)`, -n), y = perc)) +
+  geom_bar(stat = "identity", col=NA,
+           fill = ifelse(gg.data$top1,  c("#6F3E98"),
+                         "#dddddd")
+           ) +
+  geom_text(aes(label = prettyNum(n,big.mark = ",")
+                ), vjust = -0.5, size = 8, col="orange4", 
+            fontface = "bold") + # Tambahkan label
+  labs(x = "\nScreen Size", y = "Persentase (%)\n", 
+       title = "Bar Chart Screen Size Laptop\n") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  theme1.1 
+chart
+#Export Chart
+ggsave("04.2_Bar Chart Screen Size Laptop_Urut.png", chart, path = export.chart,
         dpi = 300, height = 14, width = 20)
 ```
 
 ## Bar Chart Resolution
+
+![](https://allthedifferences.com/wp-content/uploads/2022/05/viktor-yevenko-dRs6GoGCoXs-unsplash-1250x938.jpg)
 
 ```{r}
 data <- data %>% 
@@ -716,11 +703,11 @@ gg.data <- data %>%
                   mutate(perc = round(n / sum(n) * 100)) %>% #buat persentase, 
                   arrange(desc(n)) %>%   # Urutkan
                   mutate(top1 = row_number() <= 1) # Top 1 n terbanyak
-res <-
+chart <-
 ggplot(data = gg.data,
        aes(x = reorder(Resolution, -n), y = perc)) +
   geom_bar(stat = "identity", col=NA,
-           fill = ifelse(gg.data$top1,  c("#1380A1"),
+           fill = ifelse(gg.data$top1,  c("#6F3E98"),
                          "#dddddd")
            ) +
   geom_text(aes(label = prettyNum(n,big.mark = ",")
@@ -730,13 +717,19 @@ ggplot(data = gg.data,
        title = "Bar Chart Resolution Laptop\n") +
   scale_y_continuous(labels = scales::percent_format(scale = 1)) +
   theme1.1
-res
+chart
 #Export Chart
-ggsave("04.2_Bar Chart Resolution Laptop_Urut.png", res, path = export.chart,
+ggsave("04.2_Bar Chart Resolution Laptop_Urut.png", chart, path = export.chart,
         dpi = 300, height = 14, width = 20)
 ```
 
 ## Bar Chart Screen Type
+
+![](https://id-media.apjonlinecdn.com/magefan_blog/1000x450px_Benefits_of_Using_Touch_Screen_Pen.jpg)
+
+### Variasi {.tabset}
+
+#### Vertikal
 
 ```{r dpi=300, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
 # Membuat bar chart persentase
@@ -745,11 +738,11 @@ gg.data <- data %>%
                   mutate(perc = round(n / sum(n) * 100)) %>% #buat persentase, 
                   arrange(desc(n)) %>%   # Urutkan
                   mutate(top1 = row_number() <= 1) # Top 1 n terbanyak
-s.type <-
+chart <-
 ggplot(data = gg.data,
        aes(x = reorder(`Screen Type`, -n), y = perc)) +
   geom_bar(stat = "identity", col=NA,
-           fill = ifelse(gg.data$top1,  c("#1380A1"),
+           fill = ifelse(gg.data$top1,  c("#6F3E98"),
                          "#dddddd")
            ) +
   geom_text(aes(label = prettyNum(n,big.mark = ",")
@@ -759,13 +752,40 @@ ggplot(data = gg.data,
        title = "Bar Chart Screen Type Laptop\n") +
   scale_y_continuous(labels = scales::percent_format(scale = 1)) +
   theme1.1
-s.type
+chart
 #Export Chart
-ggsave("04.3_Bar Chart Screen Type Laptop_Urut.png", s.type, path = export.chart,
+ggsave("04.3_Bar Chart Screen Type Laptop.png", chart, path = export.chart,
         dpi = 300, height = 14, width = 20)
 ```
 
+#### Horizontal
+
+```{r dpi=300, fig.height = 20, fig.width = 14, fig.align = "center", message = FALSE, warning=FALSE}
+chart <-
+ggplot(data = gg.data,
+       aes(x = reorder(`Screen Type`, n), y = perc)) +
+  geom_bar(stat = "identity", col=NA,
+           fill = ifelse(gg.data$top1,  c("#6F3E98"),
+                         "#dddddd")
+           ) +
+  labs(x = "Screen Type", y = "Persentase (%)", 
+       title = "Bar Chart Screen Type Laptop\n") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1),
+                     expand = c(0, 9)) +
+  theme1.2 + coord_flip()
+chart 
+#Export Chart
+ggsave("04.4_Bar Chart Screen Type Laptop_Horizontal.png", chart, path = export.chart,
+        dpi = 300, height = 20, width = 14)
+```
+
 ## Bar Chart Refresh Rate
+
+![](https://www.notebookcheck.net/fileadmin/Notebooks/News/_nc3/asus_360hz.jpg)
+
+### Variasi {.tabset}
+
+#### Sebaran
 
 ```{r dpi=300, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
 # Membuat bar chart persentase
@@ -774,11 +794,11 @@ gg.data <- data %>%
                   mutate(perc = round(n / sum(n) * 100)) %>% #buat persentase, 
                   arrange(desc(n)) %>%   # Urutkan
                   mutate(top1 = row_number() <= 1) # Top 1 n terbanyak
-rr <-
+chart <-
 ggplot(data = gg.data,
        aes(x = reorder(`Refresh Rate (Hz)`, -n), y = perc)) +
   geom_bar(stat = "identity", col=NA,
-           fill = ifelse(gg.data$top1,  c("#1380A1"),
+           fill = ifelse(gg.data$top1,  c("#6F3E98"),
                          "#dddddd")
            ) +
   geom_text(aes(label = prettyNum(n,big.mark = ",")
@@ -788,9 +808,9 @@ ggplot(data = gg.data,
        title = "Bar Chart Refresh Rate Laptop\n") +
   scale_y_continuous(labels = scales::percent_format(scale = 1)) +
   theme1.1
-rr
+chart
 #Export Chart
-ggsave("04.4_Bar Chart Refresh Rate (Hz) Laptop_Urut.png", rr, path = export.chart,
+ggsave("04.4_Bar Chart Refresh Rate (Hz) Laptop_Urut.png", chart, path = export.chart,
         dpi = 300, height = 14, width = 20)
 ```
 
