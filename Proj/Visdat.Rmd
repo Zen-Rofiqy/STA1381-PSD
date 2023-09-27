@@ -64,8 +64,7 @@ install_load <- function (package1, ...)  {
 ```{r, warning=FALSE, message = FALSE}
 install_load('readxl','dplyr','kableExtra','DT')
 raw.data <- read_xlsx("managed.xlsx", sheet="Data")
-cat("Jumlah Kolom:", ncol(data), "\n")
-cat("Jumlah Baris:", nrow(data), "\n")
+data <- raw.data
 
 datatable(raw.data, filter = 'top', 
           options = list(pageLength = 5))
@@ -82,7 +81,8 @@ install_load('dplyr', 'tidyr', 'gapminder', 'ggplot2',  'ggalt', 'forcats',
 
 ```{r,include=FALSE, echo=FALSE, message = FALSE, warning=FALSE}
 install_load('ggplot2')
-theme1 <- list(
+theme1.1 <- list(
+  geom_hline(yintercept = 0, size = 1, colour="#333333"),
   geom_text(aes(label = prettyNum(n,big.mark = ",")
                 ), vjust = -0.5, size = 8, col="orange4", 
             fontface = "bold"), # Tambahkan label
@@ -99,7 +99,8 @@ theme1 <- list(
         panel.grid.minor = element_blank()
         ) 
 )
-theme2 <- list(
+theme1.2 <- list(
+  geom_hline(yintercept = 0, size = 1, colour="#333333"),
   geom_text(aes(label = prettyNum(n,big.mark = ",")
                 ), hjust = -0.5, size = 8, col="orange4", 
             fontface = "bold"), # Tambahkan label
@@ -116,41 +117,26 @@ theme2 <- list(
         panel.grid.minor = element_blank()
         ) 
 )
-theme3 <- list(
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, 
-                                   margin = margin(b = 10, t=-20)),
-        axis.text.y = element_text(vjust = 0.5, face = "bold", 
-                                   margin = margin(l = 20, r = 0)),
-        plot.title = element_text(hjust = 0.5, face = "bold"),
-        text = element_text(size = 30),
-        plot.subtitle = element_text(hjust = 0.5),
-        panel.background = element_rect(fill = 'transparent'),
-        plot.background = element_rect(fill='transparent', color=NA),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()
-        ) 
-)
 ```
 
 ## Bar Chart Vertikal
 
 ```{r dpi=300, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
 # Membuat bar chart persentase
-gg.data <- raw.data %>% count(Brand) %>% # banyaknya laptop brand x
+gg.data <- data %>% count(Brand) %>% # banyaknya laptop brand x
   mutate(perc = round(n / sum(n) * 100)) 
 bar.brand_laptop <-
 ggplot(data = gg.data, #buat persentase
        aes(x = reorder(Brand, -n), y = perc)) +
   geom_bar(stat = "identity", col=NA,
            fill= ifelse(gg.data$Brand == "HP",  "#1380A1", "#dddddd")) +
-  geom_hline(yintercept = 0, size = 1, colour="#333333") +
   labs(x = "\nBrand", y = "Persentase (%)", 
        title = "Sebaran Brand Laptop\n") +
-  scale_y_continuous(labels = scales::percent_format(scale = 1)) + theme1
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) + theme1.1
   
 bar.brand_laptop 
 #Export Chart
-ggsave("01_Sebaran Brand Laptop.png", bar.brand_laptop, path = export.chart,
+ggsave("01.1_Sebaran Brand Laptop.png", bar.brand_laptop, path = export.chart,
         dpi = 300, height = 14, width = 20)
 ```
 
@@ -162,144 +148,1119 @@ ggplot(data = gg.data, #buat persentase
        aes(x = reorder(Brand, n), y = perc)) +
   geom_bar(stat = "identity", col=NA,
            fill= ifelse(gg.data$Brand == "HP",  "#1380A1", "#dddddd")) +
-  geom_hline(yintercept = 0, size = 1, colour="#333333") +
   labs(x = "\nBrand", y = "Persentase (%)", 
        title = "Sebaran Brand Laptop\n") + coord_flip() +
   scale_y_continuous(labels = scales::percent_format(scale = 1),
-                     expand = c(0, 5)) + theme2 
+                     expand = c(0, 5)) + theme1.2 
   
 bar.brand_laptop.h 
 #Export Chart
-ggsave("02_Sebaran Brand Laptop.png", bar.brand_laptop.h, path = export.chart,
+ggsave("01.2_Sebaran Brand Laptop.png", bar.brand_laptop.h, path = export.chart,
         dpi = 300, height = 20, width = 17)
 ```
 
 # Harga {.tabset}
 
+```{r,include=FALSE, echo=FALSE, message = FALSE, warning=FALSE}
+theme2 <- list(
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, 
+                                   margin = margin(b = 10, t=0)),
+        axis.text.y = element_text(vjust = 0.5, face = "bold", 
+                                   margin = margin(l = 20, r = -40)),
+        plot.title = element_text(hjust = 0.5, face = "bold"),
+        text = element_text(size = 30),
+        plot.subtitle = element_text(hjust = 0.5),
+        panel.background = element_rect(fill = 'transparent'),
+        plot.background = element_rect(fill='transparent', color=NA),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()
+        ) 
+)
+```
+
 ## Sebaran Harga
 
 ```{r dpi=300, fig.height = 10, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
 install_load('ggtext')
-ggplot(raw.data, aes(x=`Price (IDR)`/1000, 
+harga <-
+ggplot(data, aes(x=`Price (IDR)`/1000, 
                      y='')) +
   #Violin
-  geom_violin(scale="count", fill='#edc611', color=NA, alpha=0.5, 
+  geom_violin(scale="count", fill='#fdbe4a', color='black', alpha=0.9, 
                     trim = FALSE) +
   #Boxplot
-  geom_boxplot(fill='grey90', color='black',
-                     outlier.size=2, outlier.color='grey50', 
+  geom_boxplot(fill='#9d5692', color='black',
+                     outlier.size=2, outlier.color='#9d5692', 
                      notch=T, width=0.2) +
   #Mean Marker
   stat_summary(fun = mean, geom = "point", shape = 16, size = 4, 
-               color = "#d65c2d") +
+               color = "cyan2") +
   theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
   labs(x = "\nHarga (Ribu IDR)", y='',
-       title = "Sebaran Harga Brand Laptop") + theme3 +
+       title = "Sebaran Harga Brand Laptop") + theme2 +
   #Tambah Mean Value
   geom_richtext(
-    data = data.frame(x = mean(raw.data$`Price (IDR)`) / 1000, y = 1.25, 
+    data = data.frame(x = mean(data$`Price (IDR)`) / 1000, y = 1.25, 
                       label = paste("Mean:", 
-                                    round(mean(raw.data$`Price (IDR)`) / 1000, 
+                                    round(mean(data$`Price (IDR)`) / 1000, 
                                           2))),
     aes(x, y, label = label), size = 7, color = "#d65c2d", 
     fill = "white", box.color = "#d65c2d", parse = TRUE
   ) +
   #Tambah panah
-  geom_segment(aes(x = mean(raw.data$`Price (IDR)`) / 1000, 
-                   xend = mean(raw.data$`Price (IDR)`) / 1000, 
+  geom_segment(aes(x = mean(data$`Price (IDR)`) / 1000, 
+                   xend = mean(data$`Price (IDR)`) / 1000, 
                    y = 1, 
                    yend = 1.225), 
                arrow = arrow(type = "closed", length = unit(0.1, "inches")), 
-               lineend = "round", color = "#d65c2d")
+               lineend = "round", color = "cyan2")
+harga
+#Export Chart
+ggsave("02.1_Sebaran Harga Laptop.png", harga, path = export.chart,
+        dpi = 300, height = 10, width = 20)
 ```
 
 ## Sebaran Harga Tiap Brand
 
 ```{r dpi=300, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
 install_load('ggridges','viridis')
-raw.data$Brand <- factor(raw.data$Brand, 
-                  levels= raw.data %>% count(Brand) %>% 
+data$Brand <- factor(data$Brand, 
+                  levels= data %>% count(Brand) %>% 
                                         arrange(n, desc(Brand)) %>%
                                         pull(Brand) )
 harga.brand <- 
-ggplot(raw.data, aes(x=`Price (IDR)`/1000, y=Brand, fill=Brand)) + 
+ggplot(data, aes(x=`Price (IDR)`/1000, y=Brand, fill=Brand)) + 
   geom_density_ridges() +
   #COLORING
   scale_fill_viridis(alpha = 0.75, #Opacity
-                     begin = 0.1, #Color pallte scale begins
+                     begin = 0.25, #Color pallte scale begins
                      end = 0.9, #Color pallte scale ends
                      direction = -1, #Flip color scale
                      discrete = T, #Discrete Value
-                     option = "D") + #Color Palette
+                     option = "G") + #Color Palette
   theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
   labs(x = "\nHarga (Ribu IDR)",y = "Brand Laptop\n", 
-       title = "Sebaran Harga Brand Laptop") + theme3 +
+       title = "Sebaran Harga Brand Laptop \n") + theme2 +
   annotate(
   geom = "richtext",
   x = -Inf, y = 1.25,
   label = "<b>Tidak ada sebaran</b> pada merek laptop <b>Toshiba</b>, <b>Chuwi</b>, dan <b>Fusion5</b>\n\n karena jumlah data untuk ketiga merek tersebut sangat terbatas, yaitu <b>kurang dari 3</b>.",
   vjust = 0, label.padding = unit(0.2, "lines"),
   parse = TRUE,
-  hjust = -0.05, size = 7
+  hjust = -0.1, size = 7, fill=NA
 )
 
 harga.brand
 #Export Chart
-ggsave("04_Sebaran Harga Laptop Per Brand.png", harga.brand, path = export.chart,
+ggsave("02.2_Sebaran Harga Laptop .png", harga.brand, path = export.chart,
         dpi = 300, height = 14, width = 20)
 ```
 
 # Storage {.tabset}
 
+```{r,include=FALSE, echo=FALSE, message = FALSE, warning=FALSE}
+theme3 <- list(
+  theme(legend.position = "none",
+        plot.title = element_text(hjust = 0.5, face = "bold"),
+        text = element_text(size = 30),
+        plot.subtitle = element_text(hjust = 0.5),
+        panel.background = element_rect(fill = 'transparent', color=NA),
+        plot.background = element_rect(fill='transparent', color=NA)
+        ) 
+)
+theme3.2 <- list(
+  theme(legend.position = "none",
+        plot.title = element_text(hjust = 0.5, face = "bold"),
+        text = element_text(size = 30),
+        plot.subtitle = element_text(hjust = 0.5),
+        panel.background = element_rect(fill = 'transparent', color=NA),
+        plot.background = element_rect(fill='transparent', color=NA),
+        panel.grid.major = element_line(colour = "grey90"),
+        axis.line = element_line(linewidth = 1.5, colour = "black")
+        ) 
+)
+```
+
 ## Pie Chart, Proporsi HDD dan SSD
 
-## Bar Chart HDD
+```{r dpi=300, fig.height = 14, fig.width = 14, fig.align = "center", message = FALSE, warning=FALSE}
+install_load('stringr','ggrepel')
+data <- data %>% 
+  mutate(`Storage (GB)` = as.numeric(str_extract(Storage, "\\d+")),
+         `Storage Type` = str_extract(Storage, "(SSD|HDD)"))  
+gg.data <- data %>%
+  group_by(`Storage Type`) %>%
+  summarize(count = n()) %>%
+  arrange(desc(count))
+
+# Buat pie chart
+pie <- 
+ggplot(gg.data, aes(x = "", y = count, fill = `Storage Type`)) +
+  geom_bar(stat = "identity", col=NA) +
+  geom_label_repel(aes(label = paste0(`Storage Type`, "\n", 
+                                    round(count / sum(count) * 100), 
+                                    "% (", count, ")" ) ), 
+                  position = position_stack(vjust = 0.5), size = 10,
+                  label.padding = unit(1, "lines")) +
+  coord_polar(theta = "y") +
+  scale_fill_manual(values =c(SSD = "#1380A1", HDD = "#dddddd")) +
+  theme_void() +
+  labs(title = "\nProporsi SSD dan HDD") + theme3
+pie 
+
+#Export Chart
+ggsave("03.1_Proporsi SSD dan HDD.png", pie, path = export.chart,
+        dpi = 300, height = 14, width = 14)
+```
 
 ## Bar Chart SSD
 
+### Variasi {.tabset}
+
+#### Sebaran
+
+```{r dpi=300, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+# Membuat bar chart persentase
+gg.data <- data %>%
+        filter(grepl("SSD", `Storage Type`, ignore.case = TRUE)) %>% 
+            count(`Storage (GB)`) %>% # banyaknya laptop brand x
+                  mutate(perc = round(n / sum(n) * 100)) %>% #buat persentase, 
+                  arrange(desc(n)) %>%   # Urutkan
+                  mutate(top3 = row_number() <= 3) # Top 3 n terbanyak
+bar.ssd <-
+ggplot(data = gg.data,
+       aes(x = reorder(`Storage (GB)`, `Storage (GB)`), y = perc)) +
+  geom_bar(stat = "identity", col=NA,
+           fill = ifelse(gg.data$top3,  c("#1380A1", "#178CA8", "#189DB2"),
+                         "#dddddd")
+           ) + 
+  labs(x = "SSD (GB)", y = "Persentase (%)\n", 
+       title = "Sebaran SSD Laptop\n") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  theme1.1
+bar.ssd 
+#Export Chart
+ggsave("03.2_Sebaran SSD Laptop.png", bar.ssd, path = export.chart,
+        dpi = 300, height = 14, width = 20)
+```
+
+#### Sebaran Horizontal
+
+```{r dpi=300, fig.height = 20, fig.width = 14, fig.align = "center", message = FALSE, warning=FALSE}
+bar.ssd.h <-
+ggplot(data = gg.data,
+       aes(x = reorder(`Storage (GB)`, `Storage (GB)`), y = perc)) +
+  geom_bar(stat = "identity", col=NA,
+           fill = ifelse(gg.data$top3,  c("#1380A1", "#178CA8", "#189DB2"),
+                         "#dddddd")
+           ) +
+  labs(x = "SSD (GB)", y = "Persentase (%)", 
+       title = "Sebaran SSD Laptop\n") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1),
+                     expand = c(0, 4)) +
+  theme1.2 + coord_flip()
+bar.ssd.h 
+#Export Chart
+ggsave("03.3_Sebaran SSD Laptop.png", bar.ssd.h, path = export.chart,
+        dpi = 300, height = 20, width = 14)
+```
+
+#### Urut
+
+```{r dpi=300, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+# Membuat bar chart persentase
+bar.ssd.urut <-
+ggplot(data = gg.data,
+       aes(x = reorder(`Storage (GB)`, -n), y = perc)) +
+  geom_bar(stat = "identity", col=NA,
+           fill = ifelse(gg.data$top3,  c("#1380A1", "#178CA8", "#189DB2"),
+                         "#dddddd")
+           ) +
+  geom_text(aes(label = prettyNum(n,big.mark = ",")
+                ), vjust = -0.5, size = 8, col="orange4", 
+            fontface = "bold") + # Tambahkan label
+  labs(x = "\nSSD (GB)", y = "Persentase (%)\n", 
+       title = "Sebaran SSD Laptop\n") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  theme1.1
+bar.ssd.urut
+#Export Chart
+ggsave("03.4_Sebaran SSD Laptop_Urut.png", bar.ssd.urut, path = export.chart,
+        dpi = 300, height = 14, width = 20)
+```
+
+#### Urut horizontal
+
+```{r dpi=300, fig.height = 20, fig.width = 14, fig.align = "center", message = FALSE, warning=FALSE}
+bar.ssd.urut.h <-
+ggplot(data = gg.data,
+       aes(x = reorder(`Storage (GB)`, n), y = perc)) +
+  geom_bar(stat = "identity", col=NA,
+           fill = ifelse(gg.data$top3,  c("#1380A1", "#178CA8", "#189DB2"),
+                         "#dddddd")
+           ) +
+  labs(x = "SSD (GB)", y = "Persentase (%)", 
+       title = "Sebaran SSD Laptop\n") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1),
+                     expand = c(0, 4)) +
+  theme1.2 + coord_flip()
+bar.ssd.urut.h 
+#Export Chart
+ggsave("03.5_Sebaran SSD Laptop_Urut.png", bar.ssd.urut.h, path = export.chart,
+        dpi = 300, height = 20, width = 14)
+```
+
+## Bar Chart HDD
+
+### Variasi {.tabset}
+
+#### Sebaran
+
+```{r dpi=300, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+# Membuat bar chart persentase
+gg.data <- data %>%
+        filter(grepl("HDD", `Storage Type`, ignore.case = TRUE)) %>% 
+            count(`Storage (GB)`) %>% # banyaknya laptop brand x
+                  mutate(perc = round(n / sum(n) * 100)) %>% #buat persentase, 
+                  arrange(desc(n)) %>%   # Urutkan
+                  mutate(top1 = row_number() <= 1) # Top 1 n terbanyak
+bar.hdd <-
+ggplot(data = gg.data,
+       aes(x = reorder(`Storage (GB)`, `Storage (GB)`), y = perc)) +
+  geom_bar(stat = "identity", col=NA,
+           fill = ifelse(gg.data$top1,  c("#1380A1"),
+                         "#dddddd")
+           ) + 
+  labs(x = "HDD (GB)", y = "Persentase (%)\n", 
+       title = "Sebaran HDD Laptop\n") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  theme1.1
+bar.hdd 
+#Export Chart
+ggsave("03.6_Sebaran HDD Laptop.png", bar.hdd, path = export.chart,
+        dpi = 300, height = 14, width = 20)
+```
+
+#### Sebaran Horizontal
+
+```{r dpi=300, fig.height = 20, fig.width = 14, fig.align = "center", message = FALSE, warning=FALSE}
+bar.hdd.h <-
+ggplot(data = gg.data,
+       aes(x = reorder(`Storage (GB)`, `Storage (GB)`), y = perc)) +
+  geom_bar(stat = "identity", col=NA,
+           fill = ifelse(gg.data$top1,  c("#1380A1"),
+                         "#dddddd")
+           ) +
+  labs(x = "HDD (GB)", y = "Persentase (%)", 
+       title = "Sebaran HDD Laptop\n") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1),
+                     expand = c(0, 9)) +
+  theme1.2 + coord_flip()
+bar.hdd.h 
+#Export Chart
+ggsave("03.7_Sebaran HDD Laptop.png", bar.hdd.h, path = export.chart,
+        dpi = 300, height = 20, width = 14)
+```
+
+#### Urut
+
+```{r dpi=300, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+# Membuat bar chart persentase
+bar.hdd.urut <-
+ggplot(data = gg.data,
+       aes(x = reorder(`Storage (GB)`, -n), y = perc)) +
+  geom_bar(stat = "identity", col=NA,
+           fill = ifelse(gg.data$top1,  c("#1380A1"),
+                         "#dddddd")
+           ) +
+  geom_text(aes(label = prettyNum(n,big.mark = ",")
+                ), vjust = -0.5, size = 8, col="orange4", 
+            fontface = "bold") + # Tambahkan label
+  labs(x = "\nHDD (GB)", y = "Persentase (%)\n", 
+       title = "Sebaran HDD Laptop\n") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  theme1.1
+bar.hdd.urut
+#Export Chart
+ggsave("03.8_Sebaran HDD Laptop_Urut.png", bar.hdd.urut, path = export.chart,
+        dpi = 300, height = 14, width = 20)
+```
+
+#### Urut Horizontal
+
+```{r dpi=300, fig.height = 20, fig.width = 14, fig.align = "center", message = FALSE, warning=FALSE}
+bar.hdd.urut.h <-
+ggplot(data = gg.data,
+       aes(x = reorder(`Storage (GB)`, n), y = perc)) +
+  geom_bar(stat = "identity", col=NA,
+           fill = ifelse(gg.data$top1,  c("#1380A1"),
+                         "#dddddd")
+           ) +
+  labs(x = "HDD (GB)", y = "Persentase (%)", 
+       title = "Sebaran HDD Laptop\n") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1),
+                     expand = c(0, 9)) +
+  theme1.2 + coord_flip()
+bar.hdd.urut.h 
+#Export Chart
+ggsave("03.9_Sebaran HDD Laptop_Urut.png", bar.hdd.urut.h, path = export.chart,
+        dpi = 300, height = 20, width = 14)
+```
+
 ## Sebaran Storage Score
+
+```{r dpi=300, fig.height = 10, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+install_load('ggtext')
+ss <-
+ggplot(data, aes(x=`Storage Score`, 
+                     y='')) +
+  #Violin
+  geom_violin(scale="count", fill='#fdbe4a', color='black', alpha=0.9, 
+                    trim = FALSE) +
+  #Boxplot
+  geom_boxplot(fill='#9d5692', color='black',
+                     outlier.size=2, outlier.color='#9d5692', 
+                     notch=T, width=0.2) +
+  #Mean Marker
+  stat_summary(fun = mean, geom = "point", shape = 16, size = 4, 
+               color = "cyan2") +
+  theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
+  labs(x = "\nStorage Score", y='',
+       title = "Sebaran Storage Score") + theme2 +
+  #Tambah Mean Value
+  geom_richtext(
+    data = data.frame(x = mean(data$`Storage Score`), y = 1.25, 
+                      label = paste("Mean:", 
+                                    round(mean(data$`Storage Score`) , 
+                                          2))),
+    aes(x, y, label = label), size = 7, color = "#d65c2d", 
+    fill = "white", box.color = "#d65c2d", parse = TRUE
+  ) +
+  #Tambah panah
+  geom_segment(aes(x = mean(data$`Storage Score`) , 
+                   xend = mean(data$`Storage Score`) , 
+                   y = 1, 
+                   yend = 1.225), 
+               arrow = arrow(type = "closed", length = unit(0.1, "inches")), 
+               lineend = "round", color = "cyan2")
+ss
+#Export Chart
+ggsave("03.10_Sebaran Storage Score.png", ss, path = export.chart,
+        dpi = 300, height = 10, width = 20)
+```
+
+## Sebaran Storage Score Per Tipe
+
+```{r dpi=300, fig.height = 10, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+data$`Storage Type` <- factor(data$`Storage Type`, 
+                  levels= data %>% count(`Storage Type`) %>% 
+                                        arrange(n, desc(`Storage Type`)) %>%
+                                        pull(`Storage Type`) )
+ss.t <- 
+ggplot(data, aes(x=`Storage Score`, y=`Storage Type`, fill=`Storage Type`)) + 
+  geom_density_ridges() +
+  #COLORING
+  scale_fill_viridis(alpha = 0.75, #Opacity
+                     begin = 0.25, #Color pallte scale begins
+                     end = 0.9, #Color pallte scale ends
+                     direction = -1, #Flip color scale
+                     discrete = T, #Discrete Value
+                     option = "B") + #Color Palette
+  theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
+  labs(x = "\nStorage Score",y = "Tipe Storage\n", 
+       title = "Sebaran Storage Score Per Tipe\n") + theme2 
+
+
+ss.t
+#Export Chart
+ggsave("03.11_Sebaran Storage Score Per Tipe.png", ss.t, path = export.chart,
+        dpi = 300, height = 10, width = 20)
+```
+
+## Sebaran Storage Score Per Laptop Brand
+
+```{r dpi=300, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+data$Brand <- factor(data$Brand, 
+                  levels= data %>% count(Brand) %>% 
+                                        arrange(n, desc(Brand)) %>%
+                                        pull(Brand) )
+ss.brand <- 
+ggplot(data, aes(x=`Storage Score`, y=Brand, fill=Brand)) + 
+  geom_density_ridges() +
+  #COLORING
+  scale_fill_viridis(alpha = 0.75, #Opacity
+                     begin = 0.25, #Color pallte scale begins
+                     end = 0.9, #Color pallte scale ends
+                     direction = -1, #Flip color scale
+                     discrete = T, #Discrete Value
+                     option = "B") + #Color Palette
+  theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
+  labs(x = "\nHarga (Ribu IDR)",y = "Brand Laptop\n", 
+       title = "Sebaran Storage Score \n") + theme2 +
+  annotate(
+  geom = "richtext",
+  x = -Inf, y = 1.25,
+  label = "<b>Tidak ada sebaran</b> pada merek laptop <b>Toshiba</b>, <b>Chuwi</b>, dan <b>Fusion5</b>\n\n karena jumlah data untuk ketiga merek tersebut sangat terbatas, yaitu <b>kurang dari 3</b>.",
+  vjust = 0, label.padding = unit(0.2, "lines"),
+  parse = TRUE,
+  hjust = -0.1, size = 7
+)
+
+ss.brand
+#Export Chart
+ggsave("03.12_Sebaran Storage Score Laptop .png", 
+       ss.brand, path = export.chart,
+        dpi = 300, height = 14, width = 20)
+```
 
 ## Scatterplot Storage Score & Price
 
-```{r}
-
+```{r dpi=300, fig.height = 20, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+scat.ss <-
+ggplot(data = data, aes(x = `Storage Score`, y = `Price (IDR)`/1000, color = `Storage Type`)) +
+  geom_point(alpha = 0.5, size = 7) +
+  geom_smooth(method = "lm", formula = y ~ x, se = FALSE, size = 0.5) +
+  labs(title='Scatterplot Storage Score dengan Price\n',
+    x = "\nStorage Score", y = "Ribu IDR\n", color = "Storage Type") +
+  scale_color_manual(values = c("SSD" = "#1380A1", "HDD" = "orange")) +
+  theme3.2 +
+  geom_text(aes(x = 30000, 
+                y = 100000, 
+                label = paste("R =", round(cor(data$`Storage Score`, 
+                                               data$`Price (IDR)`), 2))),
+            color = "black", size = 20)
+scat.ss
+#Export Chart
+ggsave("03.13_Scatteplot Storage Score degan Price.png", 
+       scat.ss, path = export.chart,
+        dpi = 300, height = 10, width = 20)
 ```
 
 # Display {.tabset}
 
+Pisahkan data.
+
+```{r, message = FALSE, warning=FALSE}
+data <- data %>%
+  separate(Display, into = c("Screen Size (Inch)", "Resolution", 
+                             "Screen Type","Refresh Rate (Hz)" ), 
+           sep = ", ", remove = FALSE) %>%
+  mutate(
+    # Menghapus karakter " dan mengubah menjadi numerik
+    `Screen Size (Inch)` = as.numeric(gsub("[^0-9.]", "", `Screen Size (Inch)`)), 
+    #Tukar Kolom jika ada hz
+    temp = `Refresh Rate (Hz)`,
+    #Ubah hz jadi numerik
+    `Refresh Rate (Hz)` = ifelse(grepl("Hz", `Screen Type`), 
+                                 as.numeric(gsub("[^0-9.]", "", `Screen Type`)), 
+                      #Jika tidak ada, beri nilai minimal hz laptop yakni 60 hz
+                                 60), 
+    `Screen Type` = ifelse(grepl("Hz", `Screen Type`), temp, `Screen Type`)
+  ) %>% select(-temp) %>% 
+  mutate(`Screen Type` = ifelse(is.na(`Screen Type`), "LCD", `Screen Type`))
+```
+
 ## Bar Chart Screen Size
+
+```{r dpi=300, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+# Membuat bar chart persentase
+gg.data <- data %>%
+            count(`Screen Size (Inch)`) %>% # banyaknya laptop brand x
+                  mutate(perc = round(n / sum(n) * 100)) %>% #buat persentase, 
+                  arrange(desc(n)) %>%   # Urutkan
+                  mutate(top1 = row_number() <= 1) # Top 1 n terbanyak
+screen_size <-
+ggplot(data = gg.data,
+       aes(x = reorder(`Screen Size (Inch)`, -n), y = perc)) +
+  geom_bar(stat = "identity", col=NA,
+           fill = ifelse(gg.data$top1,  c("#1380A1"),
+                         "#dddddd")
+           ) +
+  geom_text(aes(label = prettyNum(n,big.mark = ",")
+                ), vjust = -0.5, size = 8, col="orange4", 
+            fontface = "bold") + # Tambahkan label
+  labs(x = "\nScreen Size", y = "Persentase (%)\n", 
+       title = "Bar Chart Screen Size Laptop\n") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  theme1.1
+screen_size
+#Export Chart
+ggsave("04.1_Bar Chart Screen Size Laptop_Urut.png", screen_size, path = export.chart,
+        dpi = 300, height = 14, width = 20)
+```
 
 ## Bar Chart Resolution
 
+```{r}
+data <- data %>% 
+  mutate( # Mencari semua kemungkinan pasangan angka dalam kolom "Resolution"
+    Resolution_Num = str_extract_all(Resolution, "\\d{2,}"),
+    # Mengambil pasangan angka yang memiliki dua angka di dalamnya
+    Resolution_Num = sapply(Resolution_Num, 
+                            function(x) if (length(x) == 2) paste(x, collapse = "x") else NA)
+  ) %>% # Pisahkan "Width" dan "Height" dari "Resolution_Num"
+  separate(Resolution_Num, into = c("Width", "Height"), sep = "x", 
+           convert = TRUE, remove = FALSE) %>% 
+# Berikan bobot jika ada kata PixelSense dalam kolom resolusi
+  mutate(
+    Resolution = ifelse(grepl("PixelSense", Resolution), 
+                              Width * Height * 1.125, 
+                              Width * Height)
+  ) %>% select(-Resolution_Num, -Width, -Height) 
+```
+
+```{r dpi=300, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+# Membuat bar chart persentase
+gg.data <- data %>%
+            count(Resolution) %>% # banyaknya laptop brand x
+                  mutate(perc = round(n / sum(n) * 100)) %>% #buat persentase, 
+                  arrange(desc(n)) %>%   # Urutkan
+                  mutate(top1 = row_number() <= 1) # Top 1 n terbanyak
+res <-
+ggplot(data = gg.data,
+       aes(x = reorder(Resolution, -n), y = perc)) +
+  geom_bar(stat = "identity", col=NA,
+           fill = ifelse(gg.data$top1,  c("#1380A1"),
+                         "#dddddd")
+           ) +
+  geom_text(aes(label = prettyNum(n,big.mark = ",")
+                ), vjust = -0.5, size = 8, col="orange4", 
+            fontface = "bold") + # Tambahkan label
+  labs(x = "\nResolution", y = "Persentase (%)\n", 
+       title = "Bar Chart Resolution Laptop\n") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  theme1.1
+res
+#Export Chart
+ggsave("04.2_Bar Chart Resolution Laptop_Urut.png", res, path = export.chart,
+        dpi = 300, height = 14, width = 20)
+```
+
 ## Bar Chart Screen Type
+
+```{r dpi=300, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+# Membuat bar chart persentase
+gg.data <- data %>%
+            count(`Screen Type`) %>% # banyaknya laptop brand x
+                  mutate(perc = round(n / sum(n) * 100)) %>% #buat persentase, 
+                  arrange(desc(n)) %>%   # Urutkan
+                  mutate(top1 = row_number() <= 1) # Top 1 n terbanyak
+s.type <-
+ggplot(data = gg.data,
+       aes(x = reorder(`Screen Type`, -n), y = perc)) +
+  geom_bar(stat = "identity", col=NA,
+           fill = ifelse(gg.data$top1,  c("#1380A1"),
+                         "#dddddd")
+           ) +
+  geom_text(aes(label = prettyNum(n,big.mark = ",")
+                ), vjust = -0.5, size = 8, col="orange4", 
+            fontface = "bold") + # Tambahkan label
+  labs(x = "\nScreen Type", y = "Persentase (%)\n", 
+       title = "Bar Chart Screen Type Laptop\n") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  theme1.1
+s.type
+#Export Chart
+ggsave("04.3_Bar Chart Screen Type Laptop_Urut.png", s.type, path = export.chart,
+        dpi = 300, height = 14, width = 20)
+```
 
 ## Bar Chart Refresh Rate
 
+```{r dpi=300, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+# Membuat bar chart persentase
+gg.data <- data %>%
+            count(`Refresh Rate (Hz)`) %>% # banyaknya laptop brand x
+                  mutate(perc = round(n / sum(n) * 100)) %>% #buat persentase, 
+                  arrange(desc(n)) %>%   # Urutkan
+                  mutate(top1 = row_number() <= 1) # Top 1 n terbanyak
+rr <-
+ggplot(data = gg.data,
+       aes(x = reorder(`Refresh Rate (Hz)`, -n), y = perc)) +
+  geom_bar(stat = "identity", col=NA,
+           fill = ifelse(gg.data$top1,  c("#1380A1"),
+                         "#dddddd")
+           ) +
+  geom_text(aes(label = prettyNum(n,big.mark = ",")
+                ), vjust = -0.5, size = 8, col="orange4", 
+            fontface = "bold") + # Tambahkan label
+  labs(x = "\nRefresh Rate (Hz)", y = "Persentase (%)\n", 
+       title = "Bar Chart Refresh Rate Laptop\n") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  theme1.1
+rr
+#Export Chart
+ggsave("04.4_Bar Chart Refresh Rate (Hz) Laptop_Urut.png", rr, path = export.chart,
+        dpi = 300, height = 14, width = 20)
+```
+
 ## Sebaran Display Score
 
+```{r dpi=300, fig.height = 10, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+d.score <-
+ggplot(data, aes(x=`Display Score`, 
+                     y='')) +
+  #Violin
+  geom_violin(scale="count", fill='#fdbe4a', color='black', alpha=0.9, 
+                    trim = FALSE) +
+  #Boxplot
+  geom_boxplot(fill='#9d5692', color='black',
+                     outlier.size=2, outlier.color='#9d5692', 
+                     notch=T, width=0.2) +
+  #Mean Marker
+  stat_summary(fun = mean, geom = "point", shape = 16, size = 4, 
+               color = "cyan2") +
+  theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
+  labs(x = "\nDisplay Score", y='',
+       title = "Sebaran Display Score Laptop") + theme2 +
+  #Tambah Mean Value
+  geom_richtext(
+    data = data.frame(x = mean(data$`Display Score`) , y = 1.25, 
+                      label = paste("Mean:", 
+                                    round(mean(data$`Display Score`) , 
+                                          2))),
+    aes(x, y, label = label), size = 7, color = "#d65c2d", 
+    fill = "white", box.color = "#d65c2d", parse = TRUE
+  ) +
+  #Tambah panah
+  geom_segment(aes(x = mean(data$`Display Score`) , 
+                   xend = mean(data$`Display Score`) , 
+                   y = 1, 
+                   yend = 1.225), 
+               arrow = arrow(type = "closed", length = unit(0.1, "inches")), 
+               lineend = "round", color = "cyan2")
+d.score
+#Export Chart
+ggsave("04.5_Sebaran Display Score Laptop.png", d.score, path = export.chart,
+        dpi = 300, height = 10, width = 20)
+```
+
+## Sebaran Display Score Per Laptop Brand
+
+```{r dpi=300, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+data$Brand <- factor(data$Brand, 
+                  levels= data %>% count(Brand) %>% 
+                                        arrange(n, desc(Brand)) %>%
+                                        pull(Brand) )
+d.score.brand <- 
+ggplot(data, aes(x=`Display Score`, y=Brand, fill=Brand)) + 
+  geom_density_ridges() +
+  #COLORING
+  scale_fill_viridis(alpha = 0.75, #Opacity
+                     begin = 0.25, #Color pallte scale begins
+                     end = 0.9, #Color pallte scale ends
+                     direction = -1, #Flip color scale
+                     discrete = T, #Discrete Value
+                     option = "B") + #Color Palette
+  theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
+  labs(x = "\nHarga (Ribu IDR)",y = "Brand Laptop\n", 
+       title = "Sebaran Harga Brand Laptop \n") + theme2 +
+  annotate(
+  geom = "richtext",
+  x = -Inf, y = 1.25,
+  label = "<b>Tidak ada sebaran</b> pada merek laptop <b>Toshiba</b>, <b>Chuwi</b>, dan <b>Fusion5</b>\n\n karena jumlah data untuk ketiga merek tersebut sangat terbatas, yaitu <b>kurang dari 3</b>.",
+  vjust = 0, label.padding = unit(0.2, "lines"),
+  parse = TRUE,
+  hjust = -0.1, size = 7
+)
+
+d.score.brand
+#Export Chart
+ggsave("04.5_Sebaran Display Score Laptop .png", 
+       d.score.brand, path = export.chart,
+        dpi = 300, height = 14, width = 20)
+```
+
 ## Scatterplot Display Score & Price
+
+```{r dpi=300, fig.height = 20, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+scat.ds <-
+ggplot(data = data, aes(x = `Display Score`, y = `Price (IDR)`/1000)) +
+  geom_point(alpha = 0.5, size = 7, col="#1380A1") +
+  geom_smooth(method = "lm", formula = y ~ x, se = FALSE, size = 0.5) +
+  labs(title='Scatterplot Display Score dengan Price\n',
+    x = "\nDisplay Score", y = "Ribu IDR\n", color = "Storage Type") +
+  theme3.2 +
+  geom_text(aes(x = 150, 
+                y = 100000, 
+                label = paste("R =", round(cor(data$`Display Score`, 
+                                               data$`Price (IDR)`), 2))),
+            color = "black", size = 20)
+scat.ds
+#Export Chart
+ggsave("04.5_Scatteplot Display Score degan Price.png", 
+       scat.ds, path = export.chart,
+        dpi = 300, height = 10, width = 20)
+```
 
 # RAM {.tabset}
 
 ## Bar Chart RAM
 
+```{r dpi=300, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+# Membuat bar chart persentase
+gg.data <- data %>%
+            count(`Ram (GB)`) %>% # banyaknya laptop brand x
+                  mutate(perc = round(n / sum(n) * 100)) %>% #buat persentase, 
+                  arrange(desc(n)) %>%   # Urutkan
+                  mutate(top1 = row_number() <= 1) # Top 1 n terbanyak
+ram <-
+ggplot(data = gg.data,
+       aes(x = reorder(`Ram (GB)`, -n), y = perc)) +
+  geom_bar(stat = "identity", col=NA,
+           fill = ifelse(gg.data$top1,  c("#1380A1"),
+                         "#dddddd")
+           ) +
+  geom_text(aes(label = prettyNum(n,big.mark = ",")
+                ), vjust = -0.5, size = 8, col="orange4", 
+            fontface = "bold") + # Tambahkan label
+  labs(x = "\nRAM (GB)", y = "Persentase (%)\n", 
+       title = "Bar Chart RAM Laptop\n") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  theme1.1
+ram
+#Export Chart
+ggsave("05.1_Bar Chart Ram (GB) Laptop_Urut.png", ram, path = export.chart,
+        dpi = 300, height = 14, width = 20)
+```
+
 ## Scatterplot RAM & Price
+
+```{r dpi=300, fig.height = 20, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+scat.ds <-
+ggplot(data = data, aes(x = `Ram (GB)`, y = `Price (IDR)`/1000)) +
+  geom_point(alpha = 0.5, size = 7, col="#1380A1") +
+  geom_smooth(method = "lm", formula = y ~ x, se = FALSE, size = 0.5) +
+  labs(title='Scatterplot RAM dengan Price\n',
+    x = "\nRam (GB)", y = "Ribu IDR\n", color = "Storage Type") +
+  theme3.2 +
+  geom_text(aes(x = 100, 
+                y = 100000, 
+                label = paste("R =", round(cor(data$`Ram (GB)`, 
+                                               data$`Price (IDR)`), 2))),
+            color = "black", size = 20)
+scat.ds
+#Export Chart
+ggsave("05.2_Scatteplot RAM (GB) degan Price.png", 
+       scat.ds, path = export.chart,
+        dpi = 300, height = 10, width = 20)
+```
 
 # CPU {.tabset}
 
 ## Bar Chart CPU Brand
 
+```{r dpi=300, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+# Membuat bar chart persentase
+gg.data <- data %>%
+            count(`CPU Brand`) %>% # banyaknya laptop brand x
+                  mutate(perc = round(n / sum(n) * 100)) %>% #buat persentase, 
+                  arrange(desc(n)) %>%   # Urutkan
+                  mutate(top1 = row_number() <= 1) # Top 1 n terbanyak
+cpu_brand <-
+ggplot(data = gg.data,
+       aes(x = reorder(`CPU Brand`, -n), y = perc)) +
+  geom_bar(stat = "identity", col=NA,
+           fill = ifelse(gg.data$top1,  c("#1380A1"),
+                         "#dddddd")
+           ) +
+  geom_text(aes(label = prettyNum(n,big.mark = ",")
+                ), vjust = -0.5, size = 8, col="orange4", 
+            fontface = "bold") + # Tambahkan label
+  labs(x = "\nCPU Brand", y = "Persentase (%)\n", 
+       title = "Bar CPU Brand Laptop\n") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  theme1.1
+cpu_brand
+#Export Chart
+ggsave("06.1_Bar Chart CPU Brand Laptop_Urut.png", cpu_brand, path = export.chart,
+        dpi = 300, height = 14, width = 20)
+```
+
 ## Sebaran CPU Score
 
+```{r dpi=300, fig.height = 10, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+cpu.score <-
+ggplot(data, aes(x=`CPU Score`, 
+                     y='')) +
+  #Violin
+  geom_violin(scale="count", fill='#fdbe4a', color='black', alpha=0.9, 
+                    trim = FALSE) +
+  #Boxplot
+  geom_boxplot(fill='#9d5692', color='black',
+                     outlier.size=2, outlier.color='#9d5692', 
+                     notch=T, width=0.2) +
+  #Mean Marker
+  stat_summary(fun = mean, geom = "point", shape = 16, size = 4, 
+               color = "cyan2") +
+  theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
+  labs(x = "\nCPU Score", y='',
+       title = "Sebaran CPU Score Laptop") + theme2 +
+  #Tambah Mean Value
+  geom_richtext(
+    data = data.frame(x = mean(data$`CPU Score`) , y = 1.25, 
+                      label = paste("Mean:", 
+                                    round(mean(data$`CPU Score`) , 
+                                          2))),
+    aes(x, y, label = label), size = 7, color = "#d65c2d", 
+    fill = "white", box.color = "#d65c2d", parse = TRUE
+  ) +
+  #Tambah panah
+  geom_segment(aes(x = mean(data$`CPU Score`) , 
+                   xend = mean(data$`CPU Score`) , 
+                   y = 1, 
+                   yend = 1.225), 
+               arrow = arrow(type = "closed", length = unit(0.1, "inches")), 
+               lineend = "round", color = "cyan2")
+cpu.score
+#Export Chart
+ggsave("06.2_Sebaran CPU Score Laptop.png", cpu.score, path = export.chart,
+        dpi = 300, height = 10, width = 20)
+```
+
+## Sebaran CPU Score Per CPU Brand
+
+```{r dpi=300, fig.height = 10, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+data$`CPU Brand` <- factor(data$`CPU Brand`, 
+                  levels= data %>% count(`CPU Brand`) %>% 
+                                        arrange(n, desc(`CPU Brand`)) %>%
+                                        pull(`CPU Brand`) )
+cpu_score.cpu_brand <- 
+ggplot(data, aes(x=`CPU Score`, y=`CPU Brand`, fill=`CPU Brand`)) + 
+  geom_density_ridges() +
+  #COLORING
+  scale_fill_viridis(alpha = 0.75, #Opacity
+                     begin = 0.25, #Color pallte scale begins
+                     end = 0.9, #Color pallte scale ends
+                     direction = -1, #Flip color scale
+                     discrete = T, #Discrete Value
+                     option = "B") + #Color Palette
+  theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
+  labs(x = "\nCPU Score",y = "CPU Brand\n", 
+       title = "Sebaran CPU Score Per CPU Brand\n") + theme2 
+
+
+cpu_score.cpu_brand
+#Export Chart
+ggsave("06.3_Sebaran CPU Score Per CPU Brand.png", cpu_score.cpu_brand, path = export.chart,
+        dpi = 300, height = 10, width = 20)
+```
+
+## Sebaran CPU Score Per Laptop Brand
+
+```{r dpi=300, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+data$Brand <- factor(data$Brand, 
+                  levels= data %>% count(Brand) %>% 
+                                        arrange(n, desc(Brand)) %>%
+                                        pull(Brand) )
+cpu.score.brand <- 
+ggplot(data, aes(x=`CPU Score`, y=Brand, fill=Brand)) + 
+  geom_density_ridges() +
+  #COLORING
+  scale_fill_viridis(alpha = 0.75, #Opacity
+                     begin = 0.25, #Color pallte scale begins
+                     end = 0.9, #Color pallte scale ends
+                     direction = -1, #Flip color scale
+                     discrete = T, #Discrete Value
+                     option = "B") + #Color Palette
+  theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
+  labs(x = "\nCPU Score",y = "Brand Laptop\n", 
+       title = "Sebaran CPU Score per Brand Laptop \n") + theme2 +
+  annotate(
+  geom = "richtext",
+  x = -Inf, y = 1.25,
+  label = "<b>Tidak ada sebaran</b> pada merek laptop <b>Toshiba</b>, <b>Chuwi</b>, dan <b>Fusion5</b>\n\n karena jumlah data untuk ketiga merek tersebut sangat terbatas, yaitu <b>kurang dari 3</b>.",
+  vjust = 0, label.padding = unit(0.2, "lines"),
+  parse = TRUE,
+  hjust = -0.1, size = 7
+)
+
+cpu.score.brand
+#Export Chart
+ggsave("06.4_Sebaran CPU Score per Brand Laptop .png", 
+       cpu.score.brand, path = export.chart,
+        dpi = 300, height = 14, width = 20)
+```
+
 ## Scatterplot CPU & Price
+
+```{r dpi=300, fig.height = 20, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+scat.cpu <-
+ggplot(data = data, aes(x = `CPU Score`, y = `Price (IDR)`/1000)) +
+  geom_point(alpha = 0.5, size = 7, col="#1380A1") +
+  geom_smooth(method = "lm", formula = y ~ x, se = FALSE, size = 0.5) +
+  labs(title='Scatterplot CPU Score dengan Price\n',
+    x = "\nCPU Score", y = "Ribu IDR\n", color = "Storage Type") +
+  theme3.2 +
+  geom_text(aes(x = 100, 
+                y = 100000, 
+                label = paste("R =", round(cor(data$`CPU Score`, 
+                                               data$`Price (IDR)`), 2))),
+            color = "black", size = 20)
+scat.cpu
+#Export Chart
+ggsave("06.5_Scatteplot CPU Score degan Price.png", 
+       scat.cpu, path = export.chart,
+        dpi = 300, height = 10, width = 20)
+```
 
 # GPU {.tabset}
 
 ## Bar Chart GPU Brand
 
+```{r dpi=300, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+# Membuat bar chart persentase
+gg.data <- data %>%
+            count(`GPU Brand`) %>% # banyaknya laptop brand x
+                  mutate(perc = round(n / sum(n) * 100)) %>% #buat persentase, 
+                  arrange(desc(n)) %>%   # Urutkan
+                  mutate(top1 = row_number() <= 1) # Top 1 n terbanyak
+gpu_brand <-
+ggplot(data = gg.data,
+       aes(x = reorder(`GPU Brand`, -n), y = perc)) +
+  geom_bar(stat = "identity", col=NA,
+           fill = ifelse(gg.data$top1,  c("#1380A1"),
+                         "#dddddd")
+           ) +
+  geom_text(aes(label = prettyNum(n,big.mark = ",")
+                ), vjust = -0.5, size = 8, col="orange4", 
+            fontface = "bold") + # Tambahkan label
+  labs(x = "\nGPU Brand", y = "Persentase (%)\n", 
+       title = "Bar GPU Brand Laptop\n") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  theme1.1
+gpu_brand
+#Export Chart
+ggsave("07.1_Bar Chart GPU Brand Laptop_Urut.png", gpu_brand, path = export.chart,
+        dpi = 300, height = 14, width = 20)
+```
+
 ## Sebaran GPU Score
 
+```{r dpi=300, fig.height = 10, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+gpu.score <-
+ggplot(data, aes(x=`GPU Score`, 
+                     y='')) +
+  #Violin
+  geom_violin(scale="count", fill='#fdbe4a', color='black', alpha=0.9, 
+                    trim = FALSE) +
+  #Boxplot
+  geom_boxplot(fill='#9d5692', color='black',
+                     outlier.size=2, outlier.color='#9d5692', 
+                     notch=T, width=0.1, alpha=0.5) +
+  #Mean Marker
+  stat_summary(fun = mean, geom = "point", shape = 16, size = 4, 
+               color = "cyan2") +
+  theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
+  labs(x = "\nGPU Score", y='',
+       title = "Sebaran GPU Score Laptop") + theme2 +
+  #Tambah Mean Value
+  geom_richtext(
+    data = data.frame(x = mean(data$`GPU Score`) , y = 1.25, 
+                      label = paste("Mean:", 
+                                    round(mean(data$`GPU Score`) , 
+                                          2))),
+    aes(x, y, label = label), size = 7, color = "#d65c2d", 
+    fill = "white", box.color = "#d65c2d", parse = TRUE
+  ) +
+  #Tambah panah
+  geom_segment(aes(x = mean(data$`GPU Score`) , 
+                   xend = mean(data$`GPU Score`) , 
+                   y = 1, 
+                   yend = 1.225), 
+               arrow = arrow(type = "closed", length = unit(0.1, "inches")), 
+               lineend = "round", color = "cyan2")
+gpu.score
+#Export Chart
+ggsave("07.2_Sebaran GPU Score Laptop.png", gpu.score, path = export.chart,
+        dpi = 300, height = 10, width = 20)
+```
+
+## Sebaran GPU Score per GPU Brand
+
+```{r dpi=300, fig.height = 10, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+data$`GPU Brand` <- factor(data$`GPU Brand`, 
+                  levels= data %>% count(`GPU Brand`) %>% 
+                                        arrange(n, desc(`GPU Brand`)) %>%
+                                        pull(`GPU Brand`) )
+gpu_scoure.gpu_brand <- 
+ggplot(data, aes(x=`GPU Score`, y=`GPU Brand`, fill=`GPU Brand`)) + 
+  geom_density_ridges() +
+  #COLORING
+  scale_fill_viridis(alpha = 0.75, #Opacity
+                     begin = 0.25, #Color pallte scale begins
+                     end = 0.9, #Color pallte scale ends
+                     direction = -1, #Flip color scale
+                     discrete = T, #Discrete Value
+                     option = "B") + #Color Palette
+  theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
+  labs(x = "\nGPU Score",y = "GPU Brand\n", 
+       title = "Sebaran GPU Score Per GPU Brand\n") + theme2 
+
+
+gpu_scoure.gpu_brand
+#Export Chart
+ggsave("07.3_Sebaran GPU Score Per GPU Brand.png", gpu_scoure.gpu_brand, path = export.chart,
+        dpi = 300, height = 10, width = 20)
+```
+
+## Sebaran GPU Score per Laptop Brand
+
+```{r dpi=300, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+data$Brand <- factor(data$Brand, 
+                  levels= data %>% count(Brand) %>% 
+                                        arrange(n, desc(Brand)) %>%
+                                        pull(Brand) )
+gpu.score.brand <- 
+ggplot(data, aes(x=`GPU Score`, y=Brand, fill=Brand)) + 
+  geom_density_ridges() +
+  #COLORING
+  scale_fill_viridis(alpha = 0.75, #Opacity
+                     begin = 0.25, #Color pallte scale begins
+                     end = 0.9, #Color pallte scale ends
+                     direction = -1, #Flip color scale
+                     discrete = T, #Discrete Value
+                     option = "B") + #Color Palette
+  theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
+  labs(x = "\nGPU Score",y = "Brand Laptop\n", 
+       title = "Sebaran GPU Score per Brand Laptop \n") + theme2 +
+  annotate(
+  geom = "richtext",
+  x = -Inf, y = 1.25,
+  label = "<b>Tidak ada sebaran</b> pada merek laptop <b>Toshiba</b>, <b>Chuwi</b>, dan <b>Fusion5</b>\n\n karena jumlah data untuk ketiga merek tersebut sangat terbatas, yaitu <b>kurang dari 3</b>.",
+  vjust = 0, label.padding = unit(0.2, "lines"),
+  parse = TRUE,
+  hjust = -0.1, size = 7
+)
+
+gpu.score.brand
+#Export Chart
+ggsave("07.4_Sebaran GPU Score per Brand Laptop .png", 
+       gpu.score.brand, path = export.chart,
+        dpi = 300, height = 14, width = 20)
+```
+
 ## Scatterplot GPU & Price
+
+```{r dpi=300, fig.height = 20, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+scat.gpu <-
+ggplot(data = data, aes(x = `GPU Score`, y = `Price (IDR)`/1000)) +
+  geom_point(alpha = 0.5, size = 7, col="#1380A1") +
+  geom_smooth(method = "lm", formula = y ~ x, se = FALSE, size = 0.5) +
+  labs(title='Scatterplot GPU Score dengan Price\n',
+    x = "\nGPU Score", y = "Ribu IDR\n", color = "Storage Type") +
+  theme3.2 +
+  geom_text(aes(x = 30, 
+                y = 100000, 
+                label = paste("R =", round(cor(data$`GPU Score`, 
+                                               data$`Price (IDR)`), 2))),
+            color = "black", size = 20)
+scat.gpu
+#Export Chart
+ggsave("07.5_Scatteplot GPU Score degan Price.png", 
+       scat.gpu, path = export.chart,
+        dpi = 300, height = 10, width = 20)
+```
 
 # Referensi
 
