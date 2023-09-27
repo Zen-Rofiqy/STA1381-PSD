@@ -215,7 +215,7 @@ ggsave("02.1_Sebaran Harga Laptop.png", chart, path = export.chart,
         dpi = 300, height = 10, width = 20)
 ```
 
-## Sebaran Harga Tiap Brand
+## Sebaran Harga Per Laptop Brand
 
 ```{r dpi=300, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
 install_load('ggridges','viridis')
@@ -367,7 +367,7 @@ ggsave("03.3_Sebaran SSD Laptop_Urut.png", chart, path = export.chart,
         dpi = 300, height = 14, width = 20)
 ```
 
-#### Urut horizontal
+#### Horizontal
 
 ```{r dpi=300, fig.height = 20, fig.width = 14, fig.align = "center", message = FALSE, warning=FALSE}
 chart <-
@@ -445,7 +445,7 @@ ggsave("03.6_Sebaran HDD Laptop_Urut.png", chart, path = export.chart,
         dpi = 300, height = 14, width = 20)
 ```
 
-#### Urut Horizontal
+#### Horizontal
 
 ```{r dpi=300, fig.height = 20, fig.width = 14, fig.align = "center", message = FALSE, warning=FALSE}
 chart <-
@@ -557,7 +557,7 @@ ggplot(data, aes(x=`Storage Score`, y=Brand, fill=Brand)) +
   label = "<b>Tidak ada sebaran</b> pada merek laptop <b>Toshiba</b>, <b>Chuwi</b>, dan <b>Fusion5</b>\n\n karena jumlah data untuk ketiga merek tersebut sangat terbatas, yaitu <b>kurang dari 3</b>.",
   vjust = 0, label.padding = unit(0.2, "lines"),
   parse = TRUE,
-  hjust = -0.1, size = 7
+  hjust = -0.1, size = 7, fill=NA
 )
 
 chart
@@ -719,7 +719,7 @@ ggplot(data = gg.data,
   theme1.1
 chart
 #Export Chart
-ggsave("04.2_Bar Chart Resolution Laptop_Urut.png", chart, path = export.chart,
+ggsave("04.3_Bar Chart Resolution Laptop_Urut.png", chart, path = export.chart,
         dpi = 300, height = 14, width = 20)
 ```
 
@@ -754,7 +754,7 @@ ggplot(data = gg.data,
   theme1.1
 chart
 #Export Chart
-ggsave("04.3_Bar Chart Screen Type Laptop.png", chart, path = export.chart,
+ggsave("04.4_Bar Chart Screen Type Laptop.png", chart, path = export.chart,
         dpi = 300, height = 14, width = 20)
 ```
 
@@ -775,7 +775,7 @@ ggplot(data = gg.data,
   theme1.2 + coord_flip()
 chart 
 #Export Chart
-ggsave("04.4_Bar Chart Screen Type Laptop_Horizontal.png", chart, path = export.chart,
+ggsave("04.5_Bar Chart Screen Type Laptop_Horizontal.png", chart, path = export.chart,
         dpi = 300, height = 20, width = 14)
 ```
 
@@ -796,6 +796,29 @@ gg.data <- data %>%
                   mutate(top1 = row_number() <= 1) # Top 1 n terbanyak
 chart <-
 ggplot(data = gg.data,
+       aes(x = reorder(`Refresh Rate (Hz)`, `Refresh Rate (Hz)`), y = perc)) +
+  geom_bar(stat = "identity", col=NA,
+           fill = ifelse(gg.data$top1,  c("#6F3E98"),
+                         "#dddddd")
+           ) +
+  geom_text(aes(label = prettyNum(n,big.mark = ",")
+                ), vjust = -0.5, size = 8, col="orange4", 
+            fontface = "bold") + # Tambahkan label
+  labs(x = "\nRefresh Rate (Hz)", y = "Persentase (%)\n", 
+       title = "Bar Chart Refresh Rate Laptop\n") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  theme1.1
+chart
+#Export Chart
+ggsave("04.6_Bar Chart Refresh Rate (Hz) Laptop.png", chart, path = export.chart,
+        dpi = 300, height = 14, width = 20)
+```
+
+#### Urut
+
+```{r dpi=300, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+chart <-
+ggplot(data = gg.data,
        aes(x = reorder(`Refresh Rate (Hz)`, -n), y = perc)) +
   geom_bar(stat = "identity", col=NA,
            fill = ifelse(gg.data$top1,  c("#6F3E98"),
@@ -810,8 +833,29 @@ ggplot(data = gg.data,
   theme1.1
 chart
 #Export Chart
-ggsave("04.4_Bar Chart Refresh Rate (Hz) Laptop_Urut.png", chart, path = export.chart,
+ggsave("04.7_Bar Chart Refresh Rate (Hz) Laptop_Urut.png", chart, path = export.chart,
         dpi = 300, height = 14, width = 20)
+```
+
+#### Horizontal
+
+```{r dpi=300, fig.height = 20, fig.width = 14, fig.align = "center", message = FALSE, warning=FALSE}
+chart <-
+ggplot(data = gg.data,
+       aes(x = reorder(`Refresh Rate (Hz)`, n), y = perc)) +
+  geom_bar(stat = "identity", col=NA,
+           fill = ifelse(gg.data$top1,  c("#6F3E98"),
+                         "#dddddd")
+           ) +
+  labs(x = "Refresh Rate (Hz)", y = "Persentase (%)", 
+       title = "Bar Chart Refresh Rate Laptop\n") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1),
+                     expand = c(0, 9)) +
+  theme1.2 + coord_flip()
+chart 
+#Export Chart
+ggsave("04.8_Bar Chart Refresh Rate (Hz) Laptop_Horizontal.png", chart, path = export.chart,
+        dpi = 300, height = 20, width = 14)
 ```
 
 ## Sebaran Display Score
@@ -821,12 +865,12 @@ d.score <-
 ggplot(data, aes(x=`Display Score`, 
                      y='')) +
   #Violin
-  geom_violin(scale="count", fill='#fdbe4a', color='black', alpha=0.9, 
+  geom_violin(scale="count", fill='#6F3E98', color='black', alpha=0.9, 
                     trim = FALSE) +
   #Boxplot
-  geom_boxplot(fill='#9d5692', color='black',
-                     outlier.size=2, outlier.color='#9d5692', 
-                     notch=T, width=0.2) +
+  geom_boxplot(fill='#65AEB9', color='black',
+                     outlier.size=2, outlier.color='#65AEB9', 
+                     notch=T, width=0.1) +
   #Mean Marker
   stat_summary(fun = mean, geom = "point", shape = 16, size = 4, 
                color = "cyan2") +
@@ -839,8 +883,8 @@ ggplot(data, aes(x=`Display Score`,
                       label = paste("Mean:", 
                                     round(mean(data$`Display Score`) , 
                                           2))),
-    aes(x, y, label = label), size = 7, color = "#d65c2d", 
-    fill = "white", box.color = "#d65c2d", parse = TRUE
+    aes(x, y, label = label), size = 7, color = "#65AEB9", 
+    fill = "white", box.color = "#65AEB9", parse = TRUE
   ) +
   #Tambah panah
   geom_segment(aes(x = mean(data$`Display Score`) , 
@@ -851,7 +895,7 @@ ggplot(data, aes(x=`Display Score`,
                lineend = "round", color = "cyan2")
 d.score
 #Export Chart
-ggsave("04.5_Sebaran Display Score Laptop.png", d.score, path = export.chart,
+ggsave("04.9_Sebaran Display Score Laptop.png", d.score, path = export.chart,
         dpi = 300, height = 10, width = 20)
 ```
 
@@ -867,11 +911,11 @@ ggplot(data, aes(x=`Display Score`, y=Brand, fill=Brand)) +
   geom_density_ridges() +
   #COLORING
   scale_fill_viridis(alpha = 0.75, #Opacity
-                     begin = 0.25, #Color pallte scale begins
-                     end = 0.9, #Color pallte scale ends
+                     begin = 0.1, #Color pallte scale begins
+                     end = 0.5, #Color pallte scale ends
                      direction = -1, #Flip color scale
                      discrete = T, #Discrete Value
-                     option = "B") + #Color Palette
+                     option = "A") + #Color Palette
   theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
   labs(x = "\nHarga (Ribu IDR)",y = "Brand Laptop\n", 
        title = "Sebaran Harga Brand Laptop \n") + theme2 +
@@ -881,12 +925,12 @@ ggplot(data, aes(x=`Display Score`, y=Brand, fill=Brand)) +
   label = "<b>Tidak ada sebaran</b> pada merek laptop <b>Toshiba</b>, <b>Chuwi</b>, dan <b>Fusion5</b>\n\n karena jumlah data untuk ketiga merek tersebut sangat terbatas, yaitu <b>kurang dari 3</b>.",
   vjust = 0, label.padding = unit(0.2, "lines"),
   parse = TRUE,
-  hjust = -0.1, size = 7
+  hjust = -0.1, size = 7, fill=NA
 )
 
 d.score.brand
 #Export Chart
-ggsave("04.5_Sebaran Display Score Laptop .png", 
+ggsave("04.10_Sebaran Display Score Laptop .png", 
        d.score.brand, path = export.chart,
         dpi = 300, height = 14, width = 20)
 ```
@@ -896,7 +940,7 @@ ggsave("04.5_Sebaran Display Score Laptop .png",
 ```{r dpi=300, fig.height = 20, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
 scat.ds <-
 ggplot(data = data, aes(x = `Display Score`, y = `Price (IDR)`/1000)) +
-  geom_point(alpha = 0.5, size = 7, col="#1380A1") +
+  geom_point(alpha = 0.5, size = 7, col="#6F3E98") +
   geom_smooth(method = "lm", formula = y ~ x, se = FALSE, size = 0.5) +
   labs(title='Scatterplot Display Score dengan Price\n',
     x = "\nDisplay Score", y = "Ribu IDR\n", color = "Storage Type") +
@@ -910,10 +954,12 @@ scat.ds
 #Export Chart
 ggsave("04.5_Scatteplot Display Score degan Price.png", 
        scat.ds, path = export.chart,
-        dpi = 300, height = 10, width = 20)
+        dpi = 300, height = 20, width = 20)
 ```
 
 # RAM {.tabset}
+
+![](https://blog-asset.jakmall.com/blog/content/images/2019/05/Jakmall_Apr2019_Article13_RAM-DDR3-8GB-Laptop-Bekas-min.jpg)
 
 ## Bar Chart RAM
 
