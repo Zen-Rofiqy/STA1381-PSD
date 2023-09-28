@@ -1547,24 +1547,4 @@ ggsave("07.5_Scatteplot GPU Score degan Price.png",
 
 -   GGplot : [Extras](https://towardsdatascience.com/themes-to-spice-up-visualizations-with-ggplot2-3e275038dafa) , [BBplot](https://bbc.github.io/rcookbook/)
 
--   
-
--   
-
--   Rpubs : <https://rpubs.com/Prass_Code/911845>
-
--   Rmd : [Read This Nerd!](https://bookdown.org/yihui/rmarkdown-cookbook/kableextra.html)
-
--   DT : [DT](https://rstudio.github.io/DT/)
-
--   Theme : [Rmd Themes](https://cran.r-project.org/web/packages/rmdformats/readme/README.html)
-
--   Hide Code : [Hide Code In RMD](https://bookdown.org/yihui/rmarkdown-cookbook/fold-show.html)
-
--   Kable : [Kable1](https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html), [Kable2](https://haozhu233.github.io/kableExtra/kableExtra_in_other_HTML_themes.html)
-
--   Other Rmd settings : [Set1](https://stackoverflow.com/questions/23957278/how-to-add-table-of-contents-in-rmarkdown), [Set2](https://www.overleaf.com/learn/latex/Table_of_contents), [Set3](https://bookdown.org/yihui/rmarkdown/html-document.html)
-
 -   Notes : [Hanya Orang Gabut yang baca ini](https://github.com/Zen-Rofiqy/STA1381-PSD/blob/main/Proj/Curhat.txt)
-
--   <https://packer.john-coene.com/#/guide/style>
