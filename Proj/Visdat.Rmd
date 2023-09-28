@@ -590,7 +590,7 @@ ggsave("03.10_Sebaran Storage Score Per Laptop Brand.png",
         dpi = 300, height = 14, width = 20)
 ```
 
-## Scatterplot Storage Score & Price
+## Scatterplot Storage Score & Harga
 
 ```{r dpi=300, fig.height = 20, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
 chart <-
@@ -598,7 +598,7 @@ ggplot(data = data, aes(x = `Storage Score`, y = `Price (IDR)`/1000, color = `St
   geom_point(alpha = 0.5, size = 7, col="#3788A1") +
   geom_smooth(method = "lm", formula = y ~ x, se = FALSE, size = 0.5) +
   labs(title='Scatterplot Storage Score dengan Harga',
-       subtitle = 'Bagaimana ya pola hubungan Storage Score dengan Harga?\n',
+       subtitle = 'Bagaimana ya pola hubungan storage score dengan harga?\n',
     x = "\nStorage Score", y = "Ribu IDR\n", color = "Storage Type") +
   theme3.2 +
   geom_text(aes(x = 30000, 
@@ -608,7 +608,7 @@ ggplot(data = data, aes(x = `Storage Score`, y = `Price (IDR)`/1000, color = `St
             color = "black", size = 20)
 chart
 #Export Chart
-ggsave("03.11_Scatteplot Storage Score degan Harga.png", 
+ggsave("03.11_Scatterplot Storage Score dengan Harga.png", 
        chart, path = export.chart,
         dpi = 300, height = 20, width = 20)
 ```
@@ -689,12 +689,13 @@ ggplot(data = gg.data,
                 ), vjust = -0.5, size = 8, col="orange4", 
             fontface = "bold") + # Tambahkan label
   labs(x = "\nScreen Size", y = "Persentase (%)\n", 
-       title = "Bar Chart Screen Size Laptop\n") +
+       title = "Sebaran Screen Size Laptop",
+       subtitle = 'Berapa ya ukuran laptop yang paling banyak?\n') +
   scale_y_continuous(labels = scales::percent_format(scale = 1)) +
   theme1.1 
 chart
 #Export Chart
-ggsave("04.2_Bar Chart Screen Size Laptop_Urut.png", chart, path = export.chart,
+ggsave("04.2_Sebaran Screen Size Laptop.png", chart, path = export.chart,
         dpi = 300, height = 14, width = 20)
 ```
 
@@ -738,12 +739,13 @@ ggplot(data = gg.data,
                 ), vjust = -0.5, size = 8, col="orange4", 
             fontface = "bold") + # Tambahkan label
   labs(x = "\nResolution", y = "Persentase (%)\n", 
-       title = "Bar Chart Resolution Laptop\n") +
+       title = "Sebaran Resolution Laptop",
+       subtitle = 'Berapa ya hasil kali resolusi laptop yang paling banyak?\n') +
   scale_y_continuous(labels = scales::percent_format(scale = 1)) +
   theme1.1
 chart
 #Export Chart
-ggsave("04.3_Bar Chart Resolution Laptop_Urut.png", chart, path = export.chart,
+ggsave("04.3_Sebaran Resolution Laptop.png", chart, path = export.chart,
         dpi = 300, height = 14, width = 20)
 ```
 
@@ -773,12 +775,13 @@ ggplot(data = gg.data,
                 ), vjust = -0.5, size = 8, col="orange4", 
             fontface = "bold") + # Tambahkan label
   labs(x = "\nScreen Type", y = "Persentase (%)\n", 
-       title = "Bar Chart Screen Type Laptop\n") +
+       title = "Sebaran Screen Type Laptop",
+       subtitle = 'Apa tipe layar laptop yang paling banyak?\n') +
   scale_y_continuous(labels = scales::percent_format(scale = 1)) +
   theme1.1
 chart
 #Export Chart
-ggsave("04.4_Bar Chart Screen Type Laptop.png", chart, path = export.chart,
+ggsave("04.4_Sebaran Screen Type Laptop.png", chart, path = export.chart,
         dpi = 300, height = 14, width = 20)
 ```
 
@@ -793,13 +796,14 @@ ggplot(data = gg.data,
                          "#dddddd")
            ) +
   labs(x = "Screen Type", y = "Persentase (%)", 
-       title = "Bar Chart Screen Type Laptop\n") +
+       title = "Sebaran Screen Type Laptop",
+       subtitle = 'Apa tipe layar laptop yang paling banyak?\n') +
   scale_y_continuous(labels = scales::percent_format(scale = 1),
-                     expand = c(0, 9)) +
+                     expand = c(0, 10)) +
   theme1.2 + coord_flip()
 chart 
 #Export Chart
-ggsave("04.5_Bar Chart Screen Type Laptop_Horizontal.png", chart, path = export.chart,
+ggsave("04.5_Sebaran Screen Type Laptop.png", chart, path = export.chart,
         dpi = 300, height = 20, width = 14)
 ```
 
@@ -829,12 +833,13 @@ ggplot(data = gg.data,
                 ), vjust = -0.5, size = 8, col="orange4", 
             fontface = "bold") + # Tambahkan label
   labs(x = "\nRefresh Rate (Hz)", y = "Persentase (%)\n", 
-       title = "Bar Chart Refresh Rate Laptop\n") +
+       title = "Sebaran Refresh Rate Laptop",
+       subtitle = 'Berapa Hz ya refresh rate laptop yang paling banyak?\n') +
   scale_y_continuous(labels = scales::percent_format(scale = 1)) +
   theme1.1
 chart
 #Export Chart
-ggsave("04.6_Bar Chart Refresh Rate (Hz) Laptop.png", chart, path = export.chart,
+ggsave("04.6_Sebaran Refresh Rate (Hz) Laptop.png", chart, path = export.chart,
         dpi = 300, height = 14, width = 20)
 ```
 
@@ -852,12 +857,13 @@ ggplot(data = gg.data,
                 ), vjust = -0.5, size = 8, col="orange4", 
             fontface = "bold") + # Tambahkan label
   labs(x = "\nRefresh Rate (Hz)", y = "Persentase (%)\n", 
-       title = "Bar Chart Refresh Rate Laptop\n") +
+       title = "Sebaran Refresh Rate Laptop",
+       subtitle = 'Berapa Hz ya refresh rate laptop yang paling banyak?\n') +
   scale_y_continuous(labels = scales::percent_format(scale = 1)) +
   theme1.1
 chart
 #Export Chart
-ggsave("04.7_Bar Chart Refresh Rate (Hz) Laptop_Urut.png", chart, path = export.chart,
+ggsave("04.7_Sebaran Refresh Rate (Hz) Laptop.png", chart, path = export.chart,
         dpi = 300, height = 14, width = 20)
 ```
 
@@ -871,14 +877,15 @@ ggplot(data = gg.data,
            fill = ifelse(gg.data$top1,  c("#6F3E98"),
                          "#dddddd")
            ) +
-  labs(x = "Refresh Rate (Hz)", y = "Persentase (%)", 
-       title = "Bar Chart Refresh Rate Laptop\n") +
+  labs(x = "\nRefresh Rate (Hz)", y = "Persentase (%)\n", 
+       title = "Sebaran Refresh Rate Laptop",
+       subtitle = 'Berapa Hz ya refresh rate laptop yang paling banyak?\n') +
   scale_y_continuous(labels = scales::percent_format(scale = 1),
                      expand = c(0, 9)) +
   theme1.2 + coord_flip()
 chart 
 #Export Chart
-ggsave("04.8_Bar Chart Refresh Rate (Hz) Laptop_Horizontal.png", chart, path = export.chart,
+ggsave("04.8_Sebaran Refresh Rate (Hz) Laptop_Horizontal.png", chart, path = export.chart,
         dpi = 300, height = 20, width = 14)
 ```
 
@@ -904,7 +911,8 @@ ggplot(data, aes(x=`Display Score`,
                color = "cyan2") +
   theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
   labs(x = "\nDisplay Score", y='',
-       title = "Sebaran Display Score Laptop") + theme2 +
+       title = "Sebaran Display Score Laptop",
+       subtitle = 'Kebanyakan laptop punya display score berapa ya?\n') + theme2 +
   #Tambah Mean Value
   geom_richtext(
     data = data.frame(x = mean(data$`Display Score`) , y = 1.25, 
@@ -946,7 +954,8 @@ ggplot(data, aes(x=`Display Score`, y=Brand, fill=Brand)) +
                      option = "A") + #Color Palette
   theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
   labs(x = "\nHarga (Ribu IDR)",y = "Brand Laptop\n", 
-       title = "Sebaran Harga Brand Laptop \n") + theme2 +
+       title = "Sebaran Harga Brand Laptop",
+       subtitle = "Tiap brand laptop punya rentang display score berapa ya?\n") + theme2 +
   annotate(
   geom = "richtext",
   x = -Inf, y = 1.25,
@@ -958,19 +967,20 @@ ggplot(data, aes(x=`Display Score`, y=Brand, fill=Brand)) +
 
 chart
 #Export Chart
-ggsave("04.10_Sebaran Display Score Laptop .png", 
+ggsave("04.10_Sebaran Display Score Laptop.png", 
        chart, path = export.chart,
         dpi = 300, height = 14, width = 20)
 ```
 
-## Scatterplot Display Score & Price
+## Scatterplot Display Score & Harga
 
 ```{r dpi=300, fig.height = 20, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
 chart <-
 ggplot(data = data, aes(x = `Display Score`, y = `Price (IDR)`/1000)) +
   geom_point(alpha = 0.5, size = 7, col="#6F3E98") +
   geom_smooth(method = "lm", formula = y ~ x, se = FALSE, size = 0.5) +
-  labs(title='Scatterplot Display Score dengan Price\n',
+  labs(title='Scatterplot Display Score dengan Harga',
+       subtitle = 'Bagaimana ya pola hubungan display score dengan harga?\n',
     x = "\nDisplay Score", y = "Ribu IDR\n", color = "Storage Type") +
   theme3.2 +
   geom_text(aes(x = 150, 
@@ -980,7 +990,7 @@ ggplot(data = data, aes(x = `Display Score`, y = `Price (IDR)`/1000)) +
             color = "black", size = 20)
 chart
 #Export Chart
-ggsave("04.5_Scatteplot Display Score degan Price.png", 
+ggsave("04.11_Scatterplot Display Score dengan Harga.png", 
        chart, path = export.chart,
         dpi = 300, height = 20, width = 20)
 ```
@@ -1012,13 +1022,14 @@ ggplot(data = gg.data,
   geom_text(aes(label = prettyNum(n,big.mark = ",")
                 ), vjust = -0.5, size = 8, col="orange4", 
             fontface = "bold") + # Tambahkan label
-  labs(x = "\nRam (GB)", y = "Persentase (%)\n", 
-       title = "Bar Chart Refresh Rate Laptop\n") +
+  labs(x = "\nRAM (GB)", y = "Persentase (%)\n", 
+       title = "Sebaran RAM Laptop",
+       subtitle = 'RAM laptop terbanyak punya kapasitas berapa ya?\n') +
   scale_y_continuous(labels = scales::percent_format(scale = 1)) +
   theme1.1
 chart
 #Export Chart
-ggsave("05.1_Bar Chart Ram (GB) Laptop.png", chart, path = export.chart,
+ggsave("05.1_Sebaran RAM (GB) Laptop.png", chart, path = export.chart,
         dpi = 300, height = 14, width = 20)
 ```
 
@@ -1037,12 +1048,13 @@ ggplot(data = gg.data,
                 ), vjust = -0.5, size = 8, col="orange4", 
             fontface = "bold") + # Tambahkan label
   labs(x = "\nRAM (GB)", y = "Persentase (%)\n", 
-       title = "Bar Chart RAM Laptop\n") +
+       title = "Sebaran RAM Laptop",
+       subtitle = 'RAM laptop terbanyak punya kapasitas berapa ya?\n') +
   scale_y_continuous(labels = scales::percent_format(scale = 1)) +
   theme1.1
 chart
 #Export Chart
-ggsave("05.2_Bar Chart Ram (GB) Laptop_Urut.png", chart, path = export.chart,
+ggsave("05.2_Sebaran RAM (GB) Laptop.png", chart, path = export.chart,
         dpi = 300, height = 14, width = 20)
 ```
 
@@ -1056,96 +1068,16 @@ ggplot(data = gg.data,
            fill = ifelse(gg.data$top1,  c("#008881"),
                          "#dddddd")
            ) +
-  labs(x = "RAM (GB)", y = "Persentase (%)", 
-       title = "Bar Chart RAM Laptop\n") +
+  labs(x = "\nRAM (GB)", y = "Persentase (%)\n", 
+       title = "Sebaran RAM Laptop",
+       subtitle = 'RAM laptop terbanyak punya kapasitas berapa ya?\n') +
   scale_y_continuous(labels = scales::percent_format(scale = 1),
                      expand = c(0, 9)) +
   theme1.2 + coord_flip()
 chart 
 #Export Chart
-ggsave("05.3_Bar Chart Ram (GB) Laptop_Horizontal.png", chart, path = export.chart,
+ggsave("05.3_Sebaran RAM (GB) Laptop.png", chart, path = export.chart,
         dpi = 300, height = 20, width = 14)
-```
-
-## Sebaran
-
-### Variasi {.tabset}
-
-#### Sebaran RAM
-
-```{r dpi=300, fig.height = 10, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
-chart <-
-ggplot(data, aes(x=`Ram (GB)`, 
-                     y='')) +
-  #Violin
-  geom_violin(scale="count", fill='#008881', color='black', alpha=0.9, 
-                    trim = FALSE) +
-  #Boxplot
-  geom_boxplot(fill='#C29F45', color='black',
-                     outlier.size=2, outlier.color='#C29F45', 
-                     notch=T, width=0.1) +
-  #Mean Marker
-  stat_summary(fun = mean, geom = "point", shape = 16, size = 4, 
-               color = "cyan2") +
-  theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
-  labs(x = "\nRam (GB) Score", y='',
-       title = "Sebaran Ram Laptop") + theme2 +
-  #Tambah Mean Value
-  geom_richtext(
-    data = data.frame(x = mean(data$`Ram (GB)`) , y = 1.25, 
-                      label = paste("Mean:", 
-                                    round(mean(data$`Ram (GB)`) , 
-                                          2))),
-    aes(x, y, label = label), size = 7, color = "#C29F45", 
-    fill = "white", box.color = "#C29F45", parse = TRUE
-  ) +
-  #Tambah panah
-  geom_segment(aes(x = mean(data$`Ram (GB)`) , 
-                   xend = mean(data$`Ram (GB)`) , 
-                   y = 1, 
-                   yend = 1.225), 
-               arrow = arrow(type = "closed", length = unit(0.1, "inches")), 
-               lineend = "round", color = "cyan2")
-chart
-#Export Chart
-ggsave("05.4_Sebaran Ram (GB) Laptop.png", chart, path = export.chart,
-        dpi = 300, height = 10, width = 20)
-```
-
-#### Sebaran RAM Per Laptop Brand
-
-```{r dpi=300, fig.height = 14, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
-data$Brand <- factor(data$Brand, 
-                  levels= data %>% count(Brand) %>% 
-                                        arrange(n, desc(Brand)) %>%
-                                        pull(Brand) )
-chart <- 
-ggplot(data, aes(x=`Ram (GB)`, y=Brand, fill=Brand)) + 
-  geom_density_ridges() +
-  #COLORING
-  scale_fill_viridis(alpha = 0.9, #Opacity
-                     begin = 0.4, #Color pallte scale begins
-                     end = 1, #Color pallte scale ends
-                     direction = -1, #Flip color scale
-                     discrete = T, #Discrete Value
-                     option = "G") + #Color Palette
-  theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
-  labs(x = "\nRAM (GB)",y = "Brand Laptop\n", 
-       title = "Sebaran RAM Laptop \n") + theme2 +
-  annotate(
-  geom = "richtext",
-  x = -Inf, y = 1.25,
-  label = "<b>Tidak ada sebaran</b> pada merek laptop <b>Toshiba</b>, <b>Chuwi</b>, dan <b>Fusion5</b>\n\n karena jumlah data untuk ketiga merek tersebut sangat terbatas, yaitu <b>kurang dari 3</b>.",
-  vjust = 0, label.padding = unit(0.2, "lines"),
-  parse = TRUE,
-  hjust = -0.1, size = 7, fill=NA
-)
-
-chart
-#Export Chart
-ggsave("05.5_Sebaran RAM (GB) Per Brand Laptop.png", 
-       chart, path = export.chart,
-        dpi = 300, height = 14, width = 20)
 ```
 
 ## Scatterplot RAM & Price
@@ -1155,8 +1087,9 @@ chart <-
 ggplot(data = data, aes(x = `Ram (GB)`, y = `Price (IDR)`/1000)) +
   geom_point(alpha = 0.5, size = 7, col="#008881") +
   geom_smooth(method = "lm", formula = y ~ x, se = FALSE, size = 0.5) +
-  labs(title='Scatterplot RAM dengan Price\n',
-    x = "\nRam (GB)", y = "Ribu IDR\n", color = "Storage Type") +
+  labs(title='Scatterplot RAM dengan Harga',
+       subtitle = 'Bagaimana ya pola hubungan RAM dengan harga?\n',
+    x = "\nRAM (GB)", y = "Ribu IDR\n", color = "Storage Type") +
   theme3.2 +
   geom_text(aes(x = 100, 
                 y = 100000, 
@@ -1165,7 +1098,7 @@ ggplot(data = data, aes(x = `Ram (GB)`, y = `Price (IDR)`/1000)) +
             color = "black", size = 20)
 chart
 #Export Chart
-ggsave("05.5_Scatteplot RAM (GB) degan Price.png", 
+ggsave("05.4_Scatterplot RAM (GB) dengan Harga.png", 
        chart, path = export.chart,
         dpi = 300, height = 10, width = 20)
 ```
@@ -1197,12 +1130,13 @@ ggplot(data = gg.data,
                 ), vjust = -0.5, size = 8, col="orange4", 
             fontface = "bold") + # Tambahkan label
   labs(x = "\nCPU Brand", y = "Persentase (%)\n", 
-       title = "Bar CPU Brand Laptop\n") +
+       title = "Sebaran CPU Brand Laptop",
+       subtitle = 'Apa sih CPU brand terbanyak?\n') +
   scale_y_continuous(labels = scales::percent_format(scale = 1)) +
   theme1.1
 chart
 #Export Chart
-ggsave("06.1_Bar Chart CPU Brand Laptop.png", chart, path = export.chart,
+ggsave("06.1_Sebaran CPU Brand Laptop.png", chart, path = export.chart,
         dpi = 300, height = 14, width = 20)
 ```
 
@@ -1216,13 +1150,14 @@ ggplot(data = gg.data, #buat persentase
            fill= ifelse(gg.data$`CPU Brand` == 'Intel',  "#1D4B83",
                          ifelse(gg.data$`CPU Brand` == 'AMD',  "#E06C26",
                          "#dddddd"))) +
-  labs(x = "\nBrand", y = "Persentase (%)", 
-       title = "Sebaran CPU Brand Laptop\n") + coord_flip() +
+  labs(x = "\nCPU Brand", y = "Persentase (%)\n", 
+       title = "Sebaran CPU Brand Laptop",
+       subtitle = 'Apa sih CPU brand terbanyak?\n') + coord_flip() +
   scale_y_continuous(labels = scales::percent_format(scale = 1),
                      expand = c(0, 10)) + theme1.2 
 chart 
 #Export Chart
-ggsave("06.2_Bar Chart CPU Brand Laptop_Horizontal.png", chart, path = export.chart,
+ggsave("06.2_Sebaran CPU Brand Laptop.png", chart, path = export.chart,
         dpi = 300, height = 20, width = 17)
 ```
 
@@ -1248,7 +1183,8 @@ ggplot(data, aes(x=`CPU Score`,
                color = "cyan2") +
   theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
   labs(x = "\nCPU Score", y='',
-       title = "Sebaran CPU Score Laptop") + theme2 +
+       title = "Sebaran CPU Score Laptop",
+       subtitle = 'Kebanyakan laptop punya CPU score berapa ya?\n') + theme2 +
   #Tambah Mean Value
   geom_richtext(
     data = data.frame(x = mean(data$`CPU Score`) , y = 1.25, 
@@ -1267,7 +1203,7 @@ ggplot(data, aes(x=`CPU Score`,
                lineend = "round", color = "cyan2")
 chart
 #Export Chart
-ggsave("06.2_Sebaran CPU Score Laptop.png", chart, path = export.chart,
+ggsave("06.3_Sebaran CPU Score Laptop.png", chart, path = export.chart,
         dpi = 300, height = 10, width = 20)
 ```
 
@@ -1285,7 +1221,9 @@ ggplot(data, aes(x=`CPU Score`, y=`CPU Brand`, fill=`CPU Brand`)) +
   scale_fill_manual(values =c(Intel = "#1D4B83", AMD = "#d65c2d",
                               Apple = "#777D91",  Mediatek = '#F7B747')) +
   labs(x = "\nCPU Score",y = "CPU Brand\n", 
-       title = "Sebaran CPU Score Per CPU Brand\n") + theme2 + theme(legend.position = "none") +
+       title = "Sebaran CPU Score Per CPU Brand",
+       subtitle = "Tiap brand CPU punya rentang CPU score berapa ya?\n") + 
+  theme2 + theme(legend.position = "none") +
   annotate(
   geom = "richtext",
   x = -Inf, y = 1,
@@ -1298,7 +1236,7 @@ ggplot(data, aes(x=`CPU Score`, y=`CPU Brand`, fill=`CPU Brand`)) +
 
 chart
 #Export Chart
-ggsave("06.3_Sebaran CPU Score Per CPU Brand.png", chart, path = export.chart,
+ggsave("06.4_Sebaran CPU Score Per CPU Brand.png", chart, path = export.chart,
         dpi = 300, height = 10, width = 20)
 ```
 
@@ -1321,7 +1259,8 @@ ggplot(data, aes(x=`CPU Score`, y=Brand, fill=Brand)) +
                      option = "B") + #Color Palette
   theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
   labs(x = "\nCPU Score",y = "Brand Laptop\n", 
-       title = "Sebaran CPU Score per Brand Laptop \n") + theme2 +
+       title = "Sebaran CPU Score per Brand Laptop",
+       subtitle = "Tiap brand laptop punya rentang CPU score berapa ya?\n") + theme2 +
   annotate(
   geom = "richtext",
   x = -Inf, y = 1.25,
@@ -1333,19 +1272,20 @@ ggplot(data, aes(x=`CPU Score`, y=Brand, fill=Brand)) +
 
 chart
 #Export Chart
-ggsave("06.4_Sebaran CPU Score per Brand Laptop .png", 
+ggsave("06.5_Sebaran CPU Score per Brand Laptop.png", 
        chart, path = export.chart,
         dpi = 300, height = 14, width = 20)
 ```
 
-## Scatterplot CPU & Price
+## Scatterplot CPU & Harga
 
 ```{r dpi=300, fig.height = 20, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
 chart <-
 ggplot(data = data, aes(x = `CPU Score`, y = `Price (IDR)`/1000)) +
   geom_point(alpha = 0.5, size = 7, col="#d65c2d") +
   geom_smooth(method = "lm", formula = y ~ x, se = FALSE, size = 0.5) +
-  labs(title='Scatterplot CPU Score dengan Price\n',
+  labs(title='Scatterplot CPU Score dengan Harga',
+       subtitle = 'Bagaimana ya pola hubungan CPU score dengan harga?\n',
     x = "\nCPU Score", y = "Ribu IDR\n", color = "Storage Type") +
   theme3.2 +
   geom_text(aes(x = 100, 
@@ -1355,7 +1295,7 @@ ggplot(data = data, aes(x = `CPU Score`, y = `Price (IDR)`/1000)) +
             color = "black", size = 20)
 chart
 #Export Chart
-ggsave("06.5_Scatteplot CPU Score degan Price.png", 
+ggsave("06.6_Scatterplot CPU Score dengan Price.png", 
        chart, path = export.chart,
         dpi = 300, height = 10, width = 20)
 ```
@@ -1392,12 +1332,13 @@ ggplot(data = gg.data,
                 ), vjust = -0.5, size = 8, col="orange4", 
             fontface = "bold") + # Tambahkan label
   labs(x = "\nGPU Brand", y = "Persentase (%)\n", 
-       title = "Bar GPU Brand Laptop\n") +
+       title = "Sebaran GPU Brand Laptop",
+       subtitle = "Brand GPU apa sih yang paling banyak?\n") +
   scale_y_continuous(labels = scales::percent_format(scale = 1)) +
   theme1.1
 chart
 #Export Chart
-ggsave("07.1_Bar Chart GPU Brand Laptop_Urut.png", chart, path = export.chart,
+ggsave("07.1_Sebaran GPU Brand Laptop.png", chart, path = export.chart,
         dpi = 300, height = 14, width = 20)
 ```
 
@@ -1415,13 +1356,14 @@ ggplot(data = gg.data, #buat persentase
                             )
                          )
            ) +
-  labs(x = "\n GPU Brand", y = "Persentase (%)", 
-       title = "Sebaran GPU Brand Laptop\n") + coord_flip() +
+  labs(x = "\nGPU Brand", y = "Persentase (%)\n", 
+       title = "Sebaran GPU Brand Laptop",
+       subtitle = "Brand GPU apa sih yang paling banyak?\n") + coord_flip() +
   scale_y_continuous(labels = scales::percent_format(scale = 1),
                      expand = c(0, 10)) + theme1.2 
 chart 
 #Export Chart
-ggsave("07.2_Bar Chart GPU Brand Laptop_Horizontal.png", chart, path = export.chart,
+ggsave("07.2_Sebaran GPU Brand Laptop.png", chart, path = export.chart,
         dpi = 300, height = 20, width = 17)
 ```
 
@@ -1447,7 +1389,8 @@ ggplot(data, aes(x=`GPU Score`,
                color = "cyan2") +
   theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
   labs(x = "\nGPU Score", y='',
-       title = "Sebaran GPU Score Laptop") + theme2 +
+       title = "Sebaran GPU Score Laptop",
+       subtitle = 'Kebanyakan laptop punya GPU score berapa ya?\n') + theme2 +
   #Tambah Mean Value
   geom_richtext(
     data = data.frame(x = mean(data$`GPU Score`) , y = 1.25, 
@@ -1466,7 +1409,7 @@ ggplot(data, aes(x=`GPU Score`,
                lineend = "round", color = "cyan2")
 chart
 #Export Chart
-ggsave("07.1_Sebaran GPU Score Laptop.png", chart, path = export.chart,
+ggsave("07.3_Sebaran GPU Score Laptop.png", chart, path = export.chart,
         dpi = 300, height = 10, width = 20)
 ```
 
@@ -1485,7 +1428,9 @@ ggplot(data, aes(x=`GPU Score`, y=`GPU Brand`, fill=`GPU Brand`)) +
                               NVIDIA = "#84C441",  Apple = '#777D91',
                               ARM = '#35A8CA', Imagination='#71256B')) +
   labs(x = "\nGPU Score",y = "GPU Brand\n", 
-       title = "Sebaran GPU Score Per GPU Brand\n") + theme2 + theme(legend.position = "none") +
+       title = "Sebaran GPU Score Per GPU Brand",
+       subtitle = "Tiap brand GPU punya rentang CPU score berapa ya?\n") + 
+  theme2 + theme(legend.position = "none") +
   annotate(
   geom = "richtext",
   x = -Inf, y = 0.7,
@@ -1521,7 +1466,8 @@ ggplot(data, aes(x=`GPU Score`, y=Brand, fill=Brand)) +
                      option = "D") + #Color Palette
   theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
   labs(x = "\nGPU Score",y = "Brand Laptop\n", 
-       title = "Sebaran GPU Score per Brand Laptop \n") + theme2 +
+       title = "Sebaran GPU Score per Brand Lapto",
+       subtitle = "Tiap brand laptop punya rentang GPU score berapa ya?\n") + theme2 +
   annotate(
   geom = "richtext",
   x = -Inf, y = 1.25,
@@ -1533,7 +1479,7 @@ ggplot(data, aes(x=`GPU Score`, y=Brand, fill=Brand)) +
 
 chart
 #Export Chart
-ggsave("07.5_Sebaran GPU Score per Brand Laptop .png", 
+ggsave("07.5_Sebaran GPU Score per Brand Laptop.png", 
        chart, path = export.chart,
         dpi = 300, height = 14, width = 20)
 ```
@@ -1545,7 +1491,8 @@ chart <-
 ggplot(data = data, aes(x = `GPU Score`, y = `Price (IDR)`/1000)) +
   geom_point(alpha = 0.5, size = 7, col="#84C441") +
   geom_smooth(method = "lm", formula = y ~ x, se = FALSE, size = 0.5) +
-  labs(title='Scatterplot GPU Score dengan Price\n',
+  labs(title='Scatterplot GPU Score dengan Price',
+       subtitle = 'Bagaimana ya pola hubungan GPU score dengan harga?\n',
     x = "\nGPU Score", y = "Ribu IDR\n", color = "Storage Type") +
   theme3.2 +
   geom_text(aes(x = 30, 
@@ -1555,7 +1502,7 @@ ggplot(data = data, aes(x = `GPU Score`, y = `Price (IDR)`/1000)) +
             color = "black", size = 20)
 chart
 #Export Chart
-ggsave("07.5_Scatteplot GPU Score degan Price.png", 
+ggsave("07.6_Scatterplot GPU Score dengan Price.png", 
        chart, path = export.chart,
         dpi = 300, height = 10, width = 20)
 ```
