@@ -20,7 +20,9 @@
    Analisis data
   
 ## Link RPUBS  
-1. Managing : https://rpubs.com/ZenR_Prog/PSD-Proj-Managing
+1. Manage & Cleaning Data: https://rpubs.com/ZenR_Prog/PSD-Proj-Managing
+2. Visualisasi dan Eksplorasi Data : https://rpubs.com/ZenR_Prog/PSD-Proj-Visdat
+3. Analisis Data : Managing : https://rpubs.com/ZenR_Prog/PSD-Proj-Andat
 
 ## Sumber lainnya  
 * Website Scraping Laptop : https://laptopmedia.com/specs/?size=n_100_n  
