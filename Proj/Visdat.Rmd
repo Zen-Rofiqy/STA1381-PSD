@@ -620,6 +620,7 @@ ggsave("03.11_Scatterplot Storage Score dengan Harga.png",
 Pisahkan data.
 
 ```{r, message = FALSE, warning=FALSE}
+install_load('tidyr')
 data <- data %>%
   separate(Display, into = c("Screen Size (Inch)", "Resolution", 
                              "Screen Type","Refresh Rate (Hz)" ), 
