@@ -66,11 +66,9 @@ opts_knit$set(root.dir = "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt
 
 ## Tentang Data
 
-**mtcars Dataset:**
+**mtcars Dataset**
 
--   **Deskripsi:** Dataset mtcars berisi informasi tentang berbagai spesifikasi mobil berdasarkan model dan tahun pembuatannya. Dataset ini digunakan sebagai contoh dalam banyak analisis dan pemodelan statistik.
-
--   **Variabel:**
+Dataset mtcars berisi informasi tentang berbagai spesifikasi mobil berdasarkan model dan tahun pembuatannya. Dataset ini digunakan sebagai contoh dalam banyak analisis dan pemodelan statistik.
 
 ## Tujuan
 
@@ -82,21 +80,25 @@ opts_knit$set(root.dir = "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt
 
 ## Peubah
 
-| **Kolom** |                **Keterangan**                | **Peubah** |
-|:---------:|:--------------------------------------------:|:----------:|
-|   `mpg`   |     Jarak tempuh per gallon bahan bakar.     |    `y`     |
-|   `cyl`   |               Jumlah silinder.               |    `x1`    |
-|  `disp`   |       Volume mesin (dalam inci kubik).       |    `x2`    |
-|   `hp`    |                 Tenaga kuda.                 |    `x3`    |
-|  `drat`   |          Rasio akselerasi belakang.          |    `x4`    |
-|   `wt`    |      Berat kendaraan (dalam 1000 pon).       |    `x5`    |
-|  `qsec`   |         Waktu tempuh seperempat mil.         |    `x6`    |
-|   `vs`    |  Jenis mesin (0 = V-shaped, 1 = straight).   |    `x7`    |
-|   `am`    | Jenis transmisi (0 = automatic, 1 = manual). |    `x8`    |
-|  `gear`   |                 Jumlah gigi.                 |    `x9`    |
-|  `carb`   |              Jumlah karburator.              |   `x10`    |
+Terdapat 11 peubah yang terdiri dari:
 
-## Data input
+| **Peubah** |                **Keterangan**                | **Sebagai Peubah** | **Tipe Peubah** |
+|:-----------:|:-------------------------------:|-------------|-------------|
+|   `mpg`    |     Jarak tempuh per gallon bahan bakar.     | `y`                | Numerik         |
+|   `cyl`    |               Jumlah silinder.               | `x1`               | Numerik         |
+|   `disp`   |       Volume mesin (dalam inci kubik).       | `x2`               | Numerik         |
+|    `hp`    |                 Tenaga kuda.                 | `x3`               | Numerik         |
+|   `drat`   |          Rasio akselerasi belakang.          | `x4`               | Numerik         |
+|    `wt`    |      Berat kendaraan (dalam 1000 pon).       | `x5`               | Numerik         |
+|   `qsec`   |         Waktu tempuh seperempat mil.         | `x6`               | Numerik         |
+|    `vs`    |  Jenis mesin (0 = V-shaped, 1 = straight).   | `x7`               | Kategorik       |
+|    `am`    | Jenis transmisi (0 = automatic, 1 = manual). | `x8`               | Kategorik       |
+|   `gear`   |                 Jumlah gigi.                 | `x9`               | Numerik         |
+|   `carb`   |              Jumlah karburator.              | `x10`              | Numerik         |
+
+### Data Preparation {.tabset}
+
+#### Data input
 
 ```{r, warning=FALSE, message = FALSE}
 raw.data <- mtcars
@@ -106,11 +108,55 @@ datatable(raw.data, filter = 'top',
           options = list(pageLength = 5))
 ```
 
-## Data Checking
+Data ini memiliki 32 baris atau amatan.
+
+#### Data Checking
 
 ```{r}
 str(data)
 ```
+
+Peubah `vs` dan `am` harus berupa kategorik. Namun bisa langsung dijadikan sebagai factor agar menjadi peubah dummy.
+
+```{r}
+sum(is.na(data))
+```
+
+Tidak ada data kosong dalam data ini.
+
+#### Data Cleaning
+
+```{r, warning=FALSE, message = FALSE}
+install_load('dplyr')
+data <- raw.data %>%
+  mutate(
+    am = factor(ifelse(am == 0, "Automatic", "Manual")),
+    vs = factor(ifelse(vs == 0, "Rear-Wheel Drive", "Front-Wheel Drive"))
+  )
+str(data)
+```
+
+```{r}
+levels(data$am); levels(data$vs)
+```
+
+Peubah `vs` dan `am` sudah menjadi peubah dummy. Namun saya ingin mengubah referensi kategorinya dengan kategori terbanyak.
+
+```{r}
+datatable(cbind(data %>% count(am), data %>% count(vs)))
+```
+
+Kategori referensi untuk peubah `am` sudah benar, yakni *'Automatic'* dan untuk peubah `vs` adalah '*Rear-Wheel Drive'.*
+
+```{r}
+install_load('forcats')
+data <- data %>% 
+  mutate(am = fct_relevel(am, levels(data$am)[which.max(table(data$am))] ),
+         vs = fct_relevel(vs, levels(data$vs)[which.max(table(data$vs))] ) )
+levels(data$am); levels(data$vs)
+```
+
+Kategori referensi sudah di setting ulang.
 
 # Regresi Klasik {.tabset}
 
@@ -180,9 +226,9 @@ R-squared mengukur seberapa baik variabilitas dalam variabel respons (dalam hal 
 
 Adjusted R-squared adalah modifikasi dari R-squared yang mempertimbangkan jumlah variabel independen dalam model. Ini adalah ukuran yang **lebih kritis** karena memasukkan kompleksitas model. Nilai Adjusted R-squared sebesar $0.8066$ menunjukkan bahwa sekitar $80.66\%$ variabilitas dalam **`mpg`** d**apat dijelaskan** oleh variabel-**variabel independen** dalam model, dengan mempertimbangkan **kompleksitas model**.
 
-#### **F-statistic**: 
+#### **F-statistic**:
 
-F-statistic adalah statistik yang digunakan untuk menguji apakah model regresi secara keseluruhan signifikan atau tidak. **Semakin tinggi** nilai **F-statistic** dan **semakin rendah** nilai **p-value** yang terkait, **semakin signifikan** model regresi secara keseluruhan. F-statistic yang diperoleh sebesar $13.93$ dan nilai *p-value* yang sangat rendah ($3.793e-07$) menunjukkan bahwa model diatas secara keseluruhan adalah model yang **signifikan** secara statistik, yang berarti bahwa setidaknya salah satu variabel independen memiliki efek signifikan pada variabel respons (**`mpg`**) dalam model ini.
+F-statistic adalah statistik yang digunakan untuk menguji apakah model regresi secara keseluruhan signifikan atau tidak. **Semakin tinggi** nilai **F-statistic** dan **semakin rendah** nilai **p-value** yang terkait, **semakin signifikan** model regresi secara keseluruhan. F-statistic yang diperoleh sebesar $13.93$ dan nilai *p-value* yang sangat rendah ($3.793\times10^{-7}$) menunjukkan bahwa model diatas secara keseluruhan adalah model yang **signifikan** secara statistik, yang berarti bahwa setidaknya salah satu variabel independen memiliki efek signifikan pada variabel respons (**`mpg`**) dalam model ini.
 
 # Regresi Ridge
 
