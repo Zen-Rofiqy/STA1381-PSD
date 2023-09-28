@@ -62,6 +62,8 @@ opts_knit$set(root.dir = "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt
 
 ![](https://wallpaperwaifu.com/wp-content/uploads/2023/06/ferrari-f8-tributo-thumb.jpg)
 
+**Link Github :**
+
 ## Tentang Data
 
 **mtcars Dataset:**
@@ -110,22 +112,77 @@ datatable(raw.data, filter = 'top',
 str(data)
 ```
 
-# Regresi Klasik
+# Regresi Klasik {.tabset}
+
+## Model
 
 ```{r}
 reg.klas <- lm(mpg ~ cyl + disp + hp + drat + wt + qsec + vs + am + gear + carb, data=data)
 summary(reg.klas)
 ```
 
-Diperoleh model :
+Diperoleh model dugaan :
 
 $$\begin{equation}
 \begin{aligned}
-\hat{\text{mpg}} = & 12.30337 -0.11144 \text{cyl} + 0.01334 \text{disp} - 0.02148 \text{hp} + 0.78711 \text{drat} - 3.71530 \text{wt} \\
-            & + 0.82104 \text{qsec} + 0.31776 \text{vs} + 2.52023 \text{am} + 0.65541 \text{gear} - 0.19942\text{carb}
+\hat{\text{mpg}}_i = & 12.30337 -0.11144 \text{cyl} + 0.01334 \text{disp} - 0.02148 \text{hp} + 0.78711 \text{drat} - 3.71530 \text{wt} \\
+            & + 0.82104 \text{qsec} + 0.31776 \text{vs} + 2.52023 \text{am} + 0.65541 \text{gear} - 0.19942\text{carb} + \epsilon_i
 \end{aligned}
 \end{equation}
 $$
+
+### Interpretasi {.tabset}
+
+#### Coefficients:
+
+1.  **Intercept (Intersep):**\
+    Koefisien Intercept adalah $12.30337$. Ini adalah nilai y ketika semua variabel independen (`cyl,` `disp`, `hp`, `drat`, `w`t, `qsec`, `vs`, `am`, `gear`, `carb`) adalah nol. Dalam konteks ini, tidak ada interpretasi praktis karena nilai-nilai nol untuk variabel-variabel independen biasanya tidak relevan dalam kasus ini.
+
+2.  **cyl (Cylinder):**\
+    Koefisien untuk variabel independen **`cyl`** adalah $-0.11144$. Ini menunjukkan bahwa dengan **setiap penambahan** satu unit pada jumlah silinder, rata-rata miles per gallon (mpg) cenderung **berkurang** sebesar $-0.11144$ unit, tetapi perubahan ini **tidak signifikan** secara statistik.
+
+3.  **disp (Displacement):**\
+    Koefisien untuk variabel independen **`disp`** adalah $0.01334$. Ini mengindikasikan bahwa dengan **setiap penambahan** satu unit pada volume mesin, rata-rata mpg cenderung **meningkat** sebesar $0.01334$ unit, tetapi perubahan ini juga **tidak signifikan** secara statistik.
+
+4.  **hp (Horsepower):**\
+    Koefisien untuk variabel independen **`hp`** adalah $-0.02148$. Ini menunjukkan bahwa dengan **setiap penambahan** satu unit pada tenaga kuda, rata-rata mpg cenderung berkurang sebesar $-0.02148$ unit, tetapi perubahan ini juga **tidak signifikan** secara statistik.
+
+5.  **drat (Rear Axle Ratio):**\
+    Koefisien untuk variabel independen **`drat`** adalah $0.78711$. Ini berarti bahwa dengan **setiap peningkatan** satu unit pada rasio poros belakang, rata-rata mpg cenderung **meningkat** sebesar $0.78711$ unit. Namun, perubahan ini juga **tidak signifikan** secara statistik.
+
+6.  **wt (Weight):**\
+    Koefisien untuk variabel independen **`wt`** adalah $-3.71530$. Ini mengindikasikan bahwa dengan **setiap penambahan** satu unit pada berat kendaraan, rata-rata mpg cenderung **berkurang** sebesar $-3.71530$ unit. Koefisien ini memiliki **nilai t yang signifikan** secara statistik, yang berarti bahwa berat kendaraan memiliki pengaruh yang signifikan terhadap mpg.
+
+7.  **qsec (Quarter Mile Time):**\
+    Koefisien untuk variabel independen **`qsec`** adalah $0.82104$. Ini menunjukkan bahwa dengan **setiap peningkatan** satu unit pada waktu tempuh seperempat mil, rata-rata mpg cenderung **meningkat** sebesar $0.82104$ unit, tetapi perubahan ini **tidak signifikan** secara statistik.
+
+8.  **vs (V/S):**\
+    Koefisien untuk variabel independen **`vs`** adalah $0.31776$. Ini mengindikasikan bahwa jika jenis mesin adalah V/S, rata-rata mpg cenderung lebih tinggi sekitar $0.31776$ unit dibandingkan dengan jenis mesin lainnya. Namun, efek ini juga **tidak signifikan** secara statistik.
+
+9.  **am (Transmisi):**\
+    Koefisien untuk variabel independen **`am`** adalah $2.52023$. Ini berarti bahwa jika transmisi adalah otomatis (am=1), rata-rata mpg cenderung lebih tinggi sekitar $2.52023$ unit dibandingkan dengan transmisi manual (am=0). Koefisien ini memiliki pengaruh yang **signifikan** terhadap mpg.
+
+10. **gear (Gigi):**\
+    Koefisien untuk variabel independen **`gear`** adalah $0.65541$. Ini menunjukkan bahwa jika jumlah gigi adalah 1 unit lebih tinggi, rata-rata mpg cenderung lebih tinggi sekitar $0.65541$ unit. Namun, perubahan ini **tidak signifikan** secara statistik.
+
+11. **carb (Karburator):**\
+    Koefisien untuk variabel independen **`carb`** adalah $-0.19942$. Ini mengindikasikan bahwa dengan setiap penambahan satu unit pada jumlah karburator, rata-rata mpg cenderung berkurang sebesar $-0.19942$ unit, tetapi perubahan ini juga tidak signifikan secara statistik.
+
+#### **Residual Standard Error** (Residual SE atau RSE):
+
+Residual SE mengukur seberapa jauh perbedaan antara nilai-nilai aktual (data sebenarnya) dan nilai-nilai yang diprediksi oleh model (data yang diestimasi oleh model). Ini adalah estimasi dari deviasi standar dari residual (kesalahan prediksi) dalam model. Semakin kecil nilai RSE, semakin baik model memfitting data. Dalam kasus Anda, RSE adalah sekitar 2.65, yang mengindikasikan bahwa rata-rata residual sekitar 2.65 unit dari nilai aktual.
+
+#### **Multiple R-squared** (R-squared):
+
+R-squared mengukur seberapa baik variabilitas dalam variabel respons (dalam hal ini, **`mpg`**) dapat dijelaskan oleh model. Nilai R-squared berkisar antara 0 hingga 1, di mana 0 berarti model tidak menjelaskan variasi sama sekali dan 1 berarti model menjelaskan semua variasi. Nilai R-squared sebesar 0.869 mengindikasikan bahwa sekitar 86.9% variabilitas dalam **`mpg`** dapat dijelaskan oleh variabel-variabel independen dalam model Anda.
+
+#### **Adjusted R-squared**:
+
+Adjusted R-squared adalah modifikasi dari R-squared yang mempertimbangkan jumlah variabel independen dalam model. Ini adalah ukuran yang lebih kritis karena memasukkan kompleksitas model. Nilai Adjusted R-squared sebesar 0.8066 menunjukkan bahwa sekitar 80.66% variabilitas dalam **`mpg`** dapat dijelaskan oleh variabel-variabel independen dalam model, dengan mempertimbangkan kompleksitas model.
+
+#### **F-statistic**: 
+
+F-statistic adalah statistik yang digunakan untuk menguji apakah model regresi secara keseluruhan signifikan atau tidak. Semakin tinggi nilai F-statistic dan semakin rendah nilai p-value yang terkait, semakin signifikan model regresi secara keseluruhan. Dalam kasus Anda, F-statistic sebesar 13.93 dan nilai p-value yang sangat rendah (3.793e-07) menunjukkan bahwa model Anda secara keseluruhan adalah model yang signifikan secara statistik, yang berarti bahwa setidaknya salah satu variabel independen memiliki efek signifikan pada variabel respons (**`mpg`**) dalam model ini.
 
 # Regresi Ridge
 
