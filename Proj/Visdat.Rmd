@@ -20,6 +20,13 @@ pkgdown:
   as_is: true
 ---
 
+### Link :
+
+1.  Git Hub : <https://github.com/Zen-Rofiqy/STA1381-PSD/tree/main/Proj>
+2.  Manage & Cleaning Data: <https://rpubs.com/ZenR_Prog/PSD-Proj-Managing>
+3.  Visualisasi dan Eksplorasi Data : <https://rpubs.com/ZenR_Prog/PSD-Proj-Visdat>
+4.  Analisis Data : Managing : <https://rpubs.com/ZenR_Prog/PSD-Proj-Andat>
+
 ```{r, include=FALSE, echo=FALSE, warning=FALSE, message = FALSE}
 path <- function() gsub  ( "\\\\",  "/",  readClipboard ()  )
 #Copy path, Panggil function di console
