@@ -170,19 +170,19 @@ $$
 
 #### **Residual Standard Error** (Residual SE atau RSE):
 
-Residual SE mengukur seberapa jauh perbedaan antara nilai-nilai aktual (data sebenarnya) dan nilai-nilai yang diprediksi oleh model (data yang diestimasi oleh model). Ini adalah estimasi dari deviasi standar dari residual (kesalahan prediksi) dalam model. Semakin kecil nilai RSE, semakin baik model memfitting data. Dalam kasus Anda, RSE adalah sekitar 2.65, yang mengindikasikan bahwa rata-rata residual sekitar 2.65 unit dari nilai aktual.
+Residual SE mengukur seberapa jauh perbedaan antara nilai-nilai aktual (data sebenarnya) dan nilai-nilai yang diprediksi oleh model (data yang diestimasi oleh model). Ini adalah estimasi dari deviasi standar dari residual (kesalahan prediksi) dalam model. **Semakin kecil nilai RSE**, **semakin baik** model memfitting data. RSE yang diperoleh adalah sekitar $2.65$, yang mengindikasikan bahwa rata-rata residual sekitar $2.65$ unit dari nilai aktual.
 
 #### **Multiple R-squared** (R-squared):
 
-R-squared mengukur seberapa baik variabilitas dalam variabel respons (dalam hal ini, **`mpg`**) dapat dijelaskan oleh model. Nilai R-squared berkisar antara 0 hingga 1, di mana 0 berarti model tidak menjelaskan variasi sama sekali dan 1 berarti model menjelaskan semua variasi. Nilai R-squared sebesar 0.869 mengindikasikan bahwa sekitar 86.9% variabilitas dalam **`mpg`** dapat dijelaskan oleh variabel-variabel independen dalam model Anda.
+R-squared mengukur seberapa baik variabilitas dalam variabel respons (dalam hal ini, **`mpg`**) dapat dijelaskan oleh model. Nilai R-squared berkisar antara 0 hingga 1, di mana 0 berarti model tidak menjelaskan variasi sama sekali dan 1 berarti model menjelaskan semua variasi. Nilai R-squared sebesar $0.869$ mengindikasikan bahwa **sekitar** $86.9\%$ variabilitas dalam **`mpg`** **dapat dijelaskan** oleh variabel-**variabel independen** dalam model.
 
 #### **Adjusted R-squared**:
 
-Adjusted R-squared adalah modifikasi dari R-squared yang mempertimbangkan jumlah variabel independen dalam model. Ini adalah ukuran yang lebih kritis karena memasukkan kompleksitas model. Nilai Adjusted R-squared sebesar 0.8066 menunjukkan bahwa sekitar 80.66% variabilitas dalam **`mpg`** dapat dijelaskan oleh variabel-variabel independen dalam model, dengan mempertimbangkan kompleksitas model.
+Adjusted R-squared adalah modifikasi dari R-squared yang mempertimbangkan jumlah variabel independen dalam model. Ini adalah ukuran yang **lebih kritis** karena memasukkan kompleksitas model. Nilai Adjusted R-squared sebesar $0.8066$ menunjukkan bahwa sekitar $80.66\%$ variabilitas dalam **`mpg`** d**apat dijelaskan** oleh variabel-**variabel independen** dalam model, dengan mempertimbangkan **kompleksitas model**.
 
 #### **F-statistic**: 
 
-F-statistic adalah statistik yang digunakan untuk menguji apakah model regresi secara keseluruhan signifikan atau tidak. Semakin tinggi nilai F-statistic dan semakin rendah nilai p-value yang terkait, semakin signifikan model regresi secara keseluruhan. Dalam kasus Anda, F-statistic sebesar 13.93 dan nilai p-value yang sangat rendah (3.793e-07) menunjukkan bahwa model Anda secara keseluruhan adalah model yang signifikan secara statistik, yang berarti bahwa setidaknya salah satu variabel independen memiliki efek signifikan pada variabel respons (**`mpg`**) dalam model ini.
+F-statistic adalah statistik yang digunakan untuk menguji apakah model regresi secara keseluruhan signifikan atau tidak. **Semakin tinggi** nilai **F-statistic** dan **semakin rendah** nilai **p-value** yang terkait, **semakin signifikan** model regresi secara keseluruhan. F-statistic yang diperoleh sebesar $13.93$ dan nilai *p-value* yang sangat rendah ($3.793e-07$) menunjukkan bahwa model diatas secara keseluruhan adalah model yang **signifikan** secara statistik, yang berarti bahwa setidaknya salah satu variabel independen memiliki efek signifikan pada variabel respons (**`mpg`**) dalam model ini.
 
 # Regresi Ridge
 
