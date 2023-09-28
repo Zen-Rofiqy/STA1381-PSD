@@ -1,0 +1,132 @@
+---
+title: "Analisis Regresi Klasik, Ridge, dan Lasso"
+author: "Angga Fathan Rofiqy"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  rmdformats::downcute:
+    self_contained: true
+    thumbnails: false
+    lightbox: true
+    gallery: true
+    highlight: tango
+    code_folding: hide
+    toc_depth: 3
+    number_sections: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
+    fig_caption: true
+pkgdown:
+  as_is: true
+---
+
+```{r, include=FALSE, echo=FALSE, warning=FALSE, message = FALSE}
+#                      -=( Install & Load Package Function )=-
+install_load <- function (package1, ...)  {   
+
+   # convert arguments to vector
+   packages <- c(package1, ...)
+
+   # start loop to determine if each package is installed
+   for(package in packages){
+
+       # if package is installed locally, load
+       if(package %in% rownames(installed.packages()))
+          do.call('library', list(package))
+
+       # if package is not installed locally, download, then load
+       else {
+          install.packages(package)
+          do.call("library", list(package))
+       }
+   } 
+}
+```
+
+```{r, include=FALSE, echo=FALSE, warning=FALSE, message = FALSE}
+#Function biar gak perlu ganti backslash (\) jadi slash (/).
+path <- function() gsub  ( "\\\\",  "/",  readClipboard ()  )
+#Copy path, Panggil function di console
+#Copy r path, paste ke var yang diinginkan
+```
+
+```{r setup, include=FALSE, echo=FALSE, warning=FALSE, message = FALSE}
+#Set Working Directory
+require("knitr")
+opts_knit$set(root.dir = "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 5/8. Pengantar Sains Data/Tugas")
+```
+
+\newpage
+
+# Pendahuluan
+
+![](https://wallpaperwaifu.com/wp-content/uploads/2023/06/ferrari-f8-tributo-thumb.jpg)
+
+## Tentang Data
+
+**mtcars Dataset:**
+
+-   **Deskripsi:** Dataset mtcars berisi informasi tentang berbagai spesifikasi mobil berdasarkan model dan tahun pembuatannya. Dataset ini digunakan sebagai contoh dalam banyak analisis dan pemodelan statistik.
+
+-   **Variabel:**
+
+## Tujuan
+
+-   Membuat analisis regresi klasik, ridge, dan lasso.
+
+-   Membandingkan performa model, peubah yang digunakan.
+
+-   Interpretasi koefisien model terbaiknya.
+
+## Peubah
+
+| **Kolom** |                **Keterangan**                | **Peubah** |
+|:---------:|:--------------------------------------------:|:----------:|
+|   `mpg`   |     Jarak tempuh per gallon bahan bakar.     |    `y`     |
+|   `cyl`   |               Jumlah silinder.               |    `x1`    |
+|  `disp`   |       Volume mesin (dalam inci kubik).       |    `x2`    |
+|   `hp`    |                 Tenaga kuda.                 |    `x3`    |
+|  `drat`   |          Rasio akselerasi belakang.          |    `x4`    |
+|   `wt`    |      Berat kendaraan (dalam 1000 pon).       |    `x5`    |
+|  `qsec`   |         Waktu tempuh seperempat mil.         |    `x6`    |
+|   `vs`    |  Jenis mesin (0 = V-shaped, 1 = straight).   |    `x7`    |
+|   `am`    | Jenis transmisi (0 = automatic, 1 = manual). |    `x8`    |
+|  `gear`   |                 Jumlah gigi.                 |    `x9`    |
+|  `carb`   |              Jumlah karburator.              |   `x10`    |
+
+## Data input
+
+```{r, warning=FALSE, message = FALSE}
+raw.data <- mtcars
+data <- raw.data
+install_load('DT')
+datatable(raw.data, filter = 'top', 
+          options = list(pageLength = 5))
+```
+
+## Data Checking
+
+```{r}
+str(data)
+```
+
+# Regresi Klasik
+
+```{r}
+reg.klas <- lm(mpg ~ cyl + disp + hp + drat + wt + qsec + vs + am + gear + carb, data=data)
+summary(reg.klas)
+```
+
+Diperoleh model :
+
+$$\begin{equation}
+\begin{aligned}
+\hat{\text{mpg}} = & 12.30337 -0.11144 \text{cyl} + 0.01334 \text{disp} - 0.02148 \text{hp} + 0.78711 \text{drat} - 3.71530 \text{wt} \\
+            & + 0.82104 \text{qsec} + 0.31776 \text{vs} + 2.52023 \text{am} + 0.65541 \text{gear} - 0.19942\text{carb}
+\end{aligned}
+\end{equation}
+$$
+
+# Regresi Ridge
+
+# Regresi Lasso
