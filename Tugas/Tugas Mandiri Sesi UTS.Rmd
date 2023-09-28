@@ -160,6 +160,8 @@ Kategori referensi sudah di setting ulang.
 
 # Regresi Klasik {.tabset}
 
+![](images/Asset 1@72x.png)
+
 ## Model
 
 ```{r}
@@ -171,8 +173,8 @@ Diperoleh model dugaan :
 
 $$\begin{equation}
 \begin{aligned}
-\hat{\text{mpg}}_i = & 12.30337 -0.11144 \text{cyl} + 0.01334 \text{disp} - 0.02148 \text{hp} + 0.78711 \text{drat} - 3.71530 \text{wt} \\
-            & + 0.82104 \text{qsec} + 0.31776 \text{vs} + 2.52023 \text{am} + 0.65541 \text{gear} - 0.19942\text{carb} + \epsilon_i
+\hat{\text{mpg}}_i = & 12.30337 -0.11144 \cdot \text{cyl} + 0.01334 \cdot \text{disp} - 0.02148 \cdot \text{hp} + 0.78711 \cdot \text{drat} - 3.71530 \cdot \text{wt} \\
+            & + 0.82104 \cdot \text{qsec} + 0.31776 \cdot \text{vsFront-Wheel Drive} + 2.52023 \cdot \text{amManual} + 0.65541 \cdot \text{gear} \\ & - 0.19942 \cdot \text{carb} + \epsilon_i
 \end{aligned}
 \end{equation}
 $$
@@ -206,7 +208,7 @@ $$
     Koefisien untuk variabel independen **`vs`** adalah $0.31776$. Ini mengindikasikan bahwa jika jenis mesin adalah V/S, rata-rata mpg cenderung lebih tinggi sekitar $0.31776$ unit dibandingkan dengan jenis mesin lainnya. Namun, efek ini juga **tidak signifikan** secara statistik.
 
 9.  **am (Transmisi):**\
-    Koefisien untuk variabel independen **`am`** adalah $2.52023$. Ini berarti bahwa jika transmisi adalah otomatis (am=1), rata-rata mpg cenderung lebih tinggi sekitar $2.52023$ unit dibandingkan dengan transmisi manual (am=0). Koefisien ini memiliki pengaruh yang **signifikan** terhadap mpg.
+    Koefisien untuk variabel independen **`am`** adalah $2.52023$. Ini berarti bahwa jika transmisi adalah otomatis (am=1), rata-rata mpg cenderung lebih tinggi sekitar $2.52023$ unit dibandingkan dengan transmisi manual (am=0). Koefisien ini memiliki pengaruh yang **tidak signifikan** terhadap mpg.
 
 10. **gear (Gigi):**\
     Koefisien untuk variabel independen **`gear`** adalah $0.65541$. Ini menunjukkan bahwa jika jumlah gigi adalah 1 unit lebih tinggi, rata-rata mpg cenderung lebih tinggi sekitar $0.65541$ unit. Namun, perubahan ini **tidak signifikan** secara statistik.
@@ -229,6 +231,12 @@ Adjusted R-squared adalah modifikasi dari R-squared yang mempertimbangkan jumlah
 #### **F-statistic**:
 
 F-statistic adalah statistik yang digunakan untuk menguji apakah model regresi secara keseluruhan signifikan atau tidak. **Semakin tinggi** nilai **F-statistic** dan **semakin rendah** nilai **p-value** yang terkait, **semakin signifikan** model regresi secara keseluruhan. F-statistic yang diperoleh sebesar $13.93$ dan nilai *p-value* yang sangat rendah ($3.793\times10^{-7}$) menunjukkan bahwa model diatas secara keseluruhan adalah model yang **signifikan** secara statistik, yang berarti bahwa setidaknya salah satu variabel independen memiliki efek signifikan pada variabel respons (**`mpg`**) dalam model ini.
+
+#### Simpulan
+
+Hasil dari koefisien regresi menunjukkan bahwa variabel `wt` (berat kendaraan) memiliki **pengaruh negatif yang kuat** terhadap `mpg` (*mileage per gallon*).
+
+> Ini berarti **semakin berat** kendaraan, **semakin rendah efisiensi** bahan bakarnya.
 
 # Regresi Ridge
 
