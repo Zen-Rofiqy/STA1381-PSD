@@ -56,13 +56,18 @@ require("knitr")
 opts_knit$set(root.dir = "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 5/8. Pengantar Sains Data/Tugas")
 ```
 
+```{r}
+#Export chart
+export.chart <- "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 5/8. Pengantar Sains Data/Tugas/Chart"
+```
+
 \newpage
 
 # Pendahuluan
 
 ![](https://wallpaperwaifu.com/wp-content/uploads/2023/06/ferrari-f8-tributo-thumb.jpg)
 
-**Link Github :**
+**Link Github :** <https://github.com/Zen-Rofiqy/STA1381-PSD/tree/main/Tugas>
 
 ## Tentang Data
 
@@ -85,7 +90,7 @@ Terdapat 11 peubah yang terdiri dari:
 | **Peubah** |                **Keterangan**                | **Sebagai Peubah** | **Tipe Peubah** |
 |:-----------:|:-------------------------------:|-------------|-------------|
 |   `mpg`    |     Jarak tempuh per gallon bahan bakar.     | `y`                | Numerik         |
-|   `cyl`    |               Jumlah silinder.               | `x1`               | Numerik         |
+|   `cyl`    |               Jumlah silinder.               | `x1`               | Kategorik       |
 |   `disp`   |       Volume mesin (dalam inci kubik).       | `x2`               | Numerik         |
 |    `hp`    |                 Tenaga kuda.                 | `x3`               | Numerik         |
 |   `drat`   |          Rasio akselerasi belakang.          | `x4`               | Numerik         |
@@ -93,8 +98,8 @@ Terdapat 11 peubah yang terdiri dari:
 |   `qsec`   |         Waktu tempuh seperempat mil.         | `x6`               | Numerik         |
 |    `vs`    |  Jenis mesin (0 = V-shaped, 1 = straight).   | `x7`               | Kategorik       |
 |    `am`    | Jenis transmisi (0 = automatic, 1 = manual). | `x8`               | Kategorik       |
-|   `gear`   |                 Jumlah gigi.                 | `x9`               | Numerik         |
-|   `carb`   |              Jumlah karburator.              | `x10`              | Numerik         |
+|   `gear`   |                 Jumlah gigi.                 | `x9`               | Kategorik       |
+|   `carb`   |              Jumlah karburator.              | `x10`              | Kategorik       |
 
 ### Data Preparation {.tabset}
 
@@ -112,11 +117,13 @@ Data ini memiliki 32 baris atau amatan.
 
 #### Data Checking
 
+Melihat tipe data.
+
 ```{r}
 str(data)
 ```
 
-Peubah `vs` dan `am` harus berupa kategorik. Namun bisa langsung dijadikan sebagai factor agar menjadi peubah dummy.
+Peubah `cyl` , `vs`, `am` , `gear` , dan `carb` harus berupa kategorik. Namun bisa langsung dijadikan sebagai factor agar menjadi peubah dummy.
 
 ```{r}
 sum(is.na(data))
@@ -130,33 +137,506 @@ Tidak ada data kosong dalam data ini.
 install_load('dplyr')
 data <- raw.data %>%
   mutate(
+    cyl = as.factor(cyl),
     am = factor(ifelse(am == 0, "Automatic", "Manual")),
-    vs = factor(ifelse(vs == 0, "Rear-Wheel Drive", "Front-Wheel Drive"))
+    vs = factor(ifelse(vs == 0, "V-shaped", "Straight")),
+    gear = as.factor(gear),
+    carb = as.factor(carb)
   )
 str(data)
 ```
 
 ```{r}
-levels(data$am); levels(data$vs)
+levels(data$cyl); levels(data$vs); levels(data$am); levels(data$gear); levels(data$carb)
 ```
 
-Peubah `vs` dan `am` sudah menjadi peubah dummy. Namun saya ingin mengubah referensi kategorinya dengan kategori terbanyak.
+Peubah `cyl` `vs` dan `am` sudah menjadi peubah dummy. Namun saya ingin mengubah referensi kategorinya dengan kategori terbanyak.
 
 ```{r}
-datatable(cbind(data %>% count(am), data %>% count(vs)))
+datatable(cbind(data %>% count(cyl), data %>% count(gear)))
+datatable(cbind(data %>% count(vs), data %>% count(am)))
+datatable(data %>% count(carb))
 ```
 
-Kategori referensi untuk peubah `am` sudah benar, yakni *'Automatic'* dan untuk peubah `vs` adalah '*Rear-Wheel Drive'.*
+Kategori referensi untuk peubah `cyl` adalah jumlah silinder 8, next untuk peubah `gear` adalah jumlah gigi 3, lalu untuk peubah `vs` adalah *'V-shaped', selanjutnya* peubah `am` yakni *'Automatic'*, dan terakhir peubah `carb` adalah jumlah karbulator 2.
 
 ```{r}
 install_load('forcats')
 data <- data %>% 
-  mutate(am = fct_relevel(am, levels(data$am)[which.max(table(data$am))] ),
-         vs = fct_relevel(vs, levels(data$vs)[which.max(table(data$vs))] ) )
-levels(data$am); levels(data$vs)
+  mutate(cyl = fct_relevel(cyl, levels(data$cyl)[which.max(table(data$cyl))] ),
+         vs  = fct_relevel(vs,  levels(data$vs)[which.max(table(data$vs))] ),
+         am  = fct_relevel(am,  levels(data$am)[which.max(table(data$am))] ) ,
+         gear  = fct_relevel(gear,  levels(data$gear)[which.max(table(data$gear))] ) ,
+         carb  = fct_relevel(carb,  levels(data$carb)[which.max(table(data$carb))] ) )
+levels(data$cyl); levels(data$vs); levels(data$am); levels(data$gear); levels(data$carb)
 ```
 
 Kategori referensi sudah di setting ulang.
+
+# Eksplorasi Data {.tabset}
+
+![](https://www.dodge.com/content/dam/fca-brands/na/dodge/en_us/2022/challenger/srt/desktop/2022-dodge-srt-hub-challenger-hero.jpg)
+
+```{r}
+install_load('ggplot2')
+theme1.1 <- list(
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, 
+                                   margin = margin(b = 10, t=20)),
+        axis.text.y = element_text(vjust = 0.5, face = "bold", 
+                                   margin = margin(l = 50, r = 20)),
+        plot.title = element_text(hjust = 0.5, face = "bold"),
+        text = element_text(size = 30),
+        plot.subtitle = element_text(hjust = 0.5),
+        panel.background = element_rect(fill = 'transparent'),
+        plot.background = element_rect(fill='transparent', color=NA),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(linewidth = 1, colour = "black"))
+        ) 
+)
+theme2 <- list(
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, 
+                                   margin = margin(b = 10, t=0)),
+        axis.text.y = element_text(vjust = 0.5, face = "bold", 
+                                   margin = margin(l = 20, r = -40)),
+        plot.title = element_text(hjust = 0.5, face = "bold"),
+        text = element_text(size = 30),
+        plot.subtitle = element_text(hjust = 0.5),
+        panel.background = element_rect(fill = 'transparent'),
+        plot.background = element_rect(fill='transparent', color=NA),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()
+        ) 
+)
+theme3.2 <- list(
+  theme(legend.position = "none",
+        plot.title = element_text(hjust = 0.5, face = "bold"),
+        text = element_text(size = 30),
+        plot.subtitle = element_text(hjust = 0.5),
+        panel.background = element_rect(fill = 'transparent', color=NA),
+        plot.background = element_rect(fill='transparent', color=NA),
+        panel.grid.major = element_line(colour = "grey90"),
+        axis.line = element_line(linewidth = 1.5, colour = "black")
+        ) 
+)
+```
+
+## Sebaran Peubah Respon MPG (Jarak tempuh per gallon bahan bakar)
+
+![](https://etimg.etb2bimg.com/photo/47933813.cms)
+
+```{r dpi=300, fig.height = 10, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+install_load('ggtext')
+chart <-
+ggplot(data, aes(x=mpg, 
+                     y='')) +
+  #Violin
+  geom_violin(scale="count", fill='#991B1E', color='black', alpha=0.9, 
+                    trim = FALSE) +
+  #Boxplot
+  geom_boxplot(fill='#FBCE32', color='black',
+                     outlier.size=4, outlier.color='#FBCE32', 
+                     notch=T, width=0.2) +
+  #Mean Marker
+  stat_summary(fun = mean, geom = "point", shape = 16, size = 4, 
+               color = "black") +
+  theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
+  labs(x = "\nMPG (Jarak tempuh per gallon bahan bakar)", y='',
+       title = "Sebaran Mil Per Galon Mobil",
+       subtitle = "Seberapa jauh mobil dapat berjalan dengan satu galon bahan bakar?\n") + theme2 +
+  #Tambah Mean Value
+  geom_richtext(
+    data = data.frame(x = mean(data$mpg), y = 1.25, 
+                      label = paste("Mean:", 
+                                    round(mean(data$mpg), 
+                                          2))),
+    aes(x, y, label = label), size = 7, color = "#C4BDB2", 
+    fill = "black", box.color = "#C4BDB2", parse = TRUE
+  ) +
+  #Tambah panah
+  geom_segment(aes(x = mean(data$mpg), 
+                   xend = mean(data$mpg), 
+                   y = 1, 
+                   yend = 1.2225), 
+               arrow = arrow(type = "closed", length = unit(0.1, "inches")), 
+               lineend = "round", color = "black", size=1.5)
+chart
+#Export Chart
+ggsave("01_Sebaran Mil Per Galon.png", chart, path = export.chart,
+        dpi = 300, height = 10, width = 20)
+```
+
+## Hubungan Jumlah Silinder (cyl) dengan MPG
+
+![](https://static1.hotcarsimages.com/wordpress/wp-content/uploads/2020/04/ryan-tuercks-toyota-86-with-ferrari-458-italia-engine-swap-sema-2016_100579446.jpg?q=50&fit=crop&w=943&dpr=1.5)
+
+```{r dpi=300, fig.height = 20, fig.width = 15, fig.align = "center", message = FALSE, warning=FALSE}
+install_load('ggtext')
+chart <-
+ggplot(data, aes(x=cyl, 
+                     y=mpg)) +
+  #Violin
+  geom_violin(scale="count", fill='#991B1E', color='black', alpha=0.9, 
+                    trim = FALSE) +
+  #Boxplot
+  geom_boxplot(fill='#FBCE32', color='black',
+                     outlier.size=4, outlier.color='#FBCE32', 
+                     notch=T, width=0.2) +
+  #Mean Marker
+  stat_summary(fun = mean, geom = "point", shape = 16, size = 4, 
+               color = "black") +
+  theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
+  labs(x = "\nJumlah Silinder (cyl)", 
+       y='MPG (Jarak tempuh per gallon bahan bakar)',
+       title = "Hubungan Jumlah Silinder (cyl) dengan MPG",
+       subtitle = "Bagaimana ya pola hubungan Jumlah Silinder (cyl) dengan MPG?\n") + theme1.1 
+chart
+#Export Chart
+ggsave("002_Boxplot Jumlah Silinder (cyl) dengan MPG.png", chart, path = export.chart,
+        dpi = 300, height = 20, width = 15)
+```
+
+Informasi yang diperoleh :
+
+1.  **Jumlah Silinder 8 memiliki rentang sebaran MPG yang lebih rendah yakni kurang lebih 0 sampai 20:** Ini mengindikasikan bahwa kendaraan dengan jumlah silinder 8 cenderung memiliki efisiensi bahan bakar yang lebih rendah, yang tercermin dari rentang MPG yang lebih rendah. Dengan kata lain, kendaraan berjumlah 8 silinder cenderung mengkonsumsi lebih banyak bahan bakar untuk menempuh jarak yang sama dibandingkan dengan kendaraan dengan jumlah silinder yang lebih sedikit.
+
+2.  **Jumlah Silinder 4 memiliki rentang sebaran yang lebih lebar yakni kurang lebih 15 sampai 40:** Ini menunjukkan bahwa kendaraan dengan jumlah silinder 4 memiliki variasi efisiensi bahan bakar yang lebih besar. Beberapa kendaraan dengan 4 silinder dapat sangat efisien (dengan MPG tinggi), sementara yang lain mungkin kurang efisien (dengan MPG rendah). Rentang yang lebih lebar ini bisa mengindikasikan bahwa ada lebih banyak variasi dalam efisiensi bahan bakar di antara kendaraan dengan 4 silinder.
+
+3.  **Jumlah Silinder 6 memiliki rentang sebaran yang paling kecil dari kurang lebih 15 sampai 25:** Ini menunjukkan bahwa kendaraan dengan jumlah silinder 6 memiliki variasi yang lebih terbatas dalam efisiensi bahan bakar. Rentang yang lebih sempit ini menunjukkan bahwa kendaraan dengan 6 silinder cenderung memiliki efisiensi bahan bakar yang serupa dalam kisaran tertentu, dan ada sedikit variasi yang signifikan di antara mereka.
+
+Secara keseluruhan, informasi ini membantu kita memahami bagaimana jumlah silinder kendaraan dapat memengaruhi efisiensi bahan bakar (MPG) mereka. Kendaraan dengan jumlah silinder yang lebih rendah cenderung lebih efisien dalam penggunaan bahan bakar, sementara kendaraan dengan jumlah silinder yang lebih tinggi cenderung lebih boros. Ini adalah informasi yang berguna dalam pemilihan kendaraan berdasarkan efisiensi bahan bakar yang diinginkan.
+
+## Hubungan Volume mesin (disp) dengan MPG
+
+![](https://www.automobilesreview.com/img/heffner-performance-twin-turbo-lamborghini-lp-560/heffner-performance-twin-turbo-lamborghini-lp-560-06.jpg)
+
+```{r dpi=300, fig.height = 15, fig.width = 15, fig.align = "center", message = FALSE, warning=FALSE}
+chart <-
+ggplot(data = data, aes(x = disp, y = mpg)) +
+  geom_point(alpha = 0.75, size = 7, col="#589E44") +
+  geom_smooth(method = "lm", formula = y ~ x, se = FALSE, size = 1,
+              col="#589E44") +
+  labs(title='Hubungan Volume mesin (disp) dengan MPG',
+       subtitle = 'Bagaimana ya pola hubungan Volume mesin (disp) dengan MPG?\n',
+    x = "\nVolume mesin (dalam inci kubik)", 
+    y = "MPG (Jarak tempuh per gallon bahan bakar)\n") +
+  theme3.2 +
+  geom_text(aes(x = 300, 
+                y = 30, 
+                label = paste("R =", round(cor(data$disp, 
+                                               data$mpg), 2))),
+            color = "black", size = 20)
+chart
+#Export Chart
+ggsave("03_Scatterplot Volume mesin (disp) dengan MPG.png", 
+       chart, path = export.chart,
+        dpi = 300, height = 15, width = 15)
+```
+
+Diperoleh informasi :
+
+-   **"Volume Mesin dengan MPG memiliki pola hubungan linier kuat negatif"**: Ini berarti bahwa terdapat pola hubungan yang kuat dan berbanding terbalik antara volume mesin dan efisiensi bahan bakar yang diukur dalam satuan MPG. Dengan kata lain, semakin besar volume mesin kendaraan, semakin rendah efisiensi bahan bakarnya, dan sebaliknya. Ini adalah hubungan linier negatif karena ketika satu variabel meningkat, variabel lainnya cenderung menurun secara konsisten.
+
+```{=html}
+<!-- -->
+```
+-   **"dengan nilai korelasi sebesar** $-0.85$**"**: Nilai korelasi adalah ukuran statistik yang mengukur sejauh mana dua variabel berkaitan satu sama lain. Dalam konteks ini, nilai korelasi sebesar $-0.85$ menunjukkan bahwa hubungan antara volume mesin dan MPG sangat kuat. Angka negatif menunjukkan arah hubungan negatif, sesuai dengan pengamatan sebelumnya bahwa semakin besar volume mesin, semakin rendah MPG. Nilai $-0.85$ juga mendekati $-1$, yang mengindikasikan bahwa hubungan ini sangat dekat dengan hubungan linier sempurna (yang akan memiliki nilai $-1$ jika sempurna negatif).
+
+Jadi, kesimpulannya, hasil analisis korelasi ini menunjukkan bahwa pada dataset ini, volume mesin kendaraan memiliki pengaruh kuat dan negatif terhadap efisiensi bahan bakar (MPG). Dengan kata lain, kendaraan dengan volume mesin yang lebih besar cenderung memiliki MPG yang lebih rendah, sementara kendaraan dengan volume mesin yang lebih kecil cenderung memiliki MPG yang lebih tinggi. Ini adalah informasi yang berguna untuk memahami faktor-faktor yang memengaruhi efisiensi bahan bakar kendaraan.
+
+## Hubungan Tenaga kuda (hp) dengan MPG
+
+![](https://cdn0-production-images-kly.akamaized.net/3ZqyJmHrqUX-3cRIOk4MHyyPLM4=/1200x675/smart/filters:quality(75):strip_icc():format(jpeg)/kly-media-production/medias/4159173/original/031797000_1663226973-liputan6-ford-mustang-dark-horse-01.jpg)
+
+```{r dpi=300, fig.height = 15, fig.width = 15, fig.align = "center", message = FALSE, warning=FALSE}
+chart <-
+ggplot(data = data, aes(x = hp, y = mpg)) +
+  geom_point(alpha = 0.75, size = 7, col="#1E3D73") +
+  geom_smooth(method = "lm", formula = y ~ x, se = FALSE, size = 1,
+              col="#1E3D73") +
+  labs(title='Hubungan Tenaga kuda dengan MPG',
+       subtitle = 'Bagaimana ya pola hubungan Tenaga kuda dengan MPG?\n',
+    x = "\nTenaga kuda (hp)", 
+    y = "MPG (Jarak tempuh per gallon bahan bakar)\n") +
+  theme3.2 +
+  geom_text(aes(x = 200, 
+                y = 30, 
+                label = paste("R =", round(cor(data$hp, 
+                                               data$mpg), 2))),
+            color = "black", size = 20)
+chart
+#Export Chart
+ggsave("04_Scatterplot Tenaga kuda (hp) dengan MPG.png", 
+       chart, path = export.chart,
+        dpi = 300, height = 15, width = 15)
+```
+
+-   **"Tenaga kuda dengan MPG memiliki pola hubungan linier kuat negatif"**: Ini berarti bahwa terdapat pola hubungan yang kuat dan berbanding terbalik antara tenaga kuda mesin kendaraan dan efisiensi bahan bakar yang diukur dalam satuan MPG. Dengan kata lain, semakin tinggi tenaga kuda mesin kendaraan, semakin rendah efisiensi bahan bakarnya, dan sebaliknya. Ini adalah hubungan linier negatif karena ketika satu variabel meningkat, variabel lainnya cenderung menurun secara konsisten.
+
+-   **"dengan nilai korelasi sebesar** $-0.78$**"**: Nilai korelasi adalah ukuran statistik yang mengukur sejauh mana dua variabel berkaitan satu sama lain. Dalam konteks ini, nilai korelasi sebesar $-0.78$ menunjukkan bahwa hubungan antara tenaga kuda dan MPG cukup kuat. Angka negatif menunjukkan arah hubungan negatif, sesuai dengan pengamatan sebelumnya bahwa semakin tinggi tenaga kuda mesin, semakin rendah MPG. Meskipun nilai korelasi ini tidak sekuat $-1$ (hubungan linier sempurna), tetapi tetap kuat dan menunjukkan arah yang konsisten.
+
+Jadi, kesimpulannya, hasil analisis korelasi ini menunjukkan bahwa pada dataset ini, tenaga kuda mesin kendaraan memiliki pengaruh kuat dan negatif terhadap efisiensi bahan bakar (MPG). Dengan kata lain, kendaraan dengan mesin yang lebih bertenaga cenderung memiliki MPG yang lebih rendah, sementara kendaraan dengan mesin yang kurang bertenaga cenderung memiliki MPG yang lebih tinggi. Informasi ini membantu dalam pemahaman faktor-faktor yang memengaruhi efisiensi bahan bakar kendaraan.
+
+## Hubungan Rasio akselerasi belakang (drat) dengan MPG
+
+![](https://audimediacenter-a.akamaihd.net/system/production/media/83997/images/f58d3301847ccf38a071de7cba1f60b2bf49409b/A1911878_web_2880.jpg?1582559878)
+
+```{r dpi=300, fig.height = 15, fig.width = 15, fig.align = "center", message = FALSE, warning=FALSE}
+chart <-
+ggplot(data = data, aes(x = drat, y = mpg)) +
+  geom_point(alpha = 0.75, size = 7, col="#29713B") +
+  geom_smooth(method = "lm", formula = y ~ x, se = FALSE, size = 1,
+              col="#29713B") +
+  labs(title='Hubungan Rasio akselerasi belakang dengan MPG',
+       subtitle = 'Bagaimana ya pola hubungan Rasio akselerasi belakang dengan MPG?\n',
+    x = "\nRasio akselerasi belakang (drat)", 
+    y = "MPG (Jarak tempuh per gallon bahan bakar)\n") +
+  theme3.2 +
+  geom_text(aes(x = 4.5, 
+                y = 20, 
+                label = paste("R =", round(cor(data$drat, 
+                                               data$mpg), 2))),
+            color = "black", size = 20)
+chart
+#Export Chart
+ggsave("04_Scatterplot Rasio akselerasi belakang (drat) dengan MPG.png", 
+       chart, path = export.chart,
+        dpi = 300, height = 15, width = 15)
+```
+
+-   **"Rasio akselerasi belakang dengan MPG memiliki pola hubungan linier cukup kuat positif"**: Ini berarti bahwa terdapat pola hubungan yang cukup kuat dan berbanding lurus antara rasio akselerasi belakang dan efisiensi bahan bakar yang diukur dalam satuan MPG. Dengan kata lain, semakin tinggi rasio akselerasi belakang, semakin tinggi juga MPG, dan sebaliknya. Ini adalah hubungan linier positif karena ketika satu variabel meningkat, variabel lainnya juga cenderung meningkat secara konsisten.
+
+-   **"dengan nilai korelasi sebesar** $0.68$**"**: Nilai korelasi adalah ukuran statistik yang mengukur sejauh mana dua variabel berkaitan satu sama lain. Dalam konteks ini, nilai korelasi sebesar $0.68$ menunjukkan bahwa hubungan antara rasio akselerasi belakang dan MPG cukup kuat. Angka positif menunjukkan arah hubungan positif, sesuai dengan pengamatan sebelumnya bahwa semakin tinggi rasio akselerasi belakang, semakin tinggi MPG. Meskipun nilai korelasi ini tidak mencapai $+1$ (hubungan linier sempurna), tetapi tetap cukup kuat dan menunjukkan arah yang konsisten.
+
+Jadi, kesimpulannya, hasil analisis korelasi ini menunjukkan bahwa pada dataset ini, rasio akselerasi belakang memiliki pengaruh cukup kuat dan positif terhadap efisiensi bahan bakar (MPG). Dengan kata lain, kendaraan dengan rasio akselerasi belakang yang lebih tinggi cenderung memiliki MPG yang lebih tinggi, sementara kendaraan dengan rasio akselerasi belakang yang lebih rendah cenderung memiliki MPG yang lebih rendah. Informasi ini membantu dalam pemahaman faktor-faktor yang memengaruhi efisiensi bahan bakar kendaraan.
+
+## Hubungan Berat kendaraan (wt) dengan MPG
+
+![](https://static1.hotcarsimages.com/wordpress/wp-content/uploads/2022/02/KTM-X-Bow-1-Cropped.jpg)
+
+```{r dpi=300, fig.height = 15, fig.width = 15, fig.align = "center", message = FALSE, warning=FALSE}
+chart <-
+ggplot(data = data, aes(x = wt, y = mpg)) +
+  geom_point(alpha = 0.75, size = 7, col="#F15E2B") +
+  geom_smooth(method = "lm", formula = y ~ x, se = FALSE, size = 1,
+              col="#F15E2B") +
+  labs(title='Hubungan Berat kendaraan dengan MPG',
+       subtitle = 'Bagaimana ya pola hubungan Berat kendaraan dengan MPG?\n',
+    x = "\nBerat kendaraan (dalam 1000 pon)", 
+    y = "MPG (Jarak tempuh per gallon bahan bakar)\n") +
+  theme3.2 +
+  geom_text(aes(x = 3.5, 
+                y = 30, 
+                label = paste("R =", round(cor(data$wt, 
+                                               data$mpg), 2))),
+            color = "black", size = 20)
+chart
+#Export Chart
+ggsave("05_Scatterplot Berat kendaraan (wt) dengan MPG.png", 
+       chart, path = export.chart,
+        dpi = 300, height = 15, width = 15)
+```
+
+-   **"Berat kendaraan dengan MPG memiliki pola hubungan linier kuat negatif"**: Ini berarti bahwa terdapat pola hubungan yang kuat dan berbanding terbalik antara berat kendaraan dan efisiensi bahan bakar yang diukur dalam satuan MPG. Dengan kata lain, semakin berat kendaraan, semakin rendah MPG, dan sebaliknya. Ini adalah hubungan linier negatif karena ketika satu variabel meningkat, variabel lainnya cenderung menurun secara konsisten.
+
+```{=html}
+<!-- -->
+```
+-   **"dengan nilai korelasi sebesar** $-0.87$**"**: Nilai korelasi adalah ukuran statistik yang mengukur sejauh mana dua variabel berkaitan satu sama lain. Dalam konteks ini, nilai korelasi sebesar $-0.87$ menunjukkan bahwa hubungan antara berat kendaraan dan MPG sangat kuat dan berbanding terbalik. Angka negatif menunjukkan arah hubungan negatif, sesuai dengan pengamatan sebelumnya bahwa semakin berat kendaraan, semakin rendah MPG.
+
+Jadi, kesimpulannya, hasil analisis korelasi ini menunjukkan bahwa pada dataset ini, berat kendaraan memiliki pengaruh yang sangat kuat dan negatif terhadap efisiensi bahan bakar (MPG). Dengan kata lain, kendaraan yang lebih berat cenderung memiliki MPG yang lebih rendah, sementara kendaraan yang lebih ringan cenderung memiliki MPG yang lebih tinggi. Informasi ini membantu dalam pemahaman faktor-faktor yang memengaruhi efisiensi bahan bakar kendaraan, di mana berat kendaraan adalah salah satu faktor yang signifikan.
+
+## Hubungan Waktu tempuh seperempat mil (qsec) dengan MPG
+
+![](https://thebritishmotorshow.live/wp-content/uploads/2023/06/DSC04101-scaled.jpg)
+
+```{r dpi=300, fig.height = 15, fig.width = 15, fig.align = "center", message = FALSE, warning=FALSE}
+chart <-
+ggplot(data = data, aes(x = qsec, y = mpg)) +
+  geom_point(alpha = 0.75, size = 7, col="#686B7A") +
+  geom_smooth(method = "lm", formula = y ~ x, se = FALSE, size = 1,
+              col="#686B7A") +
+  labs(title='Hubungan Waktu tempuh seperempat mil dengan MPG',
+       subtitle = 'Bagaimana ya pola hubungan Waktu tempuh seperempat mil dengan MPG?\n',
+    x = "\nWaktu tempuh seperempat mil (qsec)", 
+    y = "MPG (Jarak tempuh per gallon bahan bakar)\n") +
+  theme3.2 +
+  geom_text(aes(x = 21, 
+                y = 30, 
+                label = paste("R =", round(cor(data$qsec, 
+                                               data$mpg), 2))),
+            color = "black", size = 20)
+chart
+#Export Chart
+ggsave("06_Scatterplot Waktu tempuh seperempat mil (qsec) dengan MPG.png", 
+       chart, path = export.chart,
+        dpi = 300, height = 15, width = 15)
+```
+
+-   **"Waktu tempuh seperempat mil dengan MPG memiliki pola hubungan linier lemah positif"**: Ini berarti bahwa terdapat pola hubungan antara waktu tempuh seperempat mil dan MPG yang cenderung positif, meskipun pola ini lemah. Dengan kata lain, ada kecenderungan bahwa semakin lama waktu yang dibutuhkan untuk menempuh seperempat mil, semakin tinggi nilai MPG-nya, tetapi hubungannya tidak sangat kuat.
+
+-   **"dengan nilai korelasi sebesar** $0.42$**"**: Nilai korelasi adalah ukuran statistik yang mengukur sejauh mana dua variabel berkaitan satu sama lain. Dalam konteks ini, nilai korelasi sebesar $0.42$ menunjukkan bahwa ada hubungan positif antara waktu tempuh seperempat mil dan MPG, tetapi hubungannya lemah. Angka positif menunjukkan arah hubungan positif, yang sesuai dengan pengamatan bahwa semakin lama waktu tempuh, semakin tinggi MPG, meskipun efeknya tidak kuat.
+
+Jadi, kesimpulannya, hasil analisis korelasi ini menunjukkan bahwa ada hubungan lemah yang positif antara waktu tempuh seperempat mil dan efisiensi bahan bakar (MPG) pada dataset ini. Ini berarti bahwa dalam beberapa kasus, kendaraan dengan waktu tempuh seperempat mil yang lebih lama dapat memiliki nilai MPG yang sedikit lebih tinggi, tetapi efeknya tidak signifikan secara statistik. Faktor-faktor lain kemungkinan memiliki pengaruh yang lebih besar terhadap nilai MPG.
+
+## Hubungan Jenis mesin (vs) dengan MPG
+
+![](images/Asset 3@72x.png)
+
+```{r dpi=300, fig.height = 20, fig.width = 15, fig.align = "center", message = FALSE, warning=FALSE}
+install_load('ggtext')
+chart <-
+ggplot(data, aes(x=vs, 
+                     y=mpg)) +
+  #Violin
+  geom_violin(scale="count", fill='#E7BD20', color='black', alpha=0.9, 
+                    trim = FALSE) +
+  #Boxplot
+  geom_boxplot(fill='#707467', color='black',
+                     outlier.size=4, outlier.color='#707467', 
+                     notch=F, width=0.1) +
+  #Mean Marker
+  stat_summary(fun = mean, geom = "point", shape = 16, size = 4, 
+               color = "black") +
+  theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
+  labs(x = "\nJenis mesin (V-shaped atau straight)", 
+       y='MPG (Jarak tempuh per gallon bahan bakar)',
+       title = "Hubungan Jenis mesin dengan MPG",
+       subtitle = "Bagaimana ya pola hubungan Jenis mesin dengan MPG?\n") + theme1.1 
+chart
+#Export Chart
+ggsave("07_Boxplot Jenis mesin dengan MPG.png", chart, path = export.chart,
+        dpi = 300, height = 20, width = 15)
+```
+
+Diperoleh informasi :
+
+-   **"Jenis Mesin V-Shaped memiliki bentuk sebaran yang cukup normal"**: Ini mengindikasikan bahwa sebaran data MPG untuk mobil dengan jenis mesin V-Shaped cenderung lebih terkonsentrasi atau memiliki bentuk yang lebih simetris, mirip dengan distribusi normal atau lonceng. Ini berarti bahwa sebagian besar mobil dengan jenis mesin V-Shaped memiliki MPG dalam kisaran yang relatif kecil, yakni sekitar 0 hingga 30.
+
+```{=html}
+<!-- -->
+```
+-   **"dengan rentang sebaran MPG yang lebih rendah yakni kurang lebih 0 sampai 30"**: Rentang sebaran MPG adalah kisaran nilai MPG dari yang terendah hingga yang tertinggi dalam kelompok ini. Jadi, mobil dengan jenis mesin V-Shaped umumnya memiliki MPG antara 0 hingga 30, yang menunjukkan tingkat efisiensi bahan bakar yang lebih rendah.
+
+-   **"Sedangkan untuk mobil yang Jenis mesin nya Straight memiliki bentuk sebaran yang cenderung menjulur ke kanan"**: Ini menggambarkan bahwa sebaran data MPG untuk mobil dengan jenis mesin Straight cenderung memiliki ekor yang lebih panjang di sebelah kanan distribusi, yang dapat menunjukkan adanya outlier (pencilan) dengan nilai MPG yang tinggi.
+
+-   **"dengan rentang sebaran yang lebih lebar yakni kurang lebih 10 sampai 45"**: Dalam hal ini, rentang sebaran MPG untuk mobil dengan jenis mesin Straight lebih luas, yaitu berkisar antara 10 hingga 45. Ini menunjukkan bahwa terdapat variasi yang lebih besar dalam efisiensi bahan bakar untuk mobil-mobil ini, dengan beberapa mobil yang memiliki MPG yang cukup tinggi, meskipun ada beberapa pencilan di sisi tinggi distribusi.
+
+Jadi, kesimpulannya, analisis ini mengindikasikan perbedaan dalam sebaran data MPG antara dua jenis mesin, di mana jenis mesin V-Shaped cenderung memiliki rentang sebaran yang lebih rendah dan bentuk yang lebih normal, sementara jenis mesin Straight memiliki rentang sebaran yang lebih lebar dan cenderung memiliki outlier (pencilan) dengan nilai MPG yang tinggi.
+
+## Hubungan Jenis transmisi (am) dengan MPG
+
+![](https://blog.beforward.jp/wp-content/uploads/2021/10/20211014-manual-vs-automatic.jpg)
+
+```{r dpi=300, fig.height = 20, fig.width = 15, fig.align = "center", message = FALSE, warning=FALSE}
+chart <-
+ggplot(data, aes(x=am, 
+                     y=mpg)) +
+  #Violin
+  geom_violin(scale="count", fill='#DE6B26', color='black', alpha=0.9, 
+                    trim = FALSE) +
+  #Boxplot
+  geom_boxplot(fill='white', color='black',
+                     outlier.size=4, outlier.color='white', 
+                     notch=F, width=0.1) +
+  #Mean Marker
+  stat_summary(fun = mean, geom = "point", shape = 16, size = 4, 
+               color = "black") +
+  theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
+  labs(x = "\nJenis transmisi (Automatic atau Manual)", 
+       y='MPG (Jarak tempuh per gallon bahan bakar)',
+       title = "Hubungan Jenis transmisi dengan MPG",
+       subtitle = "Bagaimana ya pola hubungan Jenis transmisi dengan MPG?\n") + theme1.1 
+chart
+#Export Chart
+ggsave("08_Boxplot Jenis transmisi dengan MPG.png", chart, path = export.chart,
+        dpi = 300, height = 20, width = 15)
+```
+
+Diperoleh Informasi :
+
+-   **"Jenis Transmisi Automatic memiliki bentuk sebaran yang cukup normal"**: Ini mengindikasikan bahwa sebaran data MPG untuk mobil dengan jenis transmisi Automatic cenderung lebih terkonsentrasi atau memiliki bentuk yang lebih simetris, mirip dengan distribusi normal atau lonceng. Ini berarti bahwa sebagian besar mobil dengan jenis transmisi Automatic memiliki MPG dalam kisaran yang relatif kecil, yakni sekitar 5 hingga 30.
+
+-   **"dengan rentang sebaran MPG yang lebih rendah yakni kurang lebih 5 sampai 30"**: Rentang sebaran MPG adalah kisaran nilai MPG dari yang terendah hingga yang tertinggi dalam kelompok ini. Jadi, mobil dengan jenis transmisi Automatic umumnya memiliki MPG antara 5 hingga 30, yang menunjukkan tingkat efisiensi bahan bakar yang lebih rendah.
+
+-   **"Sedangkan untuk mobil yang Jenis Transmisi Manual memiliki bentuk sebaran yang cenderung menjulur ke kanan"**: Ini menggambarkan bahwa sebaran data MPG untuk mobil dengan jenis transmisi Manual cenderung memiliki ekor yang lebih panjang di sebelah kanan distribusi, yang dapat menunjukkan adanya outlier (pencilan) dengan nilai MPG yang tinggi.
+
+-   **"dengan rentang sebaran yang lebih lebar yakni kurang lebih 0 sampai 45"**: Dalam hal ini, rentang sebaran MPG untuk mobil dengan jenis transmisi Manual lebih luas, yaitu berkisar antara 0 hingga 45. Ini menunjukkan bahwa terdapat variasi yang lebih besar dalam efisiensi bahan bakar untuk mobil-mobil ini, dengan beberapa mobil yang memiliki MPG yang cukup tinggi, meskipun ada beberapa pencilan di sisi tinggi distribusi.
+
+Jadi, kesimpulannya, analisis ini mengindikasikan perbedaan dalam sebaran data MPG antara dua jenis transmisi, di mana jenis Transmisi Automatic cenderung memiliki rentang sebaran yang lebih rendah dan bentuk yang lebih normal, sementara jenis Transmisi Manual memiliki rentang sebaran yang lebih lebar dan cenderung memiliki outlier (pencilan) dengan nilai MPG yang tinggi.
+
+## Hubungan Jumlah gigi (gear) dengan MPG
+
+![](https://t4.ftcdn.net/jpg/01/71/01/87/360_F_171018708_rVggPgKudYXDiwnOJbEjOU5QkSV3ZdDG.jpg){width="625"}
+
+```{r dpi=300, fig.height = 20, fig.width = 15, fig.align = "center", message = FALSE, warning=FALSE}
+chart <-
+ggplot(data, aes(x=gear, 
+                     y=mpg)) +
+  #Violin
+  geom_violin(scale="count", fill='#0677AB', color='black', alpha=0.9, 
+                    trim = FALSE) +
+  #Boxplot
+  geom_boxplot(fill='#CED3CE', color='black',
+                     outlier.size=4, outlier.color='#CED3CE', 
+                     notch=F, width=0.1) +
+  #Mean Marker
+  stat_summary(fun = mean, geom = "point", shape = 16, size = 4, 
+               color = "black") +
+  theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
+  labs(x = "\nJumlah gigi (gear)", 
+       y='MPG (Jarak tempuh per gallon bahan bakar)',
+       title = "Hubungan Jumlah gigi dengan MPG",
+       subtitle = "Bagaimana ya pola hubungan Jumlah gigi dengan MPG?\n") + theme1.1 
+chart
+#Export Chart
+ggsave("09_Boxplot Jumlah gigi (gear) dengan MPG.png", chart, path = export.chart,
+        dpi = 300, height = 20, width = 15)
+```
+
+Diperoleh informasi :\
+**"Semua jumlah gigi Mobil memiliki bentuk sebaran yang menjulur ke kanan"**: Ini menggambarkan bahwa sebaran data MPG untuk mobil-mobil dengan berbagai jumlah gigi transmisi cenderung memiliki ekor yang lebih panjang di sebelah kanan distribusi, yang dapat menunjukkan adanya outlier (pencilan) dengan nilai MPG yang tinggi.
+
+-   **"Mobil yang memiliki jumlah gigi 3 memiliki rentang sebaran MPG yang paling rendah yakni kurang lebih 5 sampai 25"**: Rentang sebaran MPG untuk mobil dengan 3 gigi transmisi adalah yang paling terbatas, yaitu antara 5 hingga 25. Ini menunjukkan bahwa mobil-mobil dengan 3 gigi transmisi cenderung memiliki efisiensi bahan bakar yang lebih rendah dan lebih terkonsentrasi dalam kisaran tersebut.
+
+-   **"Sedangkan untuk mobil yang jumlah gigi nya 4 memiliki rentang sebaran yang lebih lebar yakni kurang lebih 10 sampai 40"**: Rentang sebaran MPG untuk mobil dengan 4 gigi transmisi lebih luas dibandingkan dengan yang memiliki 3 gigi. Ini menunjukkan bahwa mobil-mobil dengan 4 gigi transmisi memiliki variasi yang lebih besar dalam efisiensi bahan bakar, dengan beberapa mobil yang memiliki MPG yang cukup tinggi.
+
+-   **"Dan terakhir untuk mobil dengan jumlah gigi 5 memiliki rentang paling lebar yakni kurang lebih 3 sampai 45"**: Mobil dengan 5 gigi transmisi memiliki rentang sebaran MPG yang paling luas di antara semua kategori, yakni berkisar antara 3 hingga 45. Ini menunjukkan bahwa mobil-mobil dengan 5 gigi transmisi memiliki variasi yang sangat besar dalam efisiensi bahan bakar, dengan beberapa mobil yang memiliki MPG yang sangat tinggi dan beberapa yang memiliki MPG yang rendah.
+
+Jadi, kesimpulannya, analisis ini mengindikasikan bahwa mobil dengan berbagai jumlah gigi transmisi memiliki perbedaan dalam sebaran efisiensi bahan bakarnya, di mana mobil dengan lebih banyak gigi transmisi cenderung memiliki variasi yang lebih besar dalam MPG, sementara mobil dengan jumlah gigi transmisi yang lebih rendah memiliki kisaran yang lebih terbatas.
+
+## Hubungan Jumlah karburator (carb) dengan MPG
+
+![](images/1957-Chevrolet-Corvette-Convertible-Exterior-Engine-001.jpg)
+
+```{r dpi=300, fig.height = 20, fig.width = 15, fig.align = "center", message = FALSE, warning=FALSE}
+chart <-
+ggplot(data, aes(x=carb, 
+                     y=mpg)) +
+  #Violin
+  geom_violin(scale="count", fill='#35BFC4', color='black', alpha=0.9, 
+                    trim = FALSE) +
+  #Boxplot
+  geom_boxplot(fill='#B8C3C6', color='black',
+                     outlier.size=4, outlier.color='#B8C3C6', 
+                     notch=F, width=0.1) +
+  #Mean Marker
+  stat_summary(fun = mean, geom = "point", shape = 16, size = 4, 
+               color = "black") +
+  theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
+  labs(x = "\nJumlah karburator (carb)", 
+       y='MPG (Jarak tempuh per gallon bahan bakar)',
+       title = "Hubungan Jumlah karburator dengan MPG",
+       subtitle = "Bagaimana ya pola hubungan Jumlah karburator dengan MPG?\n") + theme1.1 
+chart
+#Export Chart
+ggsave("10_Boxplot Jumlah karburator (carb) dengan MPG.png", chart, path = export.chart,
+        dpi = 300, height = 20, width = 15)
+```
+
+Diperoleh informasi :
+
+Terlihat bahwa Mobil yang memiliki jumlah karbulator 2 memiliki bentuk sebaran normal dengan rentang sebaran MPG yang paling rendah yakni kurang lebih 5 sampai 40. Sedangkan untuk mobil yang jumlah karbulator nya 1 memiliki bentuk sebaran menjulur ke kanan dengan rentang sebaran kurang lebih 5 sampai 45. Ada jumlah karbulator 3 yang rentang nya kecil yakni kurang lebih 5 sampai 20. Untuk mobil deganjumlah karbulator 4 memiliki rentang kurang lebih 3 sampai 28. Dan terakhir untuk mobil dengan jumlah karbulator 6 dan 8 tidak memiliki sebaran karena masing-masing hanya memiliki satu data.
 
 # Regresi Klasik {.tabset}
 
@@ -238,6 +718,54 @@ Hasil dari koefisien regresi menunjukkan bahwa variabel `wt` (berat kendaraan) m
 
 > Ini berarti **semakin berat** kendaraan, **semakin rendah efisiensi** bahan bakarnya.
 
+Model regresi secara keseluruhan memiliki tingkat kecocokan yang baik terhadap data, yang dilihat dari nilai *Multiple R-squared* yang tinggi ($0.869$). Ini berarti sekitar $86.9\%$ variasi dalam `mpg` **dapat dijelaskan** oleh variabel-variabel prediktor yang ada dalam model.
+
+Selain itu, hasil analisis *F-statistic* menunjukkan bahwa model ini secara keseluruhan adalah **model yang signifikan** secara statistik dalam menjelaskan variasi `mpg`.
+
 # Regresi Ridge
+
+## Peubah
+
+```{r}
+x <- data.matrix(data[,-1])
+y <- data[,1]
+```
+
+## CV
+
+```{r dpi=300, fig.height = 9, fig.width = 16, fig.align = "center", message = FALSE, warning=FALSE}
+install_load('glmnet')
+cv.r <- cv.glmnet(x,y,alpha=0); plot(cv.r)
+```
+
+## Best Model
+
+```{r}
+best.lr <- cv.r$lambda.min
+bestridge <- glmnet(x,y,alpha=0,lambda=best.lr); coef(bestridge)
+```
+
+## R-Square Ridge
+
+```{r}
+rsq<-function(bestmodel,bestlambda,x,y){
+ #y duga
+ y.duga <- predict(bestmodel, s = bestlambda, newx = x)
+
+ #JKG dan JKT
+ jkt <- sum((y - mean(y))^2)
+ jkg <- sum((y.duga- y)^2)
+
+#find R-Squared
+rsq <- 1 - jkg/jkt
+return(rsq) 
+}
+```
+
+```{r}
+rsq(bestridge, best.lr, x, y)
+```
+
+Didapatkan model regresi Ridge dengan R-squared sebesar $84.36457\%$.
 
 # Regresi Lasso
