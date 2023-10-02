@@ -56,7 +56,7 @@ require("knitr")
 opts_knit$set(root.dir = "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 5/8. Pengantar Sains Data/Tugas")
 ```
 
-```{r}
+```{r setup, include=FALSE, echo=FALSE, warning=FALSE, message = FALSE}
 #Export chart
 export.chart <- "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 5/8. Pengantar Sains Data/Tugas/Chart"
 ```
@@ -193,7 +193,6 @@ theme1.1 <- list(
         panel.grid.minor = element_blank(),
         axis.line = element_line(linewidth = 1, colour = "black"))
         ) 
-)
 theme2 <- list(
   theme(axis.text.x = element_text(angle = 45, hjust = 1, 
                                    margin = margin(b = 10, t=0)),
@@ -636,13 +635,23 @@ ggsave("10_Boxplot Jumlah karburator (carb) dengan MPG.png", chart, path = expor
 
 Diperoleh informasi :
 
-Terlihat bahwa Mobil yang memiliki jumlah karbulator 2 memiliki bentuk sebaran normal dengan rentang sebaran MPG yang paling rendah yakni kurang lebih 5 sampai 40. Sedangkan untuk mobil yang jumlah karbulator nya 1 memiliki bentuk sebaran menjulur ke kanan dengan rentang sebaran kurang lebih 5 sampai 45. Ada jumlah karbulator 3 yang rentang nya kecil yakni kurang lebih 5 sampai 20. Untuk mobil deganjumlah karbulator 4 memiliki rentang kurang lebih 3 sampai 28. Dan terakhir untuk mobil dengan jumlah karbulator 6 dan 8 tidak memiliki sebaran karena masing-masing hanya memiliki satu data.
+-   **"Mobil yang memiliki jumlah karburator 2 memiliki bentuk sebaran normal dengan rentang sebaran MPG yang paling rendah yakni kurang lebih 5 sampai 40"**: Mobil dengan dua karburator memiliki sebaran MPG yang relatif normal dan terkonsentrasi dalam rentang antara 5 hingga 40. Hal ini menunjukkan bahwa mobil-mobil dengan dua karburator cenderung memiliki tingkat efisiensi bahan bakar yang lebih stabil dan terdistribusi secara merata.
+
+-   **"Sedangkan untuk mobil yang jumlah karburator nya 1 memiliki bentuk sebaran menjulur ke kanan dengan rentang sebaran kurang lebih 5 sampai 45"**: Mobil dengan satu karburator memiliki sebaran MPG yang lebih cenderung menjulur ke kanan, menunjukkan adanya beberapa outlier (pencilan) dengan nilai MPG yang tinggi di luar sebaran utama. Rentang sebarannya berkisar antara 5 hingga 45, yang menandakan variasi yang lebih besar dalam efisiensi bahan bakar.
+
+-   **"Ada jumlah karburator 3 yang rentang nya kecil yakni kurang lebih 5 sampai 20"**: Mobil dengan tiga karburator memiliki sebaran MPG yang lebih terbatas, dengan rentang sebaran yang sempit antara 5 hingga 20. Ini menunjukkan bahwa mobil-mobil dengan tiga karburator cenderung memiliki efisiensi bahan bakar yang lebih rendah.
+
+-   **"Untuk mobil degan jumlah karburator 4 memiliki rentang kurang lebih 3 sampai 28"**: Mobil dengan empat karburator memiliki rentang sebaran MPG antara 3 hingga 28. Ini menunjukkan variasi yang cukup besar dalam efisiensi bahan bakar, dengan beberapa mobil yang memiliki efisiensi yang lebih tinggi dan beberapa yang lebih rendah.
+
+-   **"Dan terakhir untuk mobil dengan jumlah karburator 6 dan 8 tidak memiliki sebaran karena masing-masing hanya memiliki satu data"**: Mobil dengan enam dan delapan karburator hanya memiliki satu data masing-masing, sehingga tidak ada sebaran yang dapat diamati untuk kategori ini.
+
+Dengan demikian, analisis ini memberikan gambaran tentang hubungan antara jumlah karburator dan efisiensi bahan bakar, menunjukkan bahwa jumlah karburator dapat memengaruhi variasi efisiensi bahan bakar dalam mobil.
 
 # Regresi Klasik {.tabset}
 
 ![](images/Asset 1@72x.png)
 
-## Model
+## Model Regresi Awal
 
 ```{r}
 reg.klas <- lm(mpg ~ cyl + disp + hp + drat + wt + qsec + vs + am + gear + carb, data=data)
@@ -653,8 +662,8 @@ Diperoleh model dugaan :
 
 $$\begin{equation}
 \begin{aligned}
-\hat{\text{mpg}}_i = & 12.30337 -0.11144 \cdot \text{cyl} + 0.01334 \cdot \text{disp} - 0.02148 \cdot \text{hp} + 0.78711 \cdot \text{drat} - 3.71530 \cdot \text{wt} \\
-            & + 0.82104 \cdot \text{qsec} + 0.31776 \cdot \text{vsFront-Wheel Drive} + 2.52023 \cdot \text{amManual} + 0.65541 \cdot \text{gear} \\ & - 0.19942 \cdot \text{carb} + \epsilon_i
+\hat{\text{mpg}}_i = & 22.56362 +0.33616 \cdot \text{cyl4} -2.31253 \cdot \text{cyl6} + 0.03555\cdot \text{disp} -0.07051 \cdot \text{hp} + 1.18283 \cdot \text{drat} -4.52978 \cdot \text{wt} \\
+            & + 0.36784 \cdot \text{qsec} + 1.93085 \cdot \text{vsStraight} + 1.21212 \cdot \text{amManual} + 1.11435 \cdot \text{gear4} + 2.52840 \cdot \text{gear5} \\ & + 0.97935 \cdot \text{carb1} + 3.97899 \cdot \text{carb3} + 2.07078 \cdot \text{carb4} + 5.45692 \cdot \text{carb6} + 8.22977\cdot \text{carb8} + \epsilon_i
 \end{aligned}
 \end{equation}
 $$
@@ -663,54 +672,43 @@ $$
 
 #### Coefficients:
 
-1.  **Intercept (Intersep):**\
-    Koefisien Intercept adalah $12.30337$. Ini adalah nilai y ketika semua variabel independen (`cyl,` `disp`, `hp`, `drat`, `w`t, `qsec`, `vs`, `am`, `gear`, `carb`) adalah nol. Dalam konteks ini, tidak ada interpretasi praktis karena nilai-nilai nol untuk variabel-variabel independen biasanya tidak relevan dalam kasus ini.
+1.  **Intercept (Intersep)**: Koefisien intercept adalah $22.56362$. Ini adalah nilai mpg ketika semua variabel independen (cyl, disp, hp, drat, wt, qsec, vs, am, gear, carb) adalah nol. Namun, dalam konteks ini, nilai-nilai nol untuk variabel-variabel independen tidak memiliki interpretasi praktis yang berguna karena mobil yang memiliki nol silinder, nol volume mesin, nol tenaga kuda, dan sebagainya adalah situasi yang tidak mungkin dalam dunia nyata.
 
-2.  **cyl (Cylinder):**\
-    Koefisien untuk variabel independen **`cyl`** adalah $-0.11144$. Ini menunjukkan bahwa dengan **setiap penambahan** satu unit pada jumlah silinder, rata-rata miles per gallon (mpg) cenderung **berkurang** sebesar $-0.11144$ unit, tetapi perubahan ini **tidak signifikan** secara statistik.
+2.  **Variabel Cylinder (cyl)**: Koefisien untuk variabel independen cyl adalah $0.33616$. Ini mengindikasikan bahwa jika kita membandingkan mobil yang memiliki 4 silinder (cyl=4) dengan mobil yang memiliki 8 silinder (cyl=8), maka rata-rata mpg pada mobil 4 silinder cenderung lebih tinggi sekitar $0.33616$ unit. Namun, perubahan ini tidak signifikan secara statistik karena nilainya memiliki nilai p yang tinggi (0.9632).
 
-3.  **disp (Displacement):**\
-    Koefisien untuk variabel independen **`disp`** adalah $0.01334$. Ini mengindikasikan bahwa dengan **setiap penambahan** satu unit pada volume mesin, rata-rata mpg cenderung **meningkat** sebesar $0.01334$ unit, tetapi perubahan ini juga **tidak signifikan** secara statistik.
+3.  **Variabel Displacement (disp)**: Koefisien untuk variabel independen disp adalah $0.03555$. Ini berarti bahwa dengan setiap penambahan satu unit pada volume mesin (displacement), rata-rata mpg cenderung meningkat sebesar $0.03555$ unit. Namun, perubahan ini juga tidak signifikan secara statistik.
 
-4.  **hp (Horsepower):**\
-    Koefisien untuk variabel independen **`hp`** adalah $-0.02148$. Ini menunjukkan bahwa dengan **setiap penambahan** satu unit pada tenaga kuda, rata-rata mpg cenderung berkurang sebesar $-0.02148$ unit, tetapi perubahan ini juga **tidak signifikan** secara statistik.
+4.  **Variabel Horsepower (hp)**: Koefisien untuk variabel independen hp adalah $-0.07051$. Ini mengindikasikan bahwa dengan setiap penambahan satu unit pada tenaga kuda (horsepower), rata-rata mpg cenderung berkurang sebesar $-0.07051$ unit. Meskipun nilainya signifikan pada tingkat $0.1$, perubahan ini masih dianggap tidak signifikan secara statistik pada tingkat $0.05$.
 
-5.  **drat (Rear Axle Ratio):**\
-    Koefisien untuk variabel independen **`drat`** adalah $0.78711$. Ini berarti bahwa dengan **setiap peningkatan** satu unit pada rasio poros belakang, rata-rata mpg cenderung **meningkat** sebesar $0.78711$ unit. Namun, perubahan ini juga **tidak signifikan** secara statistik.
+5.  **Variabel Rear Axle Ratio (drat)**: Koefisien untuk variabel independen drat adalah $1.18283$. Ini berarti bahwa dengan setiap peningkatan satu unit pada rasio poros belakang (rear axle ratio), rata-rata mpg cenderung meningkat sebesar $1.18283$ unit. Namun, perubahan ini juga tidak signifikan secara statistik.
 
-6.  **wt (Weight):**\
-    Koefisien untuk variabel independen **`wt`** adalah $-3.71530$. Ini mengindikasikan bahwa dengan **setiap penambahan** satu unit pada berat kendaraan, rata-rata mpg cenderung **berkurang** sebesar $-3.71530$ unit. Koefisien ini memiliki **nilai t yang signifikan** secara statistik, yang berarti bahwa berat kendaraan memiliki pengaruh yang signifikan terhadap mpg.
+6.  **Variabel Weight (wt)**: Koefisien untuk variabel independen wt adalah $-4.52978$. Ini adalah salah satu koefisien yang paling signifikan dalam model ini. Ini menunjukkan bahwa dengan setiap penambahan satu unit pada berat kendaraan (weight), rata-rata mpg cenderung berkurang sebesar $-4.52978$ unit. Variabel ini memiliki pengaruh yang signifikan terhadap mpg.
 
-7.  **qsec (Quarter Mile Time):**\
-    Koefisien untuk variabel independen **`qsec`** adalah $0.82104$. Ini menunjukkan bahwa dengan **setiap peningkatan** satu unit pada waktu tempuh seperempat mil, rata-rata mpg cenderung **meningkat** sebesar $0.82104$ unit, tetapi perubahan ini **tidak signifikan** secara statistik.
+7.  **Variabel Quarter Mile Time (qsec)**: Koefisien untuk variabel independen qsec adalah $0.36784$. Ini menunjukkan bahwa dengan setiap peningkatan satu unit pada waktu tempuh seperempat mil (quarter mile time), rata-rata mpg cenderung meningkat sebesar $0.36784$ unit. Namun, perubahan ini tidak signifikan secara statistik.
 
-8.  **vs (V/S):**\
-    Koefisien untuk variabel independen **`vs`** adalah $0.31776$. Ini mengindikasikan bahwa jika jenis mesin adalah V/S, rata-rata mpg cenderung lebih tinggi sekitar $0.31776$ unit dibandingkan dengan jenis mesin lainnya. Namun, efek ini juga **tidak signifikan** secara statistik.
+8.  **Variabel V/S (vs)**: Koefisien untuk variabel independen vs adalah $1.93085$. Ini mengindikasikan bahwa jika jenis mesin adalah V-shaped (vs=V-shaped), rata-rata mpg cenderung lebih tinggi sekitar $1.93085$ unit dibandingkan dengan jenis mesin straight (vs=Straight). Namun, efek ini juga tidak signifikan secara statistik.
 
-9.  **am (Transmisi):**\
-    Koefisien untuk variabel independen **`am`** adalah $2.52023$. Ini berarti bahwa jika transmisi adalah otomatis (am=1), rata-rata mpg cenderung lebih tinggi sekitar $2.52023$ unit dibandingkan dengan transmisi manual (am=0). Koefisien ini memiliki pengaruh yang **tidak signifikan** terhadap mpg.
+9.  **Variabel Transmission (am)**: Koefisien untuk variabel independen am adalah $1.21212$. Ini berarti bahwa jika transmisi adalah otomatis (am=Manual), rata-rata mpg cenderung lebih tinggi sekitar $1.21212$ unit dibandingkan dengan transmisi manual (am=Automatic). Namun, variabel ini tidak memiliki pengaruh yang signifikan pada mpg secara statistik.
 
-10. **gear (Gigi):**\
-    Koefisien untuk variabel independen **`gear`** adalah $0.65541$. Ini menunjukkan bahwa jika jumlah gigi adalah 1 unit lebih tinggi, rata-rata mpg cenderung lebih tinggi sekitar $0.65541$ unit. Namun, perubahan ini **tidak signifikan** secara statistik.
+10. **Variabel Gear (gear)**: Koefisien untuk variabel independen gear adalah $0.65541$. Ini menunjukkan bahwa jika jumlah gigi adalah 1 unit lebih tinggi (misalnya dari 3 ke 4), rata-rata mpg cenderung lebih tinggi sekitar $0.65541$ unit. Namun, perubahan ini tidak signifikan secara statistik.
 
-11. **carb (Karburator):**\
-    Koefisien untuk variabel independen **`carb`** adalah $-0.19942$. Ini mengindikasikan bahwa dengan setiap penambahan satu unit pada jumlah karburator, rata-rata mpg cenderung berkurang sebesar $-0.19942$ unit, tetapi perubahan ini juga tidak signifikan secara statistik.
+11. **Variabel Carburetor (carb)**: Koefisien untuk variabel independen carb adalah $-0.19942$. Ini mengindikasikan bahwa dengan setiap penambahan satu unit pada jumlah karburator, rata-rata mpg cenderung berkurang sebesar $-0.19942$ unit. Namun, perubahan ini juga tidak signifikan secara statistik.
 
 #### **Residual Standard Error** (Residual SE atau RSE):
 
-Residual SE mengukur seberapa jauh perbedaan antara nilai-nilai aktual (data sebenarnya) dan nilai-nilai yang diprediksi oleh model (data yang diestimasi oleh model). Ini adalah estimasi dari deviasi standar dari residual (kesalahan prediksi) dalam model. **Semakin kecil nilai RSE**, **semakin baik** model memfitting data. RSE yang diperoleh adalah sekitar $2.65$, yang mengindikasikan bahwa rata-rata residual sekitar $2.65$ unit dari nilai aktual.
+Residual SE mengukur seberapa jauh perbedaan antara nilai-nilai aktual (data sebenarnya) dan nilai-nilai yang diprediksi oleh model (data yang diestimasi oleh model). Ini adalah estimasi dari deviasi standar dari residual (kesalahan prediksi) dalam model. **Semakin kecil nilai RSE**, **semakin baik** model memfitting data. RSE yang diperoleh adalah sekitar $2.833$, yang mengindikasikan bahwa rata-rata residual sekitar $2.833$ unit dari nilai aktual.
 
 #### **Multiple R-squared** (R-squared):
 
-R-squared mengukur seberapa baik variabilitas dalam variabel respons (dalam hal ini, **`mpg`**) dapat dijelaskan oleh model. Nilai R-squared berkisar antara 0 hingga 1, di mana 0 berarti model tidak menjelaskan variasi sama sekali dan 1 berarti model menjelaskan semua variasi. Nilai R-squared sebesar $0.869$ mengindikasikan bahwa **sekitar** $86.9\%$ variabilitas dalam **`mpg`** **dapat dijelaskan** oleh variabel-**variabel independen** dalam model.
+R-squared mengukur seberapa baik variabilitas dalam variabel respons (dalam hal ini, **`mpg`**) dapat dijelaskan oleh model. Nilai R-squared berkisar antara 0 hingga 1, di mana 0 berarti model tidak menjelaskan variasi sama sekali dan 1 berarti model menjelaskan semua variasi. Nilai R-squared sebesar $0.8931$ mengindikasikan bahwa **sekitar** $89.31\%$ variabilitas dalam **`mpg`** **dapat dijelaskan** oleh variabel-**variabel independen** dalam model.
 
 #### **Adjusted R-squared**:
 
-Adjusted R-squared adalah modifikasi dari R-squared yang mempertimbangkan jumlah variabel independen dalam model. Ini adalah ukuran yang **lebih kritis** karena memasukkan kompleksitas model. Nilai Adjusted R-squared sebesar $0.8066$ menunjukkan bahwa sekitar $80.66\%$ variabilitas dalam **`mpg`** d**apat dijelaskan** oleh variabel-**variabel independen** dalam model, dengan mempertimbangkan **kompleksitas model**.
+Adjusted R-squared adalah modifikasi dari R-squared yang mempertimbangkan jumlah variabel independen dalam model. Ini adalah ukuran yang **lebih kritis** karena memasukkan kompleksitas model. Nilai Adjusted R-squared sebesar $0.779$ menunjukkan bahwa sekitar $77.9\%$ variabilitas dalam **`mpg`** d**apat dijelaskan** oleh variabel-**variabel independen** dalam model, dengan mempertimbangkan **kompleksitas model**.
 
 #### **F-statistic**:
 
-F-statistic adalah statistik yang digunakan untuk menguji apakah model regresi secara keseluruhan signifikan atau tidak. **Semakin tinggi** nilai **F-statistic** dan **semakin rendah** nilai **p-value** yang terkait, **semakin signifikan** model regresi secara keseluruhan. F-statistic yang diperoleh sebesar $13.93$ dan nilai *p-value* yang sangat rendah ($3.793\times10^{-7}$) menunjukkan bahwa model diatas secara keseluruhan adalah model yang **signifikan** secara statistik, yang berarti bahwa setidaknya salah satu variabel independen memiliki efek signifikan pada variabel respons (**`mpg`**) dalam model ini.
+F-statistic adalah statistik yang digunakan untuk menguji apakah model regresi secara keseluruhan signifikan atau tidak. **Semakin tinggi** nilai **F-statistic** dan **semakin rendah** nilai **p-value** yang terkait, **semakin signifikan** model regresi secara keseluruhan. F-statistic yang diperoleh sebesar $7.83$ dan nilai *p-value* yang sangat rendah ($0.000124$) menunjukkan bahwa model diatas secara keseluruhan adalah model yang **signifikan** secara statistik, yang berarti bahwa setidaknya salah satu variabel independen memiliki efek signifikan pada variabel respons (**`mpg`**ons (**`mpg`**) dalam model ini.
 
 #### Simpulan
 
@@ -718,9 +716,196 @@ Hasil dari koefisien regresi menunjukkan bahwa variabel `wt` (berat kendaraan) m
 
 > Ini berarti **semakin berat** kendaraan, **semakin rendah efisiensi** bahan bakarnya.
 
-Model regresi secara keseluruhan memiliki tingkat kecocokan yang baik terhadap data, yang dilihat dari nilai *Multiple R-squared* yang tinggi ($0.869$). Ini berarti sekitar $86.9\%$ variasi dalam `mpg` **dapat dijelaskan** oleh variabel-variabel prediktor yang ada dalam model.
+Model regresi secara keseluruhan memiliki tingkat kecocokan yang baik terhadap data, yang dilihat dari nilai *Adjusted R-squared* yang tinggi ($0.779$). Ini berarti sekitar $77.9\%$ variasi dalam `mpg` **dapat dijelaskan** oleh variabel-variabel prediktor yang ada dalam model, dengan mempertimbangkan **kompleksitas model**.
 
 Selain itu, hasil analisis *F-statistic* menunjukkan bahwa model ini secara keseluruhan adalah **model yang signifikan** secara statistik dalam menjelaskan variasi `mpg`.
+
+## Pengecekan Multikolinieritas
+
+[Ref1](https://stats.stackexchange.com/questions/559924/which-threshold-should-i-use-for-gvif1-2%E2%8B%85df-variance-inflation-factor) ,[Ref2](https://web.vu.lt/mif/a.buteikis/wp-content/uploads/PE_Book/4-5-Multiple-collinearity.html).
+
+```{r}
+car::vif(reg.klas)
+```
+
+1.  **cyl**: $GVIF^{\dfrac{1}{2*Df}}$ = $3.364380$. Nilai ini kurang dari 5, yang merupakan batas aturan praktis yang biasa digunakan untuk VIF. Oleh karena itu, variabel **`cyl`** dapat dianggap **tidak** memiliki masalah **multikolinearitas** yang signifikan.
+
+2.  **disp**: $GVIF^{\dfrac{1}{2*Df}}$ = $7.769536$. Nilai ini lebih besar dari 5, tetapi masih di bawah 10. Ini menunjukkan bahwa variabel **`disp`** mungkin memiliki **sedikit** **masalah multikolinearitas**, tetapi masalah ini **tidak signifikan** secara dramatis.
+
+3.  **hp**: $GVIF^{\dfrac{1}{2*Df}}$ = $5.312210$. Nilai ini lebih besar dari 5, tetapi masih di bawah 10. Seperti **`disp`**, ini juga menunjukkan bahwa variabel **`hp`** mungkin memiliki **sedikit masalah multikolinearitas**, tetapi **tidak signifikan** secara dramatis.
+
+4.  **drat**: $GVIF^{\dfrac{1}{2*Df}}$ = $2.609533$. Nilai ini jauh lebih rendah dari 5, yang menunjukkan bahwa variabel **`drat`** **tidak** memiliki masalah **multikolinearitas** yang signifikan.
+
+5.  **wt**: $GVIF^{\dfrac{1}{2*Df}}$ = $4.881683$. Nilai ini jauh lebih rendah dari 5, yang menunjukkan bahwa variabel `wt` **tidak** memiliki masalah **multikolinearitas** yang signifikan.
+
+6.  **qsec**: $GVIF^{\dfrac{1}{2*Df}}$ = $3.284842$. Nilai ini kurang dari 5, yang menunjukkan bahwa variabel **`qsec`** **tidak** memiliki masalah **multikolinearitas** yang signifikan.
+
+7.  **vs**: $GVIF^{\dfrac{1}{2*Df}}$ = $2.843970$. Nilai ini jauh lebih rendah dari 5, yang menunjukkan bahwa variabel **`vs`** **tidak** memiliki masalah **multikolinearitas** yang signifikan.
+
+8.  **am**: $GVIF^{\dfrac{1}{2*Df}}$ = $3.151269$. Nilai ini kurang dari 5, yang menunjukkan bahwa variabel **`am`** **tidak** memiliki masalah **multikolinearitas** yang signifikan.
+
+9.  **gear**: $GVIF^{\dfrac{1}{2*Df}}$ = $2.670408$. Nilai ini jauh lebih rendah dari 5, yang menunjukkan bahwa variabel **`gear`** **tidak** memiliki masalah **multikolinearitas** yang signifikan.
+
+10. **carb**: $GVIF^{\dfrac{1}{2*Df}}$ = $1.862838$. Nilai ini jauh lebih rendah dari 5, yang menunjukkan bahwa variabel **`carb`** **tidak** memiliki masalah **multikolinearitas** yang signifikan.
+
+Berdasarkan analisis di atas, sebagian besar variabel tidak menunjukkan masalah multikolinearitas yang signifikan. Variabel **`disp`** dan **`hp`** mungkin memiliki sedikit masalah multikolinearitas, tetapi tidak signifikan secara dramatis.
+
+## Seleksi Peubah Penjelas
+
+```{r}
+ols.bs <- as.data.frame( olsrr::ols_step_best_subset(reg.klas)  )
+```
+
+```{r dpi=300, fig.height = 9, fig.width = 16, fig.align = "center", message = FALSE, warning=FALSE}
+chart <- 
+ggplot(ols.bs, aes(x = n, y = aic)) +
+  geom_line(size=1) +
+  geom_point(size=4) +
+  geom_point(data = ols.bs[which.min(ols.bs$aic), ], color = "#F15E2B", size = 8) +
+  theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
+  labs(x = "Jumlah Variabel Prediktor", 
+       y='AIC',
+       title = "Pergerakan Nilai AIC",
+       subtitle = "Untuk Model terbaik, Nilai AIC yang terkecilnya berapa sih?\n") + theme1.1 +
+  theme(axis.text.y = element_text(vjust = 0.5, face = "bold", 
+                                   margin = margin(l = 20, r = 10))) +
+  geom_text(aes(x = ols.bs[which.min(ols.bs$aic), ]$n + 1, 
+                y = ols.bs[which.min(ols.bs$aic), ]$aic +1, 
+                label = paste0("AIC = ", round(ols.bs[which.min(ols.bs$aic), ]$aic, 2),
+                              "\nModel(", ols.bs[which.min(ols.bs$aic), ]$mindex, ")")),
+            color = "#F15E2B", size = 8) 
+
+chart
+#Export Chart
+ggsave("11_Pergerakan Nilai AIC.png", chart, path = export.chart,
+        dpi = 300, height = 9, width = 16)
+```
+
+```{r dpi=300, fig.height = 9, fig.width = 16, fig.align = "center", message = FALSE, warning=FALSE}
+chart <- 
+ggplot(ols.bs, aes(x = n, y = rsquare)) +
+  geom_line(size=1) +
+  geom_point(size=4) +
+  geom_point(data = ols.bs[which.max(ols.bs$rsquare), ], color = "#589E44", size = 8) +
+  geom_point(data = ols.bs[which(ols.bs$mindex  == 4), ], color = "#F15E2B", size = 5) +
+  theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
+  labs(x = "Jumlah Variabel Prediktor", 
+       y='Rsquare',
+       title = "Pergerakan Nilai Rsquare",
+       subtitle = "Untuk Model terbaik, Nilai Rsquare yang terbesarnya berapa sih?\n") + 
+  theme1.1 +
+  theme(axis.text.y = element_text(vjust = 0.5, face = "bold", 
+                                   margin = margin(l = 20, r = 10))) +
+  geom_text(aes(x = ols.bs[which.max(ols.bs$rsquare), ]$n -0.5, 
+                y = ols.bs[which.max(ols.bs$rsquare), ]$rsquare -0.02, 
+                label = paste0("Rsquare = ", 
+                              round(ols.bs[which.max(ols.bs$rsquare), ]$rsquare, 2),
+                              "\nModel(", ols.bs[which.max(ols.bs$rsquare), ]$mindex, ")")),
+            color = "#589E44", size = 8) + 
+  geom_text(aes(x = ols.bs[which(ols.bs$mindex == 4) , ]$n, 
+              y = ols.bs[which(ols.bs$mindex == 4), ]$rsquare -0.015, 
+              label = paste0("Rsquare = ", round(ols.bs[which(ols.bs$mindex  == 4),
+                                                        ]$rsquare, 2),
+                            "\nModel(", ols.bs[which(ols.bs$mindex  == 4), 
+                                               ]$mindex, ")")),
+          color = "#F15E2B", size = 5) 
+
+chart
+#Export Chart
+ggsave("12_Pergerakan Nilai Rsquare.png", chart, path = export.chart,
+        dpi = 300, height = 9, width = 16)
+```
+
+Pada pemilihan peubah dengan teknik `best subset` terlihat nilai **AIC** paling rendah serta **Adj. R-Squared** paling tinggi dimiliki oleh **model ke-4**.
+
+```{r}
+ols.bs[which(ols.bs$mindex == 4) , ]$predictors
+```
+
+Pada model ini, hanya terdapat peubah `cyl` (Jumlah silinder), `hp` (Horse Power/Tenaga Kuda), `wt` (Berat Mobil), dan `am` (Jenis transmisi, Automatic atau Manual) .
+
+## Model Baru
+
+```{r}
+reg.klas2 <- lm(mpg ~ cyl + hp + wt + am, data=data)
+summary(reg.klas2)
+```
+
+Diperoleh Model dugaan baru :
+
+$$\begin{equation}
+\begin{aligned}
+\hat{\text{mpg}}_i = & 31.54465 +2.16368 \cdot \text{cyl4} -0.86767 \cdot \text{cyl6}  -0.03211 \cdot \text{hp} -2.49683 \cdot \text{wt} +1.80921 \cdot \text{amManual} + \epsilon_i
+\end{aligned}
+\end{equation}
+$$
+
+## Uji Asumsi
+
+[Ref](https://rpubs.com/farhanabdillah/psd-tm-uts)
+
+```{r , fig.height = 9, fig.width = 13, fig.align = "center", message = FALSE, warning=FALSE}
+layout(matrix(c(1, 2, 
+                3, 3), nrow = 2, byrow = TRUE))
+plot(reg.klas2, 1)
+plot(reg.klas2,2) 
+plot(x = 1:dim(data)[1],
+     y = reg.klas2$residuals,
+     type = 'b', 
+     ylab = "Residuals",
+     xlab = "Observation") 
+```
+
+```{r, warning=FALSE, message = FALSE}
+install_load('randtests','lmtest')
+# Melakukan uji asumsi
+t_test <- t.test(reg.klas2$residuals, mu = 0, conf.level = 0.95)
+runs_test <- runs.test(reg.klas2$residuals)
+bp_test <- ncvTest(reg.klas2)
+shapiro_test <- shapiro.test(reg.klas2$residuals)
+
+# Membuat dataframe hasil
+asumsi <- data.frame(
+  "Asumsi" = c("Nilai harapan sisaan sama dengan nol", "Sisaan saling bebas", "Ragam Sisaan Homogen", "Normalitas Sisaan"),
+  "Jenis Uji" = c("t-test", "Runs Test", "Non Constant Variance Test", "Shapiro-Wilk Test"),
+  "p-value" = c(t_test$p.value, runs_test$p.value, bp_test$p, shapiro_test$p.value),
+  "Kesimpulan" = c(ifelse(t_test$p.value < 0.05, "Tidak Terpenuhi", "Terpenuhi"),
+                   ifelse(runs_test$p.value < 0.05, "Tidak Terpenuhi", "Terpenuhi"),
+                   ifelse(bp_test$p < 0.05, "Tidak Terpenuhi", "Terpenuhi"),
+                   ifelse(shapiro_test$p.value < 0.05, "Tidak Terpenuhi", "Terpenuhi"))
+)
+datatable(asumsi)
+```
+
+## Weighted Least Square
+
+```{r}
+weights <- 1 / lm(abs(reg.klas2$residuals) ~ reg.klas2$fitted.values)$fitted.values^2
+
+reg.klas2_wls <- lm(mpg ~ cyl + hp + wt + am, data=data, weights = weights)
+summary(reg.klas2_wls)
+```
+
+```{r}
+# Melakukan uji asumsi
+t_test <- t.test(reg.klas2_wls$residuals, mu = 0, conf.level = 0.95)
+runs_test <- runs.test(reg.klas2_wls$residuals)
+bp_test <- ncvTest(reg.klas2_wls)
+shapiro_test <- shapiro.test(reg.klas2_wls$residuals)
+
+# Membuat dataframe hasil
+asumsi <- data.frame(
+  "Asumsi" = c("Nilai harapan sisaan sama dengan nol", "Sisaan saling bebas", "Ragam Sisaan Homogen", "Normalitas Sisaan"),
+  "Jenis Uji" = c("t-test", "Runs Test", "Non Constant Variance Test", "Shapiro-Wilk Test"),
+  "p-value" = c(t_test$p.value, runs_test$p.value, bp_test$p, shapiro_test$p.value),
+  "Kesimpulan" = c(ifelse(t_test$p.value < 0.05, "Tidak Terpenuhi", "Terpenuhi"),
+                   ifelse(runs_test$p.value < 0.05, "Tidak Terpenuhi", "Terpenuhi"),
+                   ifelse(bp_test$p < 0.05, "Tidak Terpenuhi", "Terpenuhi"),
+                   ifelse(shapiro_test$p.value < 0.05, "Tidak Terpenuhi", "Terpenuhi"))
+)
+
+datatable(asumsi)
+```
 
 # Regresi Ridge
 
@@ -766,6 +951,6 @@ return(rsq)
 rsq(bestridge, best.lr, x, y)
 ```
 
-Didapatkan model regresi Ridge dengan R-squared sebesar $84.36457\%$.
+Didapatkan model regresi Ridge dengan R-squared sebesar $85.60624\%$.
 
 # Regresi Lasso
