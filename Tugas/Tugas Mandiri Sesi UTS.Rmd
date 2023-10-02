@@ -65,7 +65,7 @@ export.chart <- "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 5/8. Pen
 
 # Pendahuluan
 
-![](https://wallpaperwaifu.com/wp-content/uploads/2023/06/ferrari-f8-tributo-thumb.jpg)
+![](images/2021-Lamborghini-Sian-Roadster-007-2160-scaled.jpg)
 
 **Link Github :** <https://github.com/Zen-Rofiqy/STA1381-PSD/tree/main/Tugas>
 
@@ -88,7 +88,7 @@ Dataset mtcars berisi informasi tentang berbagai spesifikasi mobil berdasarkan m
 Terdapat 11 peubah yang terdiri dari:
 
 | **Peubah** |                **Keterangan**                | **Sebagai Peubah** | **Tipe Peubah** |
-|:-----------:|:-------------------------------:|-------------|-------------|
+|:--------------:|:-----------------------:|----------------|----------------|
 |   `mpg`    |     Jarak tempuh per gallon bahan bakar.     | `y`                | Numerik         |
 |   `cyl`    |               Jumlah silinder.               | `x1`               | Kategorik       |
 |   `disp`   |       Volume mesin (dalam inci kubik).       | `x2`               | Numerik         |
@@ -230,15 +230,15 @@ chart <-
 ggplot(data, aes(x=mpg, 
                      y='')) +
   #Violin
-  geom_violin(scale="count", fill='#991B1E', color='black', alpha=0.9, 
+  geom_violin(scale="count", fill='#4692A0', color='black', alpha=0.9, 
                     trim = FALSE) +
   #Boxplot
-  geom_boxplot(fill='#FBCE32', color='black',
-                     outlier.size=4, outlier.color='#FBCE32', 
+  geom_boxplot(fill='#49535C', color='black',
+                     outlier.size=4, outlier.color='#49535C', 
                      notch=T, width=0.2) +
   #Mean Marker
   stat_summary(fun = mean, geom = "point", shape = 16, size = 4, 
-               color = "black") +
+               color = "#AB8264") +
   theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
   labs(x = "\nMPG (Jarak tempuh per gallon bahan bakar)", y='',
        title = "Sebaran Mil Per Galon Mobil",
@@ -249,8 +249,8 @@ ggplot(data, aes(x=mpg,
                       label = paste("Mean:", 
                                     round(mean(data$mpg), 
                                           2))),
-    aes(x, y, label = label), size = 7, color = "#C4BDB2", 
-    fill = "black", box.color = "#C4BDB2", parse = TRUE
+    aes(x, y, label = label), size = 7, color = "white", 
+    fill = "#AB8264", box.color = "white", parse = TRUE
   ) +
   #Tambah panah
   geom_segment(aes(x = mean(data$mpg), 
@@ -258,7 +258,7 @@ ggplot(data, aes(x=mpg,
                    y = 1, 
                    yend = 1.2225), 
                arrow = arrow(type = "closed", length = unit(0.1, "inches")), 
-               lineend = "round", color = "black", size=1.5)
+               lineend = "round", color = "#AB8264", size=1.5)
 chart
 #Export Chart
 ggsave("01_Sebaran Mil Per Galon.png", chart, path = export.chart,
@@ -336,9 +336,8 @@ Diperoleh informasi :
 
 -   **"Volume Mesin dengan MPG memiliki pola hubungan linier kuat negatif"**: Ini berarti bahwa terdapat pola hubungan yang kuat dan berbanding terbalik antara volume mesin dan efisiensi bahan bakar yang diukur dalam satuan MPG. Dengan kata lain, semakin besar volume mesin kendaraan, semakin rendah efisiensi bahan bakarnya, dan sebaliknya. Ini adalah hubungan linier negatif karena ketika satu variabel meningkat, variabel lainnya cenderung menurun secara konsisten.
 
-```{=html}
 <!-- -->
-```
+
 -   **"dengan nilai korelasi sebesar** $-0.85$**"**: Nilai korelasi adalah ukuran statistik yang mengukur sejauh mana dua variabel berkaitan satu sama lain. Dalam konteks ini, nilai korelasi sebesar $-0.85$ menunjukkan bahwa hubungan antara volume mesin dan MPG sangat kuat. Angka negatif menunjukkan arah hubungan negatif, sesuai dengan pengamatan sebelumnya bahwa semakin besar volume mesin, semakin rendah MPG. Nilai $-0.85$ juga mendekati $-1$, yang mengindikasikan bahwa hubungan ini sangat dekat dengan hubungan linier sempurna (yang akan memiliki nilai $-1$ jika sempurna negatif).
 
 Jadi, kesimpulannya, hasil analisis korelasi ini menunjukkan bahwa pada dataset ini, volume mesin kendaraan memiliki pengaruh kuat dan negatif terhadap efisiensi bahan bakar (MPG). Dengan kata lain, kendaraan dengan volume mesin yang lebih besar cenderung memiliki MPG yang lebih rendah, sementara kendaraan dengan volume mesin yang lebih kecil cenderung memiliki MPG yang lebih tinggi. Ini adalah informasi yang berguna untuk memahami faktor-faktor yang memengaruhi efisiensi bahan bakar kendaraan.
@@ -438,9 +437,8 @@ ggsave("05_Scatterplot Berat kendaraan (wt) dengan MPG.png",
 
 -   **"Berat kendaraan dengan MPG memiliki pola hubungan linier kuat negatif"**: Ini berarti bahwa terdapat pola hubungan yang kuat dan berbanding terbalik antara berat kendaraan dan efisiensi bahan bakar yang diukur dalam satuan MPG. Dengan kata lain, semakin berat kendaraan, semakin rendah MPG, dan sebaliknya. Ini adalah hubungan linier negatif karena ketika satu variabel meningkat, variabel lainnya cenderung menurun secara konsisten.
 
-```{=html}
 <!-- -->
-```
+
 -   **"dengan nilai korelasi sebesar** $-0.87$**"**: Nilai korelasi adalah ukuran statistik yang mengukur sejauh mana dua variabel berkaitan satu sama lain. Dalam konteks ini, nilai korelasi sebesar $-0.87$ menunjukkan bahwa hubungan antara berat kendaraan dan MPG sangat kuat dan berbanding terbalik. Angka negatif menunjukkan arah hubungan negatif, sesuai dengan pengamatan sebelumnya bahwa semakin berat kendaraan, semakin rendah MPG.
 
 Jadi, kesimpulannya, hasil analisis korelasi ini menunjukkan bahwa pada dataset ini, berat kendaraan memiliki pengaruh yang sangat kuat dan negatif terhadap efisiensi bahan bakar (MPG). Dengan kata lain, kendaraan yang lebih berat cenderung memiliki MPG yang lebih rendah, sementara kendaraan yang lebih ringan cenderung memiliki MPG yang lebih tinggi. Informasi ini membantu dalam pemahaman faktor-faktor yang memengaruhi efisiensi bahan bakar kendaraan, di mana berat kendaraan adalah salah satu faktor yang signifikan.
@@ -480,7 +478,7 @@ Jadi, kesimpulannya, hasil analisis korelasi ini menunjukkan bahwa ada hubungan 
 
 ## Hubungan Jenis mesin (vs) dengan MPG
 
-![](images/Asset 3@72x.png)
+![](images/Asset%203@72x.png)
 
 ```{r dpi=300, fig.height = 20, fig.width = 15, fig.align = "center", message = FALSE, warning=FALSE}
 install_load('ggtext')
@@ -512,9 +510,8 @@ Diperoleh informasi :
 
 -   **"Jenis Mesin V-Shaped memiliki bentuk sebaran yang cukup normal"**: Ini mengindikasikan bahwa sebaran data MPG untuk mobil dengan jenis mesin V-Shaped cenderung lebih terkonsentrasi atau memiliki bentuk yang lebih simetris, mirip dengan distribusi normal atau lonceng. Ini berarti bahwa sebagian besar mobil dengan jenis mesin V-Shaped memiliki MPG dalam kisaran yang relatif kecil, yakni sekitar 0 hingga 30.
 
-```{=html}
 <!-- -->
-```
+
 -   **"dengan rentang sebaran MPG yang lebih rendah yakni kurang lebih 0 sampai 30"**: Rentang sebaran MPG adalah kisaran nilai MPG dari yang terendah hingga yang tertinggi dalam kelompok ini. Jadi, mobil dengan jenis mesin V-Shaped umumnya memiliki MPG antara 0 hingga 30, yang menunjukkan tingkat efisiensi bahan bakar yang lebih rendah.
 
 -   **"Sedangkan untuk mobil yang Jenis mesin nya Straight memiliki bentuk sebaran yang cenderung menjulur ke kanan"**: Ini menggambarkan bahwa sebaran data MPG untuk mobil dengan jenis mesin Straight cenderung memiliki ekor yang lebih panjang di sebelah kanan distribusi, yang dapat menunjukkan adanya outlier (pencilan) dengan nilai MPG yang tinggi.
@@ -649,7 +646,7 @@ Dengan demikian, analisis ini memberikan gambaran tentang hubungan antara jumlah
 
 # Regresi Klasik (OLS) {.tabset}
 
-![](images/Asset 1@72x.png)
+![](images/Asset%201@72x.png)
 
 ## Model Regresi Awal
 
@@ -750,6 +747,10 @@ Berdasarkan analisis di atas, sebagian besar variabel tidak menunjukkan masalah 
 
 ## Seleksi Peubah Penjelas
 
+### Metode {.tabset}
+
+#### Best Subset
+
 ```{r}
 ols.bs <- as.data.frame( olsrr::ols_step_best_subset(model.ols)  )
 ```
@@ -821,6 +822,28 @@ ols.bs[which(ols.bs$mindex == 4) , ]$predictors
 ```
 
 Pada model ini, hanya terdapat peubah `cyl` (Jumlah silinder), `hp` (Horse Power/Tenaga Kuda), `wt` (Berat Mobil), dan `am` (Jenis transmisi, Automatic atau Manual) .
+
+#### Forward Selection
+
+```{r}
+ols.fs <- olsrr::ols_step_forward_p(model.ols); ols.fs
+```
+
+Hasil metode Stepwise Forward juga menunjukkan berbeda. Langkah paling optimal berada pada langkah ke-5 (model 5). Model 5 mirip dengan model 4, namun ada tambahan peubah `vs` .
+
+#### Backward Elemination
+
+```{r}
+ols.be <- olsrr::ols_step_backward_p(model.ols); ols.be
+```
+
+Pada metode Stepwise Backward, peubah yang dibuang adalah `carb`, `disp`, `gear`, `drat`, dan `sec` dikeluarkan dari model.
+
+```{r}
+colnames(data %>% select(-carb, -disp, -gear, -drat, -qsec, -mpg))
+```
+
+Hal ini menunjukkan bahwa metode Stepwise Forward, dan Stepwise Backward menghasilkan kesimpulan yang sama yaitu: Model terbaik diperoleh dengan hanya memasukkan peubah `cyl`, `hp` , `wt`, `vs` , `am`.
 
 ## Model Baru
 
@@ -990,6 +1013,8 @@ Performa Model OLS lebih baik diikuti dengan Model Ridge, Lasso, dan WLS.
 
 # Interpretasi Model Terbaik {.tabset}
 
+![](https://www.erp-information.com/wp-content/uploads/2022/02/regression-analysis.png)
+
 ```{r}
 summary(best.model.ols)
 ```
@@ -998,7 +1023,7 @@ Model dugaan Terbaik dengan:
 
 $$\begin{equation} \begin{aligned} \hat{\text{mpg}}_i = & 31.54465 +2.16368 \cdot \text{cyl4} -0.86767 \cdot \text{cyl6}  -0.03211 \cdot \text{hp} -2.49683 \cdot \text{wt} +1.80921 \cdot \text{amManual} + \epsilon_i \end{aligned} \end{equation} $$
 
-## Koefisien : 
+## Koefisien :
 
 1.  **Intercept (31.54465):** Ini adalah nilai dari variabel dependen (mpg) ketika semua variabel prediktor (cyl4, cyl6, hp, wt, amManual) bernilai nol. Dalam konteks ini, ini adalah nilai perkiraan mpg ketika mobil memiliki 4 silinder (cyl4), bukan 6 silinder (cyl6), hp (tenaga kuda) adalah nol, berat (wt) adalah nol, dan menggunakan transmisi manual (amManual).
 
@@ -1022,6 +1047,6 @@ $$\begin{equation} \begin{aligned} \hat{\text{mpg}}_i = & 31.54465 +2.16368 \cdo
 
 -   **Residual Standard Error:** Residual standard error adalah sekitar 2.41. Ini adalah perkiraan standar deviasi dari kesalahan model, yang mengukur sejauh mana data mengalami deviasi dari garis regresi.
 
-## Kesimpulan : 
+## Kesimpulan :
 
 Dalam model ini, variabel-variabel prediktor seperti jumlah silinder (cyl), tenaga kuda (hp), berat (wt), dan jenis transmisi (am) memiliki pengaruh signifikan terhadap efisiensi bahan bakar mobil (mpg). Model ini memiliki kemampuan yang baik dalam menjelaskan variasi dalam data mpg, dengan R-squared sebesar 0.8659. Dengan demikian, model ini dapat digunakan untuk memprediksi mpg berdasarkan nilai-nilai variabel prediktor yang diberikan.
