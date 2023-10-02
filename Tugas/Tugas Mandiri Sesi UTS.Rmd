@@ -50,13 +50,13 @@ path <- function() gsub  ( "\\\\",  "/",  readClipboard ()  )
 #Copy r path, paste ke var yang diinginkan
 ```
 
-```{r setup, include=FALSE, echo=FALSE, warning=FALSE, message = FALSE}
+```{r , include=FALSE, echo=FALSE, warning=FALSE, message = FALSE}
 #Set Working Directory
 require("knitr")
 opts_knit$set(root.dir = "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 5/8. Pengantar Sains Data/Tugas")
 ```
 
-```{r setup, include=FALSE, echo=FALSE, warning=FALSE, message = FALSE}
+```{r , include=FALSE, echo=FALSE, warning=FALSE, message = FALSE}
 #Export chart
 export.chart <- "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 5/8. Pengantar Sains Data/Tugas/Chart"
 ```
@@ -177,7 +177,7 @@ Kategori referensi sudah di setting ulang.
 
 ![](https://www.dodge.com/content/dam/fca-brands/na/dodge/en_us/2022/challenger/srt/desktop/2022-dodge-srt-hub-challenger-hero.jpg)
 
-```{r}
+```{r,  warning=FALSE, message = FALSE}
 install_load('ggplot2')
 theme1.1 <- list(
   theme(axis.text.x = element_text(angle = 45, hjust = 1, 
@@ -647,15 +647,15 @@ Diperoleh informasi :
 
 Dengan demikian, analisis ini memberikan gambaran tentang hubungan antara jumlah karburator dan efisiensi bahan bakar, menunjukkan bahwa jumlah karburator dapat memengaruhi variasi efisiensi bahan bakar dalam mobil.
 
-# Regresi Klasik {.tabset}
+# Regresi Klasik (OLS) {.tabset}
 
 ![](images/Asset 1@72x.png)
 
 ## Model Regresi Awal
 
 ```{r}
-reg.klas <- lm(mpg ~ cyl + disp + hp + drat + wt + qsec + vs + am + gear + carb, data=data)
-summary(reg.klas)
+model.ols <- lm(mpg ~ cyl + disp + hp + drat + wt + qsec + vs + am + gear + carb, data=data)
+summary(model.ols)
 ```
 
 Diperoleh model dugaan :
@@ -694,21 +694,19 @@ $$
 
 11. **Variabel Carburetor (carb)**: Koefisien untuk variabel independen carb adalah $-0.19942$. Ini mengindikasikan bahwa dengan setiap penambahan satu unit pada jumlah karburator, rata-rata mpg cenderung berkurang sebesar $-0.19942$ unit. Namun, perubahan ini juga tidak signifikan secara statistik.
 
-#### **Residual Standard Error** (Residual SE atau RSE):
+#### Statistik Model :
 
-Residual SE mengukur seberapa jauh perbedaan antara nilai-nilai aktual (data sebenarnya) dan nilai-nilai yang diprediksi oleh model (data yang diestimasi oleh model). Ini adalah estimasi dari deviasi standar dari residual (kesalahan prediksi) dalam model. **Semakin kecil nilai RSE**, **semakin baik** model memfitting data. RSE yang diperoleh adalah sekitar $2.833$, yang mengindikasikan bahwa rata-rata residual sekitar $2.833$ unit dari nilai aktual.
+-   **Residual Standard Error** (Residual SE atau RSE):\
+    Residual SE mengukur seberapa jauh perbedaan antara nilai-nilai aktual (data sebenarnya) dan nilai-nilai yang diprediksi oleh model (data yang diestimasi oleh model). Ini adalah estimasi dari deviasi standar dari residual (kesalahan prediksi) dalam model. **Semakin kecil nilai RSE**, **semakin baik** model memfitting data. RSE yang diperoleh adalah sekitar $2.833$, yang mengindikasikan bahwa rata-rata residual sekitar $2.833$ unit dari nilai aktual.
 
-#### **Multiple R-squared** (R-squared):
+-   **Multiple R-squared** (R-squared):\
+    R-squared mengukur seberapa baik variabilitas dalam variabel respons (dalam hal ini, **`mpg`**) dapat dijelaskan oleh model. Nilai R-squared berkisar antara 0 hingga 1, di mana 0 berarti model tidak menjelaskan variasi sama sekali dan 1 berarti model menjelaskan semua variasi. Nilai R-squared sebesar $0.8931$ mengindikasikan bahwa **sekitar** $89.31\%$ variabilitas dalam **`mpg`** **dapat dijelaskan** oleh variabel-**variabel independen** dalam model.
 
-R-squared mengukur seberapa baik variabilitas dalam variabel respons (dalam hal ini, **`mpg`**) dapat dijelaskan oleh model. Nilai R-squared berkisar antara 0 hingga 1, di mana 0 berarti model tidak menjelaskan variasi sama sekali dan 1 berarti model menjelaskan semua variasi. Nilai R-squared sebesar $0.8931$ mengindikasikan bahwa **sekitar** $89.31\%$ variabilitas dalam **`mpg`** **dapat dijelaskan** oleh variabel-**variabel independen** dalam model.
+-   **Adjusted R-squared**:\
+    Adjusted R-squared adalah modifikasi dari R-squared yang mempertimbangkan jumlah variabel independen dalam model. Ini adalah ukuran yang **lebih kritis** karena memasukkan kompleksitas model. Nilai Adjusted R-squared sebesar $0.779$ menunjukkan bahwa sekitar $77.9\%$ variabilitas dalam **`mpg`** d**apat dijelaskan** oleh variabel-**variabel independen** dalam model, dengan mempertimbangkan **kompleksitas model**.
 
-#### **Adjusted R-squared**:
-
-Adjusted R-squared adalah modifikasi dari R-squared yang mempertimbangkan jumlah variabel independen dalam model. Ini adalah ukuran yang **lebih kritis** karena memasukkan kompleksitas model. Nilai Adjusted R-squared sebesar $0.779$ menunjukkan bahwa sekitar $77.9\%$ variabilitas dalam **`mpg`** d**apat dijelaskan** oleh variabel-**variabel independen** dalam model, dengan mempertimbangkan **kompleksitas model**.
-
-#### **F-statistic**:
-
-F-statistic adalah statistik yang digunakan untuk menguji apakah model regresi secara keseluruhan signifikan atau tidak. **Semakin tinggi** nilai **F-statistic** dan **semakin rendah** nilai **p-value** yang terkait, **semakin signifikan** model regresi secara keseluruhan. F-statistic yang diperoleh sebesar $7.83$ dan nilai *p-value* yang sangat rendah ($0.000124$) menunjukkan bahwa model diatas secara keseluruhan adalah model yang **signifikan** secara statistik, yang berarti bahwa setidaknya salah satu variabel independen memiliki efek signifikan pada variabel respons (**`mpg`**ons (**`mpg`**) dalam model ini.
+-   **F-statistic**:\
+    F-statistic adalah statistik yang digunakan untuk menguji apakah model regresi secara keseluruhan signifikan atau tidak. **Semakin tinggi** nilai **F-statistic** dan **semakin rendah** nilai **p-value** yang terkait, **semakin signifikan** model regresi secara keseluruhan. F-statistic yang diperoleh sebesar $7.83$ dan nilai *p-value* yang sangat rendah ($0.000124$) menunjukkan bahwa model diatas secara keseluruhan adalah model yang **signifikan** secara statistik, yang berarti bahwa setidaknya salah satu variabel independen memiliki efek signifikan pada variabel respons (**`mpg`**ons (**`mpg`**) dalam model ini.
 
 #### Simpulan
 
@@ -725,7 +723,7 @@ Selain itu, hasil analisis *F-statistic* menunjukkan bahwa model ini secara kese
 [Ref1](https://stats.stackexchange.com/questions/559924/which-threshold-should-i-use-for-gvif1-2%E2%8B%85df-variance-inflation-factor) ,[Ref2](https://web.vu.lt/mif/a.buteikis/wp-content/uploads/PE_Book/4-5-Multiple-collinearity.html).
 
 ```{r}
-car::vif(reg.klas)
+car::vif(model.ols)
 ```
 
 1.  **cyl**: $GVIF^{\dfrac{1}{2*Df}}$ = $3.364380$. Nilai ini kurang dari 5, yang merupakan batas aturan praktis yang biasa digunakan untuk VIF. Oleh karena itu, variabel **`cyl`** dapat dianggap **tidak** memiliki masalah **multikolinearitas** yang signifikan.
@@ -753,7 +751,7 @@ Berdasarkan analisis di atas, sebagian besar variabel tidak menunjukkan masalah 
 ## Seleksi Peubah Penjelas
 
 ```{r}
-ols.bs <- as.data.frame( olsrr::ols_step_best_subset(reg.klas)  )
+ols.bs <- as.data.frame( olsrr::ols_step_best_subset(model.ols)  )
 ```
 
 ```{r dpi=300, fig.height = 9, fig.width = 16, fig.align = "center", message = FALSE, warning=FALSE}
@@ -827,8 +825,8 @@ Pada model ini, hanya terdapat peubah `cyl` (Jumlah silinder), `hp` (Horse Powe
 ## Model Baru
 
 ```{r}
-reg.klas2 <- lm(mpg ~ cyl + hp + wt + am, data=data)
-summary(reg.klas2)
+best.model.ols <- lm(mpg ~ cyl + hp + wt + am, data=data)
+summary(best.model.ols)
 ```
 
 Diperoleh Model dugaan baru :
@@ -847,22 +845,22 @@ $$
 ```{r , fig.height = 9, fig.width = 13, fig.align = "center", message = FALSE, warning=FALSE}
 layout(matrix(c(1, 2, 
                 3, 3), nrow = 2, byrow = TRUE))
-plot(reg.klas2, 1)
-plot(reg.klas2,2) 
+plot(best.model.ols, 1)
+plot(best.model.ols,2) 
 plot(x = 1:dim(data)[1],
-     y = reg.klas2$residuals,
+     y = best.model.ols$residuals,
      type = 'b', 
      ylab = "Residuals",
      xlab = "Observation") 
 ```
 
 ```{r, warning=FALSE, message = FALSE}
-install_load('randtests','lmtest')
+install_load('randtests','lmtest','car')
 # Melakukan uji asumsi
-t_test <- t.test(reg.klas2$residuals, mu = 0, conf.level = 0.95)
-runs_test <- runs.test(reg.klas2$residuals)
-bp_test <- ncvTest(reg.klas2)
-shapiro_test <- shapiro.test(reg.klas2$residuals)
+t_test <- t.test(best.model.ols$residuals, mu = 0, conf.level = 0.95)
+runs_test <- runs.test(best.model.ols$residuals)
+bp_test <- ncvTest(best.model.ols)
+shapiro_test <- shapiro.test(best.model.ols$residuals)
 
 # Membuat dataframe hasil
 asumsi <- data.frame(
@@ -880,18 +878,18 @@ datatable(asumsi)
 ## Weighted Least Square
 
 ```{r}
-weights <- 1 / lm(abs(reg.klas2$residuals) ~ reg.klas2$fitted.values)$fitted.values^2
+weights <- 1 / lm(abs(best.model.ols$residuals) ~ best.model.ols$fitted.values)$fitted.values^2
 
-reg.klas2_wls <- lm(mpg ~ cyl + hp + wt + am, data=data, weights = weights)
-summary(reg.klas2_wls)
+best.model.ols_wls <- lm(mpg ~ cyl + hp + wt + am, data=data, weights = weights)
+summary(best.model.ols_wls)
 ```
 
 ```{r}
 # Melakukan uji asumsi
-t_test <- t.test(reg.klas2_wls$residuals, mu = 0, conf.level = 0.95)
-runs_test <- runs.test(reg.klas2_wls$residuals)
-bp_test <- ncvTest(reg.klas2_wls)
-shapiro_test <- shapiro.test(reg.klas2_wls$residuals)
+t_test <- t.test(best.model.ols_wls$residuals, mu = 0, conf.level = 0.95)
+runs_test <- runs.test(best.model.ols_wls$residuals)
+bp_test <- ncvTest(best.model.ols_wls)
+shapiro_test <- shapiro.test(best.model.ols_wls$residuals)
 
 # Membuat dataframe hasil
 asumsi <- data.frame(
@@ -909,31 +907,30 @@ datatable(asumsi)
 
 # Regresi Ridge
 
-## Peubah
-
-```{r}
-x <- data.matrix(data[,-1])
-y <- data[,1]
-```
+![](https://www.wallstreetmojo.com/wp-content/uploads/2023/05/Ridge-Regression.png.webp)
 
 ## CV
 
 ```{r dpi=300, fig.height = 9, fig.width = 16, fig.align = "center", message = FALSE, warning=FALSE}
+x <- model.matrix(mpg ~ cyl + hp + wt + am, data=data)[,-1]
+y <- data[,1]
+
+# Melakukan cross validation
 install_load('glmnet')
 cv.r <- cv.glmnet(x,y,alpha=0); plot(cv.r)
 ```
 
-## Best Model
+## Model Terbaik
 
 ```{r}
-best.lr <- cv.r$lambda.min
-bestridge <- glmnet(x,y,alpha=0,lambda=best.lr); coef(bestridge)
+best.lr <- cv.r$lambda.min #Lambda Ridge Terbaik
+best.ridge <- glmnet(x,y,alpha=0,lambda=best.lr); coef(best.ridge)
 ```
 
 ## R-Square Ridge
 
 ```{r}
-rsq<-function(bestmodel,bestlambda,x,y){
+rsq <- function(bestmodel,bestlambda,x,y){
  #y duga
  y.duga <- predict(bestmodel, s = bestlambda, newx = x)
 
@@ -948,9 +945,83 @@ return(rsq)
 ```
 
 ```{r}
-rsq(bestridge, best.lr, x, y)
+r2.ridge <- rsq(best.ridge, best.lr, x, y); r2.ridge 
 ```
 
 Didapatkan model regresi Ridge dengan R-squared sebesar $85.60624\%$.
 
 # Regresi Lasso
+
+![](https://media.licdn.com/dms/image/C5612AQEubqIMPzIWsA/article-cover_image-shrink_720_1280/0/1603631920705?e=2147483647&v=beta&t=-9Gn223qgHuqBxOuDYuUQ2br_FjlJtxPy_adzUhFV14)
+
+```{r dpi=300, fig.height = 9, fig.width = 16, fig.align = "center", message = FALSE, warning=FALSE}
+cv.l <- cv.glmnet(x,y,alpha=1); plot(cv.l)
+```
+
+## Model Terbaik
+
+```{r}
+best.ll <- cv.l$lambda.min #Lambda Lasso Terbaik
+bestlasso <- glmnet(x,y,alpha=1,lambda=best.ll); coef(bestlasso)
+```
+
+## R-Square Lasso
+
+```{r}
+r2.lasso <- rsq(bestlasso, best.ll, x, y); r2.lasso
+```
+
+# Perbandingan Peforma Model
+
+```{r}
+r2.ols <- summary(best.model.ols)$r.squared
+r2.wls <- summary(best.model.ols_wls)$r.squared
+
+comparison_table <- data.frame(
+  Method = c("OLS", "WLS", "Ridge", "Lasso"),
+  R2 = c(r2.ols, r2.wls, r2.ridge, r2.lasso)
+) %>%
+  arrange(desc(R2))
+
+datatable(comparison_table)
+```
+
+Performa Model OLS lebih baik diikuti dengan Model Ridge, Lasso, dan WLS.
+
+# Interpretasi Model Terbaik {.tabset}
+
+```{r}
+summary(best.model.ols)
+```
+
+Model dugaan Terbaik dengan:
+
+$$\begin{equation} \begin{aligned} \hat{\text{mpg}}_i = & 31.54465 +2.16368 \cdot \text{cyl4} -0.86767 \cdot \text{cyl6}  -0.03211 \cdot \text{hp} -2.49683 \cdot \text{wt} +1.80921 \cdot \text{amManual} + \epsilon_i \end{aligned} \end{equation} $$
+
+## Koefisien : 
+
+1.  **Intercept (31.54465):** Ini adalah nilai dari variabel dependen (mpg) ketika semua variabel prediktor (cyl4, cyl6, hp, wt, amManual) bernilai nol. Dalam konteks ini, ini adalah nilai perkiraan mpg ketika mobil memiliki 4 silinder (cyl4), bukan 6 silinder (cyl6), hp (tenaga kuda) adalah nol, berat (wt) adalah nol, dan menggunakan transmisi manual (amManual).
+
+2.  **cyl4 (2.16368):** Koefisien ini mengukur pengaruh variabel prediktor "cyl4" terhadap mpg. Nilai positif (2.16368) menunjukkan bahwa mobil dengan 4 silinder (cyl4) cenderung memiliki mpg yang lebih tinggi dibandingkan dengan mobil yang tidak memiliki 4 silinder (cyl6), dengan variabel lainnya tetap konstan.
+
+3.  **cyl6 (-0.86767):** Koefisien ini mengukur pengaruh variabel prediktor "cyl6" terhadap mpg. Nilai negatif (-0.86767) menunjukkan bahwa mobil dengan 6 silinder (cyl6) cenderung memiliki mpg yang lebih rendah dibandingkan dengan mobil yang tidak memiliki 6 silinder (cyl4), dengan variabel lainnya tetap konstan.
+
+4.  **hp (-0.03211):** Koefisien ini mengukur pengaruh tenaga kuda (hp) terhadap mpg. Nilai negatif (-0.03211) menunjukkan bahwa semakin tinggi tenaga kuda (hp), maka mpg cenderung lebih rendah, dengan variabel lainnya tetap konstan.
+
+5.  **wt (-2.49683):** Koefisien ini mengukur pengaruh berat (wt) terhadap mpg. Nilai negatif (-2.49683) menunjukkan bahwa semakin berat mobil (wt), maka mpg cenderung lebih rendah, dengan variabel lainnya tetap konstan.
+
+6.  **amManual (1.80921):** Koefisien ini mengukur pengaruh penggunaan transmisi manual (amManual) terhadap mpg. Nilai positif (1.80921) menunjukkan bahwa mobil dengan transmisi manual cenderung memiliki mpg yang lebih tinggi dibandingkan dengan mobil dengan transmisi otomatis, dengan variabel lainnya tetap konstan.
+
+## Statistik Model :
+
+-   **R-squared (Multiple R-squared):** Nilai R-squared adalah 0.8659, yang berarti bahwa model ini dapat menjelaskan sekitar 86.59% dari variasi dalam data mpg.
+
+-   **Adjusted R-squared:** Nilai Adjusted R-squared adalah 0.8401. Ini adalah versi penyesuaian dari R-squared yang mempertimbangkan jumlah variabel prediktor dalam model. Nilai yang tinggi menunjukkan bahwa model ini cukup baik dalam menjelaskan variasi data.
+
+-   **F-statistic:** Nilai F-statistic adalah 33.57 dengan p-value sekitar 1.506e-10. Nilai ini menguji signifikansi keseluruhan model. Dengan p-value yang sangat kecil, kita dapat menyimpulkan bahwa setidaknya satu variabel prediktor memiliki pengaruh signifikan terhadap mpg.
+
+-   **Residual Standard Error:** Residual standard error adalah sekitar 2.41. Ini adalah perkiraan standar deviasi dari kesalahan model, yang mengukur sejauh mana data mengalami deviasi dari garis regresi.
+
+## Kesimpulan : 
+
+Dalam model ini, variabel-variabel prediktor seperti jumlah silinder (cyl), tenaga kuda (hp), berat (wt), dan jenis transmisi (am) memiliki pengaruh signifikan terhadap efisiensi bahan bakar mobil (mpg). Model ini memiliki kemampuan yang baik dalam menjelaskan variasi dalam data mpg, dengan R-squared sebesar 0.8659. Dengan demikian, model ini dapat digunakan untuk memprediksi mpg berdasarkan nilai-nilai variabel prediktor yang diberikan.
