@@ -9,3 +9,6 @@ proses pengumpulan data teks berbasis scrapping, pemrosesan data teks untuk pers
 Selain itu juga akan dibahas teknik dasar visualisasi dan story telling yang efektif dan mengkomunikasikan hasil analisis.
   
 `Semester: 5`
+
+#### Mata Kuliah Prasyarat:
+`STA1231 - Analisis Regresi`
