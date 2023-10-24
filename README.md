@@ -1,4 +1,4 @@
-# STA1381 - Pengantar Sains Data (S1)
+# [STA1381 - Pengantar Sains Data (S1)](https://krs.ipb.ac.id/mk/172262)
 `SKS: 3 (2-1)`  
   
 ### Deskripsi Mata Kuliah
@@ -7,4 +7,4 @@ Mata kuliah ini membekali mahasiswa pengetahuan mengenai ruang lingkup sains dat
 `Semester: 5`
 
 #### Mata Kuliah Prasyarat:
-`STA1231 - Analisis Regresi`
+[`STA1231 - Analisis Regresi`](https://krs.ipb.ac.id/mk/167366)
