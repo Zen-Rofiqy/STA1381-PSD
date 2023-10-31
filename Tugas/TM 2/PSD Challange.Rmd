@@ -329,14 +329,24 @@ weights <- 1 / lm(abs(model$residuals) ~ model$fitted.values)$fitted.values^2
 
 model.wls <- lm(UHH ~ PSTV05 +PSTV06 +PSTV07 +PSTV08 +PSTV09  
              +PSTV12 +PSTV13, data=data_train, weights = weights)
-summary(model.wls)
+summary(model.wls)$adj.r.squared
 ```
 
-### R-Squared
+```{r}
+weights <- 1 / (abs(model$residuals) + 1)
+
+model.wls <- lm(UHH ~ PSTV05 +PSTV06 +PSTV07 +PSTV08 +PSTV09  
+             +PSTV12 +PSTV13, data=data_train, weights = weights)
+summary(model.wls)$adj.r.squared
+```
 
 ```{r}
-r2.wls <- summary(model.wls)$adj.r.squared
-cat("R-Squared :", r2.wls)
+weights <- 1 /  exp(-abs(model$residuals))
+
+model.wls <- lm(UHH ~ PSTV05 +PSTV06 +PSTV07 +PSTV08 +PSTV09  
+             +PSTV12 +PSTV13, data=data_train, weights = weights)
+summary(model.wls)$adj.r.squared
+summary(model.wls)
 ```
 
 ## Regresi Ridge
@@ -438,7 +448,36 @@ datatable(pre,
 write.csv(pre, "predict.csv", row.names=FALSE)
 ```
 
+Hasil rsq di kaggle = 0.107
+
+## Dummy
+
 ```{r}
-as.matrix(data_test %>% 
-            select(-PSTV04, -PSTV10, -PSTV11, -PSTV14)) %*% coef(best.ridge)
+pre <- predict(model, newdata = data_test)
+pre <- data.frame( No = seq_len(nrow(data_test)),  UHH = pre ) 
+colnames(pre) <- c("No", "UHH")
+
+datatable(pre, 
+          filter = 'top', 
+          options = list(pageLength = 5))
+
+write.csv(pre, "predict.csv", row.names=FALSE)
 ```
+
+Hasil rsq di kaggle = 0.229
+
+## WLS
+
+```{r}
+pre <- predict(model.wls, newdata = data_test)
+pre <- data.frame( No = seq_len(nrow(data_test)),  UHH = pre ) 
+colnames(pre) <- c("No", "UHH")
+
+datatable(pre, 
+          filter = 'top', 
+          options = list(pageLength = 5))
+
+write.csv(pre, "predict.csv", row.names=FALSE)
+```
+
+Yah walaupun rsq tinggi disin. Ternyata di kaggle zonk. Dapet 0.01.
