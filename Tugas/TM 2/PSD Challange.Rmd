@@ -301,33 +301,40 @@ dikeluarkan dari model.
 Tidak ada peubah yang dikeluarkan dari model, demi nilai **Adj.
 R-Squared** yang lebih tinggi.
 
-# Regresi Ridge
+## Regresi Ridge
+
+```{r dpi=300, fig.height = 9, fig.width = 16, fig.align = "center", message = FALSE, warning=FALSE}
+x <- model.matrix(UHH ~ PSTV05 +PSTV06 +PSTV07 +PSTV08 +PSTV09  
+                  +PSTV12 +PSTV13, data=data_train)[,-1]
+y <- data_train$UHH
+
+# Melakukan cross validation
+install_load('glmnet')
+cv.r <- cv.glmnet(x, y, alpha=0); plot(cv.r)
+```
+
+### Model Terbaik
 
 ```{r}
-# Membuat matriks x
-x <- cbind(x1,x2,x3,x4,x5,x8,x9)
-
-library(glmnet)
-model2 <- cv.glmnet(x,y,alpha=0) #pemilihan lambda dgn cv untuk ridge
-summary(model2)
-coef(model2,s="lambda.min")
+best.lr <- cv.r$lambda.min #Lambda Ridge Terbaik
+best.ridge <- glmnet(x,y,alpha=0,lambda=best.lr); coef(best.ridge)
 ```
 
 ```{r}
-# Melatih model Ridge pada seluruh data_train dengan lambda terbaik
-best_lambda <- model2$lambda.min
-ridge_model <- glmnet(x, y, alpha = 0, lambda = best_lambda)
+rsq <- function(bestmodel,bestlambda,x,y){
+ #y duga
+ y.duga <- predict(bestmodel, s = bestlambda, newx = x)
 
-# Menghitung prediksi
-y_pred <- predict(ridge_model, newx = x, s = best_lambda)
+ #JKG dan JKT
+ jkt <- sum((y - mean(y))^2)
+ jkg <- sum((y.duga- y)^2)
 
-# Menghitung R-squared disesuaikan
-n <- nrow(x)
-p <- length(coef(ridge_model))
-adj_r_squared <- 1 - ((n - 1) / (n - p - 1)) * (sum((y - y_pred)^2) / sum((y - mean(y))^2))
-
-# Tampilkan nilai Adjusted R-squared
-cat("Adjusted R-squared:", adj_r_squared)
+#find R-Squared
+rsq <- 1 - jkg/jkt
+return(rsq) 
+}
+r2.ridge <- rsq(best.ridge, best.lr, x, y)
+cat("R-Squared :", r2.ridge)
 ```
 
 Didapatkan nilai adjusted R-Squared sebesar 0.2330.
