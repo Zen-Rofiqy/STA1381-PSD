@@ -88,7 +88,7 @@ Dataset mtcars berisi informasi tentang berbagai spesifikasi mobil berdasarkan m
 Terdapat 11 peubah yang terdiri dari:
 
 | **Peubah** |                **Keterangan**                | **Sebagai Peubah** | **Tipe Peubah** |
-|:------------:|:----------------------------:|--------------|--------------|
+|:----------:|:--------------------------------------------:|--------------------|-----------------|
 |   `mpg`    |     Jarak tempuh per gallon bahan bakar.     | `y`                | Numerik         |
 |   `cyl`    |               Jumlah silinder.               | `x1`               | Kategorik       |
 |   `disp`   |       Volume mesin (dalam inci kubik).       | `x2`               | Numerik         |

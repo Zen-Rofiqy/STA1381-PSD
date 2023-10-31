@@ -54,6 +54,24 @@ path <- function(){
 #Copy r path, paste ke var yang diinginkan
 ```
 
+```{r message=FALSE, warning=FALSE, include=FALSE}
+install_load('ggplot2')
+theme1.1 <- list(
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, 
+                                   margin = margin(b = 10, t=20)),
+        axis.text.y = element_text(vjust = 0.5, face = "bold", 
+                                   margin = margin(l = 50, r = 20)),
+        plot.title = element_text(hjust = 0.5, face = "bold"),
+        text = element_text(size = 30),
+        plot.subtitle = element_text(hjust = 0.5),
+        panel.background = element_rect(fill = 'transparent'),
+        plot.background = element_rect(fill='transparent', color=NA),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(linewidth = 1, colour = "black"))
+        ) 
+```
+
 # PSD Challange
 
 **Prediksi AHH Pasien BPJS Penderita Diabetes Mellitus Menggunakan Model
@@ -146,7 +164,9 @@ Tipe Data Test Sudah Sesuai.
 
 ### Isi Data
 
-**Kesamaan antar kolom**
+**Kesamaan antar kolom (peubah)**
+
+Kolom antar data test dan train harus sama.
 
 ```{r}
 colnames(data_train %>% select(-UHH)) == colnames(data_test)
@@ -156,21 +176,66 @@ Semua kolom sudah sama.
 
 **Kesamaan levels dari factor**
 
-```{r}
-lapply(data_train %>% select(-UHH), function(col) nlevels(col) ) ==
-lapply(data_test, function(col) nlevels(col) )
+Levels antar kolom harus sama.
 
-lapply(data_train %>% select(-UHH), function(col) nlevels(col) )
+```{r}
+sapply(seq_along(data_train %>% select(-UHH)), function(i) {
+  identical(levels(data_train[[i]]), levels(data_test[[i]]))
+})
 ```
+
+Tidak semua kolom memiliki jumlah level yang sama antara
+**`data_train`** dan **`data_test`**. Lebih khususnya, kolom-kolom yang
+terpengaruh adalah **`PSTV04`**, **`PSTV10`**, **`PSTV11`**, dan
+**`PSTV14`**. Perbedaan ini mungkin disebabkan oleh proses pemotongan
+data train dan data test yang tidak memperhatikan konsistensi dalam
+jumlah level di setiap kolomnya.
+
+Penting untuk mencocokkan jumlah level antar kolom, terutama ketika kita
+akan menggunakan variabel dummy dalam analisis regresi. Karena jika
+jumlah level berbeda, variabel dummy yang dihasilkan juga akan berbeda,
+yang dapat memengaruhi hasil analisis. Oleh karena itu, disarankan untuk
+tidak menggunakan keempat kolom tersebut dalam analisis untuk memastikan
+konsistensi level antar kolom.
 
 # Regresi
 
 ## Regresi Dummy
 
 ```{r}
-model  <- lm(UHH ~ PSTV04 +PSTV05 +PSTV06 +PSTV07 +PSTV08 +PSTV09 +PSTV10 
-             +PSTV11 +PSTV12 +PSTV13 +PSTV14, data=data_train)
+model  <- lm(UHH ~ PSTV05 +PSTV06 +PSTV07 +PSTV08 +PSTV09  
+             +PSTV11 +PSTV12 +PSTV13, data=data_train)
 summary(model)
+```
+
+### Seleksi Peubah Penjelas
+
+#### Best Subset
+
+```{r}
+bs <- as.data.frame( olsrr::ols_step_best_subset(model)  )
+```
+
+```{r}
+chart <- 
+ggplot(bs, aes(x = n, y = aic)) +
+  geom_line(size=1) +
+  geom_point(size=4) +
+  geom_point(data = bs[which.min(bs$aic), ], color = "#F15E2B", size = 8) +
+  theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
+  labs(x = "Jumlah Variabel Prediktor", 
+       y='AIC',
+       title = "Pergerakan Nilai AIC",
+       subtitle = "Untuk Model terbaik, Nilai AIC yang terkecilnya berapa sih?\n") + theme1.1 +
+  theme(axis.text.y = element_text(vjust = 0.5, face = "bold", 
+                                   margin = margin(l = 20, r = 10))) +
+  geom_text(aes(x = bs[which.min(bs$aic), ]$n + 1, 
+                y = bs[which.min(bs$aic), ]$aic +1, 
+                label = paste0("AIC = ", round(bs[which.min(bs$aic), ]$aic, 2),
+                              "\nModel(", bs[which.min(bs$aic), ]$mindex, ")")),
+            color = "#F15E2B", size = 8) 
+
+chart
 ```
 
 # Regresi Ridge
