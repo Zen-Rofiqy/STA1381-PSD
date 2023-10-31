@@ -63,31 +63,24 @@ Regresi Linear**
 function/polinomial/spline/smooth spline) untuk **menduga** Usia Harapan
 Hidup **(UHH)** Pasien BPJS Penderita Diabetes Mellitus **tahun 2022**.
 
-**Goal:** R-Square terbaik
+> **Goal:** R-Square terbaik
 
-`PSTV04` : Hubungan Keluarga
+## Peubah
 
-`PSTV05` : Jenis Kelamin
-
-`PSTV06` : Status perkawinan
-
-`PSTV07` : Kelas rawat
-
-`PSTV08` : Segmentasi peserta
-
-`PSTV09` : Provinsi Tempat Tinggal Peserta
-
-`PSTV10` : Kabupaten/Kota Tempat Tinggal Peserta
-
-`PSTV11` : Kepemilikan faskes
-
-`PSTV12` : Jenis faskes
-
-`PSTV13` : Provinsi Fasilitas Kesehatan Peserta Terdaftar
-
-`PSTV14` : Kabupaten/Kota Fasilitas Kesehatan Peserta Terdaftar
-
-`UHH` : Usia Harapan Hidup
+| **Peubah** | **Sebagai Peubah** | **Keterangan**                                       | **Tipe Peubah** |
+|-------------|-------------|---------------------------------|-------------|
+| `UHH`      | `Y`                | Usia Harapan Hidup                                   | *Numerik*       |
+| `PSTV04`   | `X1`               | Hubungan Keluarga                                    | *Kategorik*     |
+| `PSTV05`   | `X2`               | Jenis Kelamin                                        | *Kategorik*     |
+| `PSTV06`   | `X3`               | Status perkawinan                                    | *Kategorik*     |
+| `PSTV07`   | `X4`               | Kelas rawat                                          | *Kategorik*     |
+| `PSTV08`   | `X5`               | Segmentasi peserta                                   | *Kategorik*     |
+| `PSTV09`   | `X6`               | Provinsi Tempat Tinggal Peserta                      | *Kategorik*     |
+| `PSTV10`   | `X7`               | Kabupaten/Kota Tempat Tinggal Peserta                | *Kategorik*     |
+| `PSTV11`   | `X8`               | Kepemilikan faskes                                   | *Kategorik*     |
+| `PSTV12`   | `X9`               | Jenis faskes                                         | *Kategorik*     |
+| `PSTV13`   | `X10`              | Provinsi Fasilitas Kesehatan Peserta Terdaftar       | *Kategorik*     |
+| `PSTV14`   | `X11`              | Kabupaten/Kota Fasilitas Kesehatan Peserta Terdaftar | *Kategorik*     |
 
 # Packages
 
