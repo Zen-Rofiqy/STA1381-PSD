@@ -157,7 +157,10 @@ Semua kolom sudah sama.
 **Kesamaan levels dari factor**
 
 ```{r}
-identical(levels(data_train %>% select(-UHH)), levels(data_test))
+lapply(data_train %>% select(-UHH), function(col) nlevels(col) ) ==
+lapply(data_test, function(col) nlevels(col) )
+
+lapply(data_train %>% select(-UHH), function(col) nlevels(col) )
 ```
 
 # Regresi
