@@ -321,7 +321,24 @@ R-Squared** yang lebih tinggi.
 
 ```{r}
 r2.dummy <- summary(model)$adj.r.squared
-cat("R-Squared :", r2.ridge)
+cat("R-Squared :", r2.dummy)
+```
+
+## WLS
+
+```{r}
+weights <- 1 / lm(abs(model$residuals) ~ model$fitted.values)$fitted.values^2
+
+model.wls <- lm(UHH ~ PSTV05 +PSTV06 +PSTV07 +PSTV08 +PSTV09  
+             +PSTV12 +PSTV13, data=data_train, weights = weights)
+summary(model.wls)
+```
+
+### R-Squared
+
+```{r}
+r2.wls <- summary(model.wls)$adj.r.squared
+cat("R-Squared :", r2.wls)
 ```
 
 ## Regresi Ridge
@@ -372,6 +389,7 @@ cv.l <- cv.glmnet(x,y,alpha=1); plot(cv.l)
 
 ```{r}
 best.ll <- cv.l$lambda.min #Lambda Lasso Terbaik
+
 bestlasso <- glmnet(x,y,alpha=1,lambda=best.ll); coef(bestlasso)
 ```
 
@@ -385,6 +403,23 @@ cat("R-Squared :", r2.lasso)
 # Perbandingan Rsq
 
 ```{r}
-rsq <- data.frame(Dummy = r2.dummy, Ridge = r2.ridge, Lasso = r2.lasso)
-rsq
+rsq <- data.frame(Dummy = r2.dummy, WLS = r2.wls, Ridge = r2.ridge, 
+                  Lasso = r2.lasso)
+datatable(rsq, 
+          filter = 'top', 
+          options = list(pageLength = 5))
+```
+
+```{r}
+cat("R-Squared Terbaik :", names(rsq)[which.max(rsq)], 
+    "\nDengan nilai :", max(rsq))
+```
+
+# Predict
+
+```{r}
+pre <- predict(best.ridge, s=best.lr, newx = x)
+datatable(pre, 
+          filter = 'top', 
+          options = list(pageLength = 5))
 ```
