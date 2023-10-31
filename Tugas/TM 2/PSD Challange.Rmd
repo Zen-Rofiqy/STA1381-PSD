@@ -65,62 +65,76 @@ Hidup **(UHH)** Pasien BPJS Penderita Diabetes Mellitus **tahun 2022**.
 
 **Goal:** R-Square terbaik
 
-`PSTV04` : Hubungan Keluarga `PSTV05` : Jenis Kelamin `PSTV06` : Status
-perkawinan `PSTV07` : Kelas rawat `PSTV08` : Segmentasi peserta `PSTV09`
-: Provinsi Tempat Tinggal Peserta `PSTV10` : Kabupaten/Kota Tempat
-Tinggal Peserta `PSTV11` : Kepemilikan faskes `PSTV12` : Jenis faskes
-`PSTV13` : Provinsi Fasilitas Kesehatan Peserta Terdaftar `PSTV14` :
-Kabupaten/Kota Fasilitas Kesehatan Peserta Terdaftar `UHH` : Usia
-Harapan Hidup
+`PSTV04` : Hubungan Keluarga
+
+`PSTV05` : Jenis Kelamin
+
+`PSTV06` : Status perkawinan
+
+`PSTV07` : Kelas rawat
+
+`PSTV08` : Segmentasi peserta
+
+`PSTV09` : Provinsi Tempat Tinggal Peserta
+
+`PSTV10` : Kabupaten/Kota Tempat Tinggal Peserta
+
+`PSTV11` : Kepemilikan faskes
+
+`PSTV12` : Jenis faskes
+
+`PSTV13` : Provinsi Fasilitas Kesehatan Peserta Terdaftar
+
+`PSTV14` : Kabupaten/Kota Fasilitas Kesehatan Peserta Terdaftar
+
+`UHH` : Usia Harapan Hidup
 
 # Packages
 
 ```{r}
-lapply(c("MultiKink","ggplot2","dplyr","purrr","car",
-         "hrbrthemes","MLmetrics","splines","ggcorrplot","ISLR","hrbrthemes"),
-       library,character.only=T)[[1]]
+install_load("MultiKink","ggplot2","dplyr","purrr","car",
+         "hrbrthemes","MLmetrics","splines","ggcorrplot","ISLR","hrbrthemes")
 ```
 
 # Data
 
-```{r}
-library(rio)
-raw.data <- import("https://raw.githubusercontent.com/aidara11/pengantar-sains-data/main/PSD%20Challenge/Train.csv")
-data <- raw.data
-head(data)
+```{r message=FALSE, warning=FALSE}
+install_load('rio', 'DT')
+data_train <- import("https://raw.githubusercontent.com/Zen-Rofiqy/STA1381-PSD/main/Tugas/TM%202/Train.csv")
+str(data_train)
 ```
 
-# Inisiasi Data
+# Inisiasi data_train
 
 ```{r}
-y <- data$UHH
-x1 <- data$PSTV04
-x2 <- data$PSTV05
-x3 <- data$PSTV06
-x4 <- data$PSTV07
-x5 <- data$PSTV08
-x6 <- data$PSTV09
-x7 <- data$PSTV10
-x8 <- data$PSTV11
-x9 <- data$PSTV12
-x10 <- data$PSTV13
-x11 <- data$PSTV14
+y <- data_train$UHH
+x1 <- data_train$PSTV04
+x2 <- data_train$PSTV05
+x3 <- data_train$PSTV06
+x4 <- data_train$PSTV07
+x5 <- data_train$PSTV08
+x6 <- data_train$PSTV09
+x7 <- data_train$PSTV10
+x8 <- data_train$PSTV11
+x9 <- data_train$PSTV12
+x10 <- data_train$PSTV13
+x11 <- data_train$PSTV14
 
-data1 <- cbind(y,x1,x2,x3,x4,x5,x6,x7,x8,x9,x10,x11)
+data_train1 <- cbind(y,x1,x2,x3,x4,x5,x6,x7,x8,x9,x10,x11)
 ```
 
-# Standarisasi data
+# Standarisasi data_train
 
 ```{r}
-data1 <- scale(data1)
-data1 <- as.data.frame(data1)
+data_train1 <- scale(data_train1)
+data_train1 <- as.data_train.frame(data_train1)
 ```
 
 # Matriks korelasi
 
 ```{r}
 library(ggcorrplot)
-ggcorrplot(cor(data1),type="lower",lab = T,lab_col = "white")+theme_tinyhand(axis_title_just = "center", axis_text_size = 12,
+ggcorrplot(cor(data_train1),type="lower",lab = T,lab_col = "white")+theme_tinyhand(axis_title_just = "center", axis_text_size = 12,
                   axis_title_size =13)+theme(plot.title= element_text(hjust=0.5,color="white"),plot.background=element_rect(fill="#000044",color="#000044"),
       axis.title = element_text(color="white"),axis.text = element_text(color="white"),legend.text = element_text(color="white"),legend.title = element_text(color="white"))
 ```
@@ -131,7 +145,7 @@ y.
 # Regresi Klasik
 
 ```{r}
-model1  <- lm(y~., data=data1)
+model1  <- lm(y~., data_train=data_train1)
 summary(model1)
 ```
 
@@ -160,7 +174,7 @@ signifikan.
 ## Regresi klasik tanpa peubah x6,x7,x10,dan x11
 
 ```{r}
-model1_2  <- lm(y~x1+x2+x3+x4+x5+x8+x9, data=data1)
+model1_2  <- lm(y~x1+x2+x3+x4+x5+x8+x9, data_train=data_train1)
 summary(model1_2)
 ```
 
@@ -177,7 +191,7 @@ plot(model1_2,1) # jika sisaan berada di sekitar garis, maka nilai harapan sisaa
 plot(model1_2,2) # jika lebar pita sama untuk setiap nilai dugaan, maka ragam sisaan homogen
 
 # plot sisaan vs urutan (sisaan saling bebas)
-plot(x = 1:dim(data1)[1],
+plot(x = 1:dim(data_train1)[1],
      y = model1_2$residual,
      type = 'b', 
      ylab = "Residual",
@@ -233,7 +247,7 @@ sisaan tidak saling bebas.
 
 ```{r}
 cek.homogen = lm(formula = abs(sisaan) ~ x1+x2+x3+x4+x5+x8+x9,
-                 data = data1)
+                 data_train = data_train1)
 summary(cek.homogen)
 library(lmtest)
 bptest(model1_2)
@@ -281,7 +295,7 @@ coef(model2,s="lambda.min")
 ```
 
 ```{r}
-# Melatih model Ridge pada seluruh data dengan lambda terbaik
+# Melatih model Ridge pada seluruh data_train dengan lambda terbaik
 best_lambda <- model2$lambda.min
 ridge_model <- glmnet(x, y, alpha = 0, lambda = best_lambda)
 
