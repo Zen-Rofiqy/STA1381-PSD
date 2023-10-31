@@ -1,5 +1,5 @@
 ---
-title: "Analisis Regresi Klasik, Ridge, dan Lasso"
+title: "Perbandingan Performa Model Regresi OLS, WLS, Ridge, dan Lasso"
 author: "Angga Fathan Rofiqy"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
@@ -88,7 +88,7 @@ Dataset mtcars berisi informasi tentang berbagai spesifikasi mobil berdasarkan m
 Terdapat 11 peubah yang terdiri dari:
 
 | **Peubah** |                **Keterangan**                | **Sebagai Peubah** | **Tipe Peubah** |
-|:--------------:|:-----------------------:|----------------|----------------|
+|:----------:|:--------------------------------------------:|--------------------|-----------------|
 |   `mpg`    |     Jarak tempuh per gallon bahan bakar.     | `y`                | Numerik         |
 |   `cyl`    |               Jumlah silinder.               | `x1`               | Kategorik       |
 |   `disp`   |       Volume mesin (dalam inci kubik).       | `x2`               | Numerik         |
@@ -843,7 +843,9 @@ Pada metode Stepwise Backward, peubah yang dibuang adalah `carb`, `disp`, `gear`
 colnames(data %>% select(-carb, -disp, -gear, -drat, -qsec, -mpg))
 ```
 
-Hal ini menunjukkan bahwa metode Stepwise Forward, dan Stepwise Backward menghasilkan kesimpulan yang sama yaitu: Model terbaik diperoleh dengan hanya memasukkan peubah `cyl`, `hp` , `wt`, `vs` , `am`.
+#### Kesimpulan
+
+Walaupun Stepwise Forward, dan Stepwise Backward menghasilkan kesimpulan yang sama yaitu: Model terbaik diperoleh dengan hanya memasukkan peubah `cyl`, `hp` , `wt`, `vs` , dan `am`. Tapi Pada metode Best Subset nilai AIC model 4 dan 5 berbeda jauh. Sehingga lebih baik menggunakan model yang dihasilkan oleh Best Subset yakni model dengan peubah `cyl`, `hp` , `wt`, dan `am`.
 
 ## Model Baru
 
