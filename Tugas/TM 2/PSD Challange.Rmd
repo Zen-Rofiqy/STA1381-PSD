@@ -68,7 +68,7 @@ Hidup **(UHH)** Pasien BPJS Penderita Diabetes Mellitus **tahun 2022**.
 ## Peubah
 
 | **Peubah** | **Sebagai Peubah** | **Keterangan**                                       | **Tipe Peubah** |
-|-------------|-------------|---------------------------------|-------------|
+|---------------|---------------|-----------------------------|---------------|
 | `UHH`      | `Y`                | Usia Harapan Hidup                                   | *Numerik*       |
 | `PSTV04`   | `X1`               | Hubungan Keluarga                                    | *Kategorik*     |
 | `PSTV05`   | `X2`               | Jenis Kelamin                                        | *Kategorik*     |
@@ -110,7 +110,9 @@ cat("Banyaknya Data Train :", nrow(raw.data1), "(",
     "\nTotal Data Test dan Train :", ( nrow(raw.data1) + nrow(raw.data2) ) )
 ```
 
-## Cek Tipe Data
+## Data Cleaning
+
+### Tipe Data
 
 ```{r}
 str(data_train)
@@ -123,8 +125,6 @@ str(data_test)
 ```
 
 Tipe blm sesuai, seharusnya semuanya kategorik.
-
-### Perbaikan Tipe Data
 
 ```{r message=FALSE, warning=FALSE}
 install_load('dplyr')
@@ -144,157 +144,31 @@ str(data_test)
 
 Tipe Data Test Sudah Sesuai.
 
-# Matriks korelasi
+### Isi Data
+
+**Kesamaan antar kolom**
 
 ```{r}
-library(ggcorrplot)
-ggcorrplot(cor(data_train1),type="lower",lab = T,lab_col = "white")+theme_tinyhand(axis_title_just = "center", axis_text_size = 12,
-                  axis_title_size =13)+theme(plot.title= element_text(hjust=0.5,color="white"),plot.background=element_rect(fill="#000044",color="#000044"),
-      axis.title = element_text(color="white"),axis.text = element_text(color="white"),legend.text = element_text(color="white"),legend.title = element_text(color="white"))
+colnames(data_train %>% select(-UHH)) == colnames(data_test)
 ```
 
-Peubah-peubah x cenderung memiliki korelasi yang rendah terhadap peubah
-y.
+Semua kolom sudah sama.
 
-# Regresi Klasik
+**Kesamaan levels dari factor**
 
 ```{r}
-model1  <- lm(y~., data_train=data_train1)
-summary(model1)
+identical(levels(data_train %>% select(-UHH)), levels(data_test))
 ```
 
-Didapatkan nilai adjusted R-Squared sebesar 0.2359 dengan peubah yang
-signifikan adalah x1, x3, x4, x5, x6, dan x7.
+# Regresi
 
-## Uji Multikolinieritas
+## Regresi Dummy
 
 ```{r}
-#Deteksi multikol melalui nilai VIF
-
-car::vif(model1)
-
-library(mctest)
-library(car)
-imcdiag(model1, method = "VIF", vif=10)
-mc.plot(model1, vif = 10)
-vif(model1)
+model  <- lm(UHH ~ PSTV04 +PSTV05 +PSTV06 +PSTV07 +PSTV08 +PSTV09 +PSTV10 
+             +PSTV11 +PSTV12 +PSTV13 +PSTV14, data=data_train)
+summary(model)
 ```
-
-Peubah x6, x7, x10, dan x11 memiliki nilai multikolinieritas yang tinggi
-(lebih dari 10), maka peubah-peubah tersebut dikeluarkan dari model
-karena peubah tersebut dapat dijelaskan oleh peubah lain yang
-signifikan.
-
-## Regresi klasik tanpa peubah x6,x7,x10,dan x11
-
-```{r}
-model1_2  <- lm(y~x1+x2+x3+x4+x5+x8+x9, data_train=data_train1)
-summary(model1_2)
-```
-
-Didapatkan nilai adjusted R-Squared sebesar 0.2335 dengan peubah yang
-signifikan adalah x1, x3, x4, dan x5.
-
-## Uji asumsi sisaan
-
-### Eksplorasi
-
-```{r}
-# plot sisaan vs yduga
-plot(model1_2,1) # jika sisaan berada di sekitar garis, maka nilai harapan sisaan = 0
-plot(model1_2,2) # jika lebar pita sama untuk setiap nilai dugaan, maka ragam sisaan homogen
-
-# plot sisaan vs urutan (sisaan saling bebas)
-plot(x = 1:dim(data_train1)[1],
-     y = model1_2$residual,
-     type = 'b', 
-     ylab = "Residual",
-     xlab = "Observasi") # jika tebaran berpola, maka sisaan tidak saling bebas
-```
-
-Berdasarkan plot kuantil-kuantil normal, secara eksplorasi ditunjukkan
-sisaan tidak menyebar normal ditandai dengan titik titik yang cenderung
-tidak mengikuti garis $45^{\circ}$ pada kedua ujungnya.
-
-### Uji Formal
-
-### 1. Uji kenormalanan sisaan
-
-```{r}
-sisaan = model1_2$residual
-ks.test(sisaan,"pnorm", mean=mean(sisaan), sd=sd(sisaan)) #tak tolak H0 > sisaan menyebar normal
-```
-
-Hipotesis pada uji Kolmogorov-Smirnov adalah sebagai berikut.
-
-$H_0$ : Sisaan menyebar normal $H_1$ : Sisaan tidak menyebar normal
-
-Berdasarkan uji KS tersebut, didapat *p-value* sebesar 2.359e-07 yang
-kurang dari taraf nyata 5% sehingga tolak $H_0$ dan menandakan bahwa
-sisaan tidak menyebar normal. Hal ini sesuai dengan hasil eksplorasi
-menggunakan plot kuantil-kuantil normal.
-
-### 2. Uji kebebasan sisaan (tidak ada autokorelasi)
-
-```{r}
-#install.packages("randtests")
-library(randtests)
-runs.test(sisaan)
-
-#install.packages("lmtest")
-library(lmtest)
-dwtest(model1_2)
-
-#tak tolak H0 > sisaan saling bebas
-```
-
-Selanjutnya akan dilakukan uji formal untuk kebebasan sisaan menggunakan
-uji Durbin-Watson test. Hipotesis yang digunakan adalah sebagai berikut.
-
-$H_0$ : Sisaan saling bebas $H_1$ : Sisaan tidak tidak saling bebas
-
-Berdasarkan uji tersebut, didapat *p-value* sebesar 2.2e-16 yang lebih
-besar dari taraf nyata 5% sehingga tak tolak $H_0$ dan menandakan bahwa
-sisaan tidak saling bebas.
-
-### 3. Uji kehomogenan sisaan
-
-```{r}
-cek.homogen = lm(formula = abs(sisaan) ~ x1+x2+x3+x4+x5+x8+x9,
-                 data_train = data_train1)
-summary(cek.homogen)
-library(lmtest)
-bptest(model1_2)
-library(car)
-ncvTest(model1_2)
-
-#tak tolak H0 > sisaan homogen
-```
-
-Hipotesis yang digunakan untuk uji kehomogenan ragam adalah sebagai
-berikut.
-
-$H_0$ : Ragam sisaan homogen $H_1$ : Ragam sisaan tidak homogen
-
-Berdasarkan uji Ljung-Box terhadap sisaan kuadrat tersebut, didapat
-*p-value* sebesar 0.8698 yang lebih dari taraf nyata 5% sehingga tak
-tolak $H_0$ dan menandakan bahwa ragam sisaan homogen.
-
-### 4. Nilai tengah sisaan sama dengan nol
-
-```{r}
-t.test(sisaan, mu = 0, conf.level = 0.95)  #tak tolak h0 > nilai tengah sisaan sama dengan 0
-```
-
-Terakhir, dengan uji-t, akan dicek apakah nilai tengah sisaan sama
-dengan nol. Hipotesis yang diujikan sebagai berikut.
-
-$H_0$ : nilai tengah sisaan sama dengan 0 $H_1$ : nilai tengah sisaan
-tidak sama dengan 0
-
-Berdasarkan uji-tersebut, didapat *p-value* sebesar 0.8057 yang lebih
-besar dari taraf nyata 5% sehingga tak tolak $H_0$ dan menandakan bahwa
-nilai tengah sisaan sama dengan nol.
 
 # Regresi Ridge
 
