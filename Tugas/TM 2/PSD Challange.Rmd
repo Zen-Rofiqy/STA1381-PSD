@@ -54,6 +54,10 @@ path <- function(){
 #Copy r path, paste ke var yang diinginkan
 ```
 
+```{r , include=FALSE, echo=FALSE, warning=FALSE, message = FALSE}
+setwd("C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 5/8. Pengantar Sains Data/Tugas/TM 2")
+```
+
 ```{r message=FALSE, warning=FALSE, include=FALSE}
 install_load('ggplot2')
 theme1.1 <- list(
@@ -419,7 +423,12 @@ cat("R-Squared Terbaik :", names(rsq)[which.max(rsq)],
 
 ```{r}
 pre <- predict(best.ridge, s=best.lr, newx = x)
+pre <- data.frame( No = seq_len(nrow(pre)),  UHH = pre ) 
+colnames(pre) <- c("No", "UHH")
+
 datatable(pre, 
           filter = 'top', 
           options = list(pageLength = 5))
+
+write.csv(pre, "predict.csv", row.names=FALSE)
 ```
