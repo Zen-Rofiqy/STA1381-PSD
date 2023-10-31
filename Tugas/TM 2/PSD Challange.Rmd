@@ -91,37 +91,58 @@ install_load("MultiKink","ggplot2","dplyr","purrr","car",
 
 # Data
 
+## Input Data
+
 ```{r message=FALSE, warning=FALSE}
-install_load('rio', 'DT')
-data_train <- import("https://raw.githubusercontent.com/Zen-Rofiqy/STA1381-PSD/main/Tugas/TM%202/Train.csv")
+install_load('rio')
+raw.data1 <- import("https://raw.githubusercontent.com/Zen-Rofiqy/STA1381-PSD/main/Tugas/TM%202/Train.csv")
+data_train <- raw.data1
+
+raw.data2 <- import("https://raw.githubusercontent.com/Zen-Rofiqy/STA1381-PSD/main/Tugas/TM%202/Test.csv")
+data_test <- raw.data2
+```
+
+```{r, echo=FALSE}
+cat("Banyaknya Data Train :", nrow(raw.data1), "(", 
+    nrow(raw.data1)/( nrow(raw.data1) + nrow(raw.data2) ) * 100, "%)",
+    "\nBanyaknya Data Test  :", nrow(raw.data1), "(", 
+    nrow(raw.data2)/( nrow(raw.data1) + nrow(raw.data2) ) * 100, "%)",
+    "\nTotal Data Test dan Train :", ( nrow(raw.data1) + nrow(raw.data2) ) )
+```
+
+## Cek Tipe Data
+
+```{r}
 str(data_train)
 ```
 
-# Inisiasi data_train
+Tipe blm sesuai, seharusnya selain UHH memiliki tipe data kategorik.
 
 ```{r}
-y <- data_train$UHH
-x1 <- data_train$PSTV04
-x2 <- data_train$PSTV05
-x3 <- data_train$PSTV06
-x4 <- data_train$PSTV07
-x5 <- data_train$PSTV08
-x6 <- data_train$PSTV09
-x7 <- data_train$PSTV10
-x8 <- data_train$PSTV11
-x9 <- data_train$PSTV12
-x10 <- data_train$PSTV13
-x11 <- data_train$PSTV14
-
-data_train1 <- cbind(y,x1,x2,x3,x4,x5,x6,x7,x8,x9,x10,x11)
+str(data_test)
 ```
 
-# Standarisasi data_train
+Tipe blm sesuai, seharusnya semuanya kategorik.
+
+### Perbaikan Tipe Data
+
+```{r message=FALSE, warning=FALSE}
+install_load('dplyr')
+data_train <- raw.data1 %>%
+  mutate(across(everything(), as.factor),
+         UHH = as.numeric(UHH))
+str(data_train)
+```
+
+Tipe Data Train Sudah Sesuai.
 
 ```{r}
-data_train1 <- scale(data_train1)
-data_train1 <- as.data_train.frame(data_train1)
+data_test <- raw.data2 %>%
+  mutate(across(everything(), as.factor))
+str(data_test)
 ```
+
+Tipe Data Test Sudah Sesuai.
 
 # Matriks korelasi
 
