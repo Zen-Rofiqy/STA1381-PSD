@@ -58,7 +58,7 @@ opts_knit$set(root.dir = "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt
 
 ```{r , include=FALSE, echo=FALSE, warning=FALSE, message = FALSE}
 #Export chart
-export.chart <- "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 5/8. Pengantar Sains Data/Tugas/Chart"
+export.chart <- "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 5/8. Pengantar Sains Data/Tugas/TM 1/Chart"
 ```
 
 \newpage
@@ -88,7 +88,7 @@ Dataset mtcars berisi informasi tentang berbagai spesifikasi mobil berdasarkan m
 Terdapat 11 peubah yang terdiri dari:
 
 | **Peubah** |                **Keterangan**                | **Sebagai Peubah** | **Tipe Peubah** |
-|:----------:|:--------------------------------------------:|--------------------|-----------------|
+|:------------:|:----------------------------:|--------------|--------------|
 |   `mpg`    |     Jarak tempuh per gallon bahan bakar.     | `y`                | Numerik         |
 |   `cyl`    |               Jumlah silinder.               | `x1`               | Kategorik       |
 |   `disp`   |       Volume mesin (dalam inci kubik).       | `x2`               | Numerik         |
