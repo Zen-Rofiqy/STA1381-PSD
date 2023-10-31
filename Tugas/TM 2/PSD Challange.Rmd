@@ -120,6 +120,24 @@ raw.data2 <- import("https://raw.githubusercontent.com/Zen-Rofiqy/STA1381-PSD/ma
 data_test <- raw.data2
 ```
 
+### Data Train
+
+```{r}
+datatable(data_train, 
+          filter = 'top', 
+          options = list(pageLength = 5))
+```
+
+### Data Test
+
+```{r}
+datatable(data_test, 
+          filter = 'top', 
+          options = list(pageLength = 5))
+```
+
+### Persentase
+
 ```{r, echo=FALSE}
 cat("Banyaknya Data Train :", nrow(raw.data1), "(", 
     nrow(raw.data1)/( nrow(raw.data1) + nrow(raw.data2) ) * 100, "%)",
