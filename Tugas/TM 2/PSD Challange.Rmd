@@ -401,9 +401,9 @@ cat("R-Squared :", r2.lasso)
 # Perbandingan Rsq
 
 ```{r}
-rsq <- data.frame(Dummy = r2.dummy, WLS = r2.wls, Ridge = r2.ridge, 
+r2 <- data.frame(Dummy = r2.dummy, WLS = r2.wls, Ridge = r2.ridge, 
                   Lasso = r2.lasso)
-datatable(rsq, 
+datatable(r2, 
           filter = 'top', 
           options = list(pageLength = 5))
 ```
@@ -414,6 +414,12 @@ cat("R-Squared Terbaik :", names(rsq)[which.max(rsq)],
 ```
 
 # Hasil Prediksi
+
+## Ridge
+
+Ini muke gile, UHH nya nggak ada di data test cuy... ngimana mau predict
+di ridge. Padahal rsq terbaiknya ada di ridge. Alhasil jadinya predict
+UHH dulu pake model dummy. Parah.
 
 ```{r}
 pre <- predict(model, newdata = data_test)
