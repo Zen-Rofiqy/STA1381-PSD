@@ -84,27 +84,27 @@ lapply(c("MultiKink","ggplot2","dplyr","purrr","car",
 # Data
 
 ```{r}
-#install.packages("rio") #install jika belum ada
 library(rio)
-datapsd <- import("https://raw.githubusercontent.com/aidara11/pengantar-sains-data/main/PSD%20Challenge/Train.csv")
-head(datapsd)
+raw.data <- import("https://raw.githubusercontent.com/aidara11/pengantar-sains-data/main/PSD%20Challenge/Train.csv")
+data <- raw.data
+head(data)
 ```
 
 # Inisiasi Data
 
 ```{r}
-y <- datapsd$UHH
-x1 <- datapsd$PSTV04
-x2 <- datapsd$PSTV05
-x3 <- datapsd$PSTV06
-x4 <- datapsd$PSTV07
-x5 <- datapsd$PSTV08
-x6 <- datapsd$PSTV09
-x7 <- datapsd$PSTV10
-x8 <- datapsd$PSTV11
-x9 <- datapsd$PSTV12
-x10 <- datapsd$PSTV13
-x11 <- datapsd$PSTV14
+y <- data$UHH
+x1 <- data$PSTV04
+x2 <- data$PSTV05
+x3 <- data$PSTV06
+x4 <- data$PSTV07
+x5 <- data$PSTV08
+x6 <- data$PSTV09
+x7 <- data$PSTV10
+x8 <- data$PSTV11
+x9 <- data$PSTV12
+x10 <- data$PSTV13
+x11 <- data$PSTV14
 
 data1 <- cbind(y,x1,x2,x3,x4,x5,x6,x7,x8,x9,x10,x11)
 ```
