@@ -1,0 +1,302 @@
+---
+title: "Perbandingan Performa Model Regresi OLS, WLS, Ridge, dan Lasso"
+author: "Angga Fathan Rofiqy"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  rmdformats::downcute:
+    self_contained: true
+    thumbnails: false
+    lightbox: true
+    gallery: true
+    highlight: tango
+    code_folding: show
+    toc_depth: 3
+    number_sections: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
+    fig_caption: true
+pkgdown:
+  as_is: true
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+#                      -=( Install & Load Package Function )=-
+install_load <- function (package1, ...)  {   
+
+   # convert arguments to vector
+   packages <- c(package1, ...)
+
+   # start loop to determine if each package is installed
+   for(package in packages){
+
+       # if package is installed locally, load
+       if(package %in% rownames(installed.packages()))
+          do.call('library', list(package))
+
+       # if package is not installed locally, download, then load
+       else {
+          install.packages(package)
+          do.call("library", list(package))
+       }
+   } 
+}
+```
+
+```{r, include=FALSE}
+path <- function(){
+  gsub  ( "\\\\",  "/",  readClipboard ()  )
+}
+#Copy path, Panggil function di console
+#Copy r path, paste ke var yang diinginkan
+```
+
+# PSD Challange
+
+**Prediksi AHH Pasien BPJS Penderita Diabetes Mellitus Menggunakan Model
+Regresi Linear**
+
+**Case:** Melakukan **pemodelan regresi** (klasik/lasso/ridge/step
+function/polinomial/spline/smooth spline) untuk **menduga** Usia Harapan
+Hidup **(UHH)** Pasien BPJS Penderita Diabetes Mellitus **tahun 2022**.
+
+**Goal:** R-Square terbaik
+
+`PSTV04` : Hubungan Keluarga `PSTV05` : Jenis Kelamin `PSTV06` : Status
+perkawinan `PSTV07` : Kelas rawat `PSTV08` : Segmentasi peserta `PSTV09`
+: Provinsi Tempat Tinggal Peserta `PSTV10` : Kabupaten/Kota Tempat
+Tinggal Peserta `PSTV11` : Kepemilikan faskes `PSTV12` : Jenis faskes
+`PSTV13` : Provinsi Fasilitas Kesehatan Peserta Terdaftar `PSTV14` :
+Kabupaten/Kota Fasilitas Kesehatan Peserta Terdaftar `UHH` : Usia
+Harapan Hidup
+
+# Packages
+
+```{r}
+lapply(c("MultiKink","ggplot2","dplyr","purrr","car",
+         "hrbrthemes","MLmetrics","splines","ggcorrplot","ISLR","hrbrthemes"),
+       library,character.only=T)[[1]]
+```
+
+# Data
+
+```{r}
+#install.packages("rio") #install jika belum ada
+library(rio)
+datapsd <- import("https://raw.githubusercontent.com/aidara11/pengantar-sains-data/main/PSD%20Challenge/Train.csv")
+head(datapsd)
+```
+
+# Inisiasi Data
+
+```{r}
+y <- datapsd$UHH
+x1 <- datapsd$PSTV04
+x2 <- datapsd$PSTV05
+x3 <- datapsd$PSTV06
+x4 <- datapsd$PSTV07
+x5 <- datapsd$PSTV08
+x6 <- datapsd$PSTV09
+x7 <- datapsd$PSTV10
+x8 <- datapsd$PSTV11
+x9 <- datapsd$PSTV12
+x10 <- datapsd$PSTV13
+x11 <- datapsd$PSTV14
+
+data1 <- cbind(y,x1,x2,x3,x4,x5,x6,x7,x8,x9,x10,x11)
+```
+
+# Standarisasi data
+
+```{r}
+data1 <- scale(data1)
+data1 <- as.data.frame(data1)
+```
+
+# Matriks korelasi
+
+```{r}
+library(ggcorrplot)
+ggcorrplot(cor(data1),type="lower",lab = T,lab_col = "white")+theme_tinyhand(axis_title_just = "center", axis_text_size = 12,
+                  axis_title_size =13)+theme(plot.title= element_text(hjust=0.5,color="white"),plot.background=element_rect(fill="#000044",color="#000044"),
+      axis.title = element_text(color="white"),axis.text = element_text(color="white"),legend.text = element_text(color="white"),legend.title = element_text(color="white"))
+```
+
+Peubah-peubah x cenderung memiliki korelasi yang rendah terhadap peubah
+y.
+
+# Regresi Klasik
+
+```{r}
+model1  <- lm(y~., data=data1)
+summary(model1)
+```
+
+Didapatkan nilai adjusted R-Squared sebesar 0.2359 dengan peubah yang
+signifikan adalah x1, x3, x4, x5, x6, dan x7.
+
+## Uji Multikolinieritas
+
+```{r}
+#Deteksi multikol melalui nilai VIF
+
+car::vif(model1)
+
+library(mctest)
+library(car)
+imcdiag(model1, method = "VIF", vif=10)
+mc.plot(model1, vif = 10)
+vif(model1)
+```
+
+Peubah x6, x7, x10, dan x11 memiliki nilai multikolinieritas yang tinggi
+(lebih dari 10), maka peubah-peubah tersebut dikeluarkan dari model
+karena peubah tersebut dapat dijelaskan oleh peubah lain yang
+signifikan.
+
+## Regresi klasik tanpa peubah x6,x7,x10,dan x11
+
+```{r}
+model1_2  <- lm(y~x1+x2+x3+x4+x5+x8+x9, data=data1)
+summary(model1_2)
+```
+
+Didapatkan nilai adjusted R-Squared sebesar 0.2335 dengan peubah yang
+signifikan adalah x1, x3, x4, dan x5.
+
+## Uji asumsi sisaan
+
+### Eksplorasi
+
+```{r}
+# plot sisaan vs yduga
+plot(model1_2,1) # jika sisaan berada di sekitar garis, maka nilai harapan sisaan = 0
+plot(model1_2,2) # jika lebar pita sama untuk setiap nilai dugaan, maka ragam sisaan homogen
+
+# plot sisaan vs urutan (sisaan saling bebas)
+plot(x = 1:dim(data1)[1],
+     y = model1_2$residual,
+     type = 'b', 
+     ylab = "Residual",
+     xlab = "Observasi") # jika tebaran berpola, maka sisaan tidak saling bebas
+```
+
+Berdasarkan plot kuantil-kuantil normal, secara eksplorasi ditunjukkan
+sisaan tidak menyebar normal ditandai dengan titik titik yang cenderung
+tidak mengikuti garis $45^{\circ}$ pada kedua ujungnya.
+
+### Uji Formal
+
+### 1. Uji kenormalanan sisaan
+
+```{r}
+sisaan = model1_2$residual
+ks.test(sisaan,"pnorm", mean=mean(sisaan), sd=sd(sisaan)) #tak tolak H0 > sisaan menyebar normal
+```
+
+Hipotesis pada uji Kolmogorov-Smirnov adalah sebagai berikut.
+
+$H_0$ : Sisaan menyebar normal $H_1$ : Sisaan tidak menyebar normal
+
+Berdasarkan uji KS tersebut, didapat *p-value* sebesar 2.359e-07 yang
+kurang dari taraf nyata 5% sehingga tolak $H_0$ dan menandakan bahwa
+sisaan tidak menyebar normal. Hal ini sesuai dengan hasil eksplorasi
+menggunakan plot kuantil-kuantil normal.
+
+### 2. Uji kebebasan sisaan (tidak ada autokorelasi)
+
+```{r}
+#install.packages("randtests")
+library(randtests)
+runs.test(sisaan)
+
+#install.packages("lmtest")
+library(lmtest)
+dwtest(model1_2)
+
+#tak tolak H0 > sisaan saling bebas
+```
+
+Selanjutnya akan dilakukan uji formal untuk kebebasan sisaan menggunakan
+uji Durbin-Watson test. Hipotesis yang digunakan adalah sebagai berikut.
+
+$H_0$ : Sisaan saling bebas $H_1$ : Sisaan tidak tidak saling bebas
+
+Berdasarkan uji tersebut, didapat *p-value* sebesar 2.2e-16 yang lebih
+besar dari taraf nyata 5% sehingga tak tolak $H_0$ dan menandakan bahwa
+sisaan tidak saling bebas.
+
+### 3. Uji kehomogenan sisaan
+
+```{r}
+cek.homogen = lm(formula = abs(sisaan) ~ x1+x2+x3+x4+x5+x8+x9,
+                 data = data1)
+summary(cek.homogen)
+library(lmtest)
+bptest(model1_2)
+library(car)
+ncvTest(model1_2)
+
+#tak tolak H0 > sisaan homogen
+```
+
+Hipotesis yang digunakan untuk uji kehomogenan ragam adalah sebagai
+berikut.
+
+$H_0$ : Ragam sisaan homogen $H_1$ : Ragam sisaan tidak homogen
+
+Berdasarkan uji Ljung-Box terhadap sisaan kuadrat tersebut, didapat
+*p-value* sebesar 0.8698 yang lebih dari taraf nyata 5% sehingga tak
+tolak $H_0$ dan menandakan bahwa ragam sisaan homogen.
+
+### 4. Nilai tengah sisaan sama dengan nol
+
+```{r}
+t.test(sisaan, mu = 0, conf.level = 0.95)  #tak tolak h0 > nilai tengah sisaan sama dengan 0
+```
+
+Terakhir, dengan uji-t, akan dicek apakah nilai tengah sisaan sama
+dengan nol. Hipotesis yang diujikan sebagai berikut.
+
+$H_0$ : nilai tengah sisaan sama dengan 0 $H_1$ : nilai tengah sisaan
+tidak sama dengan 0
+
+Berdasarkan uji-tersebut, didapat *p-value* sebesar 0.8057 yang lebih
+besar dari taraf nyata 5% sehingga tak tolak $H_0$ dan menandakan bahwa
+nilai tengah sisaan sama dengan nol.
+
+# Regresi Ridge
+
+```{r}
+# Membuat matriks x
+x <- cbind(x1,x2,x3,x4,x5,x8,x9)
+
+library(glmnet)
+model2 <- cv.glmnet(x,y,alpha=0) #pemilihan lambda dgn cv untuk ridge
+summary(model2)
+coef(model2,s="lambda.min")
+```
+
+```{r}
+# Melatih model Ridge pada seluruh data dengan lambda terbaik
+best_lambda <- model2$lambda.min
+ridge_model <- glmnet(x, y, alpha = 0, lambda = best_lambda)
+
+# Menghitung prediksi
+y_pred <- predict(ridge_model, newx = x, s = best_lambda)
+
+# Menghitung R-squared disesuaikan
+n <- nrow(x)
+p <- length(coef(ridge_model))
+adj_r_squared <- 1 - ((n - 1) / (n - p - 1)) * (sum((y - y_pred)^2) / sum((y - mean(y))^2))
+
+# Tampilkan nilai Adjusted R-squared
+cat("Adjusted R-squared:", adj_r_squared)
+```
+
+Didapatkan nilai adjusted R-Squared sebesar 0.2330.
+
+# Regresi Lasso
