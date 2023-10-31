@@ -216,7 +216,7 @@ summary(model)
 bs <- as.data.frame( olsrr::ols_step_best_subset(model)  )
 ```
 
-```{r}
+```{r dpi=300, fig.height = 9, fig.width = 16, fig.align = "center", message = FALSE, warning=FALSE}
 chart <- 
 ggplot(bs, aes(x = n, y = aic)) +
   geom_line(size=1) +
@@ -230,7 +230,7 @@ ggplot(bs, aes(x = n, y = aic)) +
   theme(axis.text.y = element_text(vjust = 0.5, face = "bold", 
                                    margin = margin(l = 20, r = 10))) +
   geom_text(aes(x = bs[which.min(bs$aic), ]$n + 1, 
-                y = bs[which.min(bs$aic), ]$aic +1, 
+                y = bs[which.min(bs$aic), ]$aic +20, 
                 label = paste0("AIC = ", round(bs[which.min(bs$aic), ]$aic, 2),
                               "\nModel(", bs[which.min(bs$aic), ]$mindex, ")")),
             color = "#F15E2B", size = 8) 
