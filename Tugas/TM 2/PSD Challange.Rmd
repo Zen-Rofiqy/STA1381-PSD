@@ -179,9 +179,14 @@ Semua kolom sudah sama.
 Levels antar kolom harus sama.
 
 ```{r}
-sapply(seq_along(data_train %>% select(-UHH)), function(i) {
-  identical(levels(data_train[[i]]), levels(data_test[[i]]))
-})
+install_load('DT')
+lv <- rbind( colnames(data_test), 
+      sapply(seq_along(data_train %>% select(-UHH)), function(i) {
+        identical(levels(data_train[[i]]), levels(data_test[[i]]))
+        }) )
+datatable(lv, 
+          filter = 'top', 
+          options = list(pageLength = 5))
 ```
 
 Tidak semua kolom memiliki jumlah level yang sama antara
@@ -204,7 +209,7 @@ konsistensi level antar kolom.
 
 ```{r}
 model  <- lm(UHH ~ PSTV05 +PSTV06 +PSTV07 +PSTV08 +PSTV09  
-             +PSTV11 +PSTV12 +PSTV13, data=data_train)
+             +PSTV12 +PSTV13, data=data_train)
 summary(model)
 ```
 
@@ -237,6 +242,64 @@ ggplot(bs, aes(x = n, y = aic)) +
 
 chart
 ```
+
+```{r dpi=300, fig.height = 9, fig.width = 16, fig.align = "center", message = FALSE, warning=FALSE}
+chart <- 
+ggplot(bs, aes(x = n, y = rsquare)) +
+  geom_line(size=1) +
+  geom_point(size=4) +
+  geom_point(data = bs[which.max(bs$rsquare), ], color = "#F15E2B", size = 8) +
+
+  theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
+  labs(x = "Jumlah Variabel Prediktor", 
+       y='Rsquare',
+       title = "Pergerakan Nilai Rsquare",
+       subtitle = "Untuk Model terbaik, Nilai Rsquare yang terbesarnya berapa sih?\n") + 
+  theme1.1 +
+  theme(axis.text.y = element_text(vjust = 0.5, face = "bold", 
+                                   margin = margin(l = 20, r = 10))) +
+  geom_text(aes(x = bs[which.max(bs$rsquare), ]$n -0.5, 
+                y = bs[which.max(bs$rsquare), ]$rsquare -0.02, 
+                label = paste0("Rsquare = ", 
+                              round(bs[which.max(bs$rsquare), ]$rsquare, 2),
+                              "\nModel(", bs[which.max(bs$rsquare), ]$mindex, ")")),
+            color = "#F15E2B", size = 8) 
+
+chart
+```
+
+Pada pemilihan peubah dengan teknik `best subset` terlihat
+nilai **AIC** paling rendah serta **Adj. R-Squared** paling tinggi
+dimiliki oleh **model ke-7**.
+
+```{r}
+bs[which(bs$mindex == 7) , ]$predictors
+```
+
+Model ini memuat semua peubah yang ada.
+
+#### Forward Selection
+
+```{r}
+fs <- olsrr::ols_step_forward_p(model); fs
+```
+
+Hasil metode Stepwise Forward juga menunjukkan berbeda. Langkah paling
+optimal berada pada langkah ke-7 (model 7) Atau model penuh.
+
+#### Backward Elemination
+
+```{r}
+be <- olsrr::ols_step_backward_p(model); be
+```
+
+Pada metode Stepwise Backward juga sama, tidak ada peubah yang
+dikeluarkan dari model.
+
+#### Kesimpulan
+
+Tidak ada peubah yang dikeluarkan dari model, demi nilai **Adj.
+R-Squared** yang lebih tinggi.
 
 # Regresi Ridge
 
