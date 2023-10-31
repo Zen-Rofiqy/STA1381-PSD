@@ -90,7 +90,7 @@ Hidup **(UHH)** Pasien BPJS Penderita Diabetes Mellitus **tahun 2022**.
 ## Peubah
 
 | **Peubah** | **Sebagai Peubah** | **Keterangan**                                       | **Tipe Peubah** |
-|---------------|---------------|-----------------------------|---------------|
+|--------------|--------------|--------------------------------|--------------|
 | `UHH`      | `Y`                | Usia Harapan Hidup                                   | *Numerik*       |
 | `PSTV04`   | `X1`               | Hubungan Keluarga                                    | *Kategorik*     |
 | `PSTV05`   | `X2`               | Jenis Kelamin                                        | *Kategorik*     |
@@ -103,13 +103,6 @@ Hidup **(UHH)** Pasien BPJS Penderita Diabetes Mellitus **tahun 2022**.
 | `PSTV12`   | `X9`               | Jenis faskes                                         | *Kategorik*     |
 | `PSTV13`   | `X10`              | Provinsi Fasilitas Kesehatan Peserta Terdaftar       | *Kategorik*     |
 | `PSTV14`   | `X11`              | Kabupaten/Kota Fasilitas Kesehatan Peserta Terdaftar | *Kategorik*     |
-
-# Packages
-
-```{r}
-install_load("MultiKink","ggplot2","dplyr","purrr","car",
-         "hrbrthemes","MLmetrics","splines","ggcorrplot","ISLR","hrbrthemes")
-```
 
 # Data
 
@@ -126,7 +119,8 @@ data_test <- raw.data2
 
 ### Data Train
 
-```{r}
+```{r message=FALSE, warning=FALSE}
+install_load("DT")
 datatable(data_train, 
           filter = 'top', 
           options = list(pageLength = 5))
@@ -419,10 +413,15 @@ cat("R-Squared Terbaik :", names(rsq)[which.max(rsq)],
     "\nDengan nilai :", max(rsq))
 ```
 
-# Predict
+# Hasil Prediksi
 
 ```{r}
-pre <- predict(best.ridge, s=best.lr, newx = x)
+pre <- predict(model, newdata = data_test)
+data_test. <- data_test %>% 
+  mutate(UHH = pre)
+xnew <- model.matrix(UHH ~ PSTV05 +PSTV06 +PSTV07 +PSTV08 +PSTV09 +
+                     PSTV12 +PSTV13, data=data_test.)[,-1]
+pre <- predict(best.ridge, s=best.lr, newx = xnew)
 pre <- data.frame( No = seq_len(nrow(pre)),  UHH = pre ) 
 colnames(pre) <- c("No", "UHH")
 
@@ -431,4 +430,9 @@ datatable(pre,
           options = list(pageLength = 5))
 
 write.csv(pre, "predict.csv", row.names=FALSE)
+```
+
+```{r}
+as.matrix(data_test %>% 
+            select(-PSTV04, -PSTV10, -PSTV11, -PSTV14)) %*% coef(best.ridge)
 ```
