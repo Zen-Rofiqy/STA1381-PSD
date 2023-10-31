@@ -301,6 +301,11 @@ dikeluarkan dari model.
 Tidak ada peubah yang dikeluarkan dari model, demi nilai **Adj.
 R-Squared** yang lebih tinggi.
 
+```{r}
+r2.dummy <- summary(model)$adj.r.squared
+cat("R-Squared :", r2.ridge)
+```
+
 ## Regresi Ridge
 
 ```{r dpi=300, fig.height = 9, fig.width = 16, fig.align = "center", message = FALSE, warning=FALSE}
@@ -320,6 +325,8 @@ best.lr <- cv.r$lambda.min #Lambda Ridge Terbaik
 best.ridge <- glmnet(x,y,alpha=0,lambda=best.lr); coef(best.ridge)
 ```
 
+### R-Squared
+
 ```{r}
 rsq <- function(bestmodel,bestlambda,x,y){
  #y duga
@@ -337,6 +344,29 @@ r2.ridge <- rsq(best.ridge, best.lr, x, y)
 cat("R-Squared :", r2.ridge)
 ```
 
-Didapatkan nilai adjusted R-Squared sebesar 0.2330.
+## Regresi Lasso
 
-# Regresi Lasso
+```{r dpi=300, fig.height = 9, fig.width = 16, fig.align = "center", message = FALSE, warning=FALSE}
+cv.l <- cv.glmnet(x,y,alpha=1); plot(cv.l)
+```
+
+### Model Terbaik
+
+```{r}
+best.ll <- cv.l$lambda.min #Lambda Lasso Terbaik
+bestlasso <- glmnet(x,y,alpha=1,lambda=best.ll); coef(bestlasso)
+```
+
+### R-Squared
+
+```{r}
+r2.lasso <- rsq(bestlasso, best.ll, x, y)
+cat("R-Squared :", r2.lasso)
+```
+
+# Perbandingan Rsq
+
+```{r}
+rsq <- data.frame(Dummy = r2.dummy, Ridge = r2.ridge, Lasso = r2.lasso)
+rsq
+```
