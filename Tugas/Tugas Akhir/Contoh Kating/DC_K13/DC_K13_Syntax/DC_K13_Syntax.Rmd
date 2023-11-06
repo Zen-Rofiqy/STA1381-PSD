@@ -1,0 +1,173 @@
+---
+title: "Kelompok 13"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::downcute:
+    self_contained: true
+    default_style: "dark"
+    downcute_theme: "chaos"
+    highlight: tango
+---
+<style>
+body{text-align:justify;}
+h1{font-size:46px;}
+</style>
+
+<h1>
+**Pemodelan Prediktif Angka Haraan Hidup Pasien BPJS Penderita Diabetes Mellitus Menggunakan Extreme Gradient Boosting (XGBoost)**
+</h1>
+
+<h2>Anggota:</h2>
+<ol>
+<li> Muhammad Nachnoer Novatron Fitra Arss (G1401201014) </li>
+<li> Arsyfia Chairunnisa Azmy (G1401201071) </li>
+<li> Akmal Riza Wibisono (G1401201086) </li>
+<li> Steven Kurniawan (G1401201098) </li>
+</ol>
+
+# Call Package
+```{r, warning=FALSE, message=FALSE}
+lapply(c("randomForest","xgboost","caret","vip","haven","readxl","ggplot2",
+         "dplyr","lightgbm","h2o","cvms","e1071","caTools","FactoMineR",
+         "factoextra","hrbrthemes","geojsonio","broom","RColorBrewer","kableExtra"),
+       library,character.only=T)[[1]]
+```
+
+# Data Kepesertaan BPJS [Kontekstual DM]
+```{r, warning=FALSE, message=FALSE}
+# na.omit menghilangkan seluruh peserta yang masih hidup
+pes19<-na.omit(read_dta("D:/Users/Documents/DC/Data Sampel Final 2022/Kontekstual DM/DM2019_kepesertaan.dta"))
+pes20<-na.omit(read_dta("D:/Users/Documents/DC/Data Sampel Final 2022/Kontekstual DM/DM2020_kepesertaan.dta"))
+pes21<-na.omit(read_dta("D:/Users/Documents/DC/Data Sampel Final 2022/Kontekstual DM/DM2021_kepesertaan.dta"))
+```
+
+# Data Gabungan 2019-2021
+```{r, warning=FALSE, message=FALSE}
+pes<-rbind(pes19,pes20,pes21);kable(head(pes,10))
+```
+
+# Praproses Data
+## Substring Tahun Lahir dari Tanggal Lahir Peserta
+```{r, warning=FALSE, message=FALSE}
+pes$lahir<-as.numeric(substring(pes$PSTV03,1,4));head(pes$lahir)
+```
+
+## Menghitung Usia Peserta
+```{r, warning=FALSE, message=FALSE}
+pes$usia<-pes$PSTV18-pes$lahir;head(pes$usia)
+```
+
+## Menghitung UHH (Jumlah Usia:Jumlah orang meninggal)
+```{r, warning=FALSE, message=FALSE}
+ag<-pes%>%group_by(PSTV04,PSTV05,PSTV06,PSTV07,PSTV08,
+                   PSTV09,PSTV10,PSTV11,PSTV12,PSTV13,
+                   PSTV14)%>%summarise(UHH=round(mean(usia)));kable(head(ag,10))
+```
+
+# Partisi Data
+```{r, warning=FALSE, message=FALSE}
+set.seed(123);i<-createDataPartition(ag$UHH,p=0.75,list=F)
+train<-ag[i,];xgbtr<-xgb.DMatrix(data=data.matrix(train[,-12]),label=train$UHH)
+test<-ag[-i,];xgbts<-xgb.DMatrix(data=data.matrix(test[,-12]),label=test$UHH)
+```
+
+# Wishing List
+```{r, warning=FALSE, message=FALSE}
+wl<-list(train=xgbtr,test=xgbts)
+```
+
+# 10-Fold Cross Validation
+```{r, warning=FALSE, message=FALSE}
+cv<-xgb.cv(data=xgbtr,nrounds=150,max.depth=68,nfold=10,eta=0.03,metric=list("mape"))
+cvd<-cv$evaluation_log
+```
+```{r, warning=FALSE,message=FALSE}
+gcvd<-ggplot(cvd,aes(x=iter))+geom_line(aes(y=train_mape_mean),lwd=2,col="purple")+
+  geom_line(aes(y=test_mape_mean),lwd=2,col="coral")+
+  geom_label(aes(label="Training",y=cv$evaluation_log[150,2][[1]],x=157),col="purple",lwd=2,size=2.5)+
+  geom_label(aes(label="Testing",y=cv$evaluation_log[150,4][[1]],x=157),col="coral",lwd=2,size=2.5)+
+  theme_ipsum_rc(grid=F,axis_title_just = "center",axis_title_size = 12)+
+  labs(x="\nIterations",y="MAPE Mean\n",title="Learning Curve Plot of 10 CV-Model")+
+  theme(plot.title=element_text(hjust=0.5))+xlim(c(0,160))+
+  geom_label(aes(label="Details:\nnrounds = 150\nmax depth = 68\neta = 0.03",y=0.4,x=135),
+             lwd=5,size=2.5)+geom_vline(aes(xintercept=cv$evaluation_log$iter[which.min(cv$evaluation_log$test_mape_mean)][[1]]),
+                               lwd=2,lty=2,col="darkgreen")+geom_label(aes(x=133,y=0.6,label="Minimum MAPE Test: 0.114\nNumber of Iteration: 118"),size=3,                                             col="darkgreen",lwd=2,hjust=0.25,vjust=-0.4);gcvd
+```
+
+# Pemodelan dengan memilih maksimum iterasi terbaik dari hasil 10-CV
+```{r, warning=FALSE, message=FALSE}
+xt<-xgb.train(data=xgbtr,watchlist = wl,nrounds=cv$evaluation_log[which.min(cv$evaluation_log$test_mape_mean),1][[1]],
+              max.depth=68,eta=0.03,eval_metric="mape");xt
+xt$evaluation_log[118,]
+```
+
+# Variable Importance
+```{r, warning=FALSE, message=FALSE}
+v<-vip(xt)
+v$data$Variable[1]<-"Segementasi\nPeserta\n"
+v$data$Variable[2]<-"Kab/Kota\nPeserta"
+v$data$Variable[3]<-" Hubungan\nKeluarga"
+v$data$Variable[4]<-"Kab/Kota\nFaskes"
+v$data$Variable[5]<-"Status\nPerkawinan"
+v$data$Variable[6]<-attributes(pes$PSTV07)$label
+v$data$Variable[7]<-"Provinsi\nPeserta"
+v$data$Variable[8]<-"Kepemilikan\b\\b\nFaskes"
+v$data$Variable[9]<-"Jenis\nKelamin"
+v$data$Variable[10]<-"Jenis\nFaskes"
+vipl<-ggplot(v$data,aes(x=reorder(Variable,Importance),y=Importance,fill=Importance))+
+  geom_bar(stat="identity")+coord_polar("x",start=6)+
+  theme_ipsum_rc()+theme(axis.title.x.bottom = element_blank(),
+                         axis.title.y.left = element_blank(),
+                         axis.text.y.left = element_blank(),
+                         axis.text.x = element_text(size=13),
+                         text=element_text(size=12))+
+  scale_fill_gradientn(colours=c("orange","#0c134f"));vipl
+```
+
+# Map Chart
+## Geojson File
+```{r, warning=FALSE, message=FALSE}
+spdf<-geojson_read("indonesia-geojson-master/indonesia.geojson",what="sp")
+```
+
+## Praproses Geojson file
+```{r, warning=FALSE, message=FALSE}
+rgeos::gIsValid(spdf)
+spdf<-rgeos::gBuffer(spdf,byid=T,width=0);rgeos::gIsValid(spdf)
+sp<-tidy(spdf,region="state");sp
+```
+
+## Praproses Data Kepsertaan untuk Map Chart
+```{r, warning=FALSE, message=FALSE}
+xgbd<-xgb.DMatrix(data=data.matrix(ag[,-12]),label=ag$UHH)
+ap<-data.frame(ag,predict=round(predict(xt,xgbd)))#xgbts
+ap$PSTV13<-as.character(ap$PSTV13)
+daf<-data.frame(code=attributes(test$PSTV13)$labels)
+daf$huruf<-rownames(daf)
+daf$code<-as.character(daf$code)
+```
+
+## Left join Geojson file dan Data Kepesertaan
+```{r, warning=FALSE, message=FALSE}
+AP<-ap%>%left_join(.,daf,by=c("PSTV13"="code"))
+sp$id<-toupper(sp$id)
+s<-sp%>%left_join(.,AP,by=c("id"="huruf"))
+```
+
+## Map Chart
+```{r, warning=FALSE, message=FALSE}
+ggplot(data=s,aes(x=long,y=lat,group=group,fill=predict))+
+  geom_polygon(color="grey",show.legend = T)+theme_ft_rc()+coord_map()+
+  labs(fill="",title="Peta Spasial Prediksi AHH Penderita DM di Indonesia [2019-2021]")+
+  theme(plot.title=element_text(hjust=0.5),legend.position = "bottom",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+    axis.text.x = element_blank(),
+    axis.text.y = element_blank(),
+    axis.title.x.bottom = element_blank(),
+    axis.title.y.left = element_blank())+
+  scale_fill_gradientn(colours=c("orange","navyblue"))
+```
+
+

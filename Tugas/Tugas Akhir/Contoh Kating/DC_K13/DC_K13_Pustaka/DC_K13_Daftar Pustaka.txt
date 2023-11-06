@@ -1,0 +1,23 @@
+Daftar Pustaka:
+
+Abdurrahman G., Oktavianto H., Sintawati M. (2022). Optimasi Algoritma XGBoost Classifier Menggunakan Hyperparameter Gridsearch dan Random Search pada Klasifikasi Penyakit Diabetes. Informatics Journal. 7(3): 193-198
+
+Aisyah, S., Wahyuningsih, S., Amijaya, F. D. T. (2021). Peramalan jumlah titik panas Provinsi Kalimantan Timur menggunakan metode radial basis function neural network. Jameura Journal of Probability and Statistics, 2(2).
+
+Burman, P. (1989). A comparative study of ordinary cross-validation, v-fold cross-validation andthe repeated learning-testing methods, Biometrika 76(3): 503 – 514.
+
+Chen T., Guestrin C. (2016). XGBoost: A scalable tree boosting system. Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining. 785-794.   https://doi.org/10.1145/2939672.2939785
+
+Cherif I. L., Kortebi A. (2019). On Using eXtreme Gradient Boosting (XGBoost) Machine Learning algorithm for Home Network Traffic Classification.  2019 Wireless Days. 1-6. doi: 10.1109/WD.2019.8734193.
+
+Hartmann M. J., Carleo G. (2019). Neural-Network Approach to Dissipative Quantum Many-Body Dynamics. Phys. Rev. Lett. 122(25)
+
+Heizer J., Render B. (2015). Operations Management. Edisi 11.
+
+Hestiana, D. W. (2017). Faktor-faktor yang berhubungan dengan kepatuhan dalam pengelolaan diet pada pasien rawat jalan diabetes mellitus tipe 2 di Kota Semarang. Jurnal of Health Education. 2(2): 138-145.
+
+Misnadiarly. (2006). Diabetes Mellitus, Mengenali Gejala, Menanggulangi, Mencegah Komplikasi. Jakarta: Pustaka Populer Obor.
+
+Riset Kesehatan Dasar (Riskesdas) (2018). Badan Penelitian dan Pengembangan Kesehatan Kementerian RI tahun 2018.
+
+Sinaga S. P., Wanto A., Solikhun S. (2019). Implementasi Jaringan Syaraf Tiruan Resilient Backpropagation dalam Memprediksi Angka Harapan Hidup Masyarakat Sumatera Utara. Jurnal Infomedia. 4(2): 81-88.
