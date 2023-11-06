@@ -1,5 +1,14 @@
-# [PSD Challenge](https://www.kaggle.com/competitions/psd-challenge/data)
-### Prediksi AHH Pasien BPJS Penderita Diabetes Mellitus Menggunakan Model Regresi Linear   
+# Kelompok 03
+### Judul
+  
+### Anggota
+
+|    **NIM**   |              **Nama**             |
+|:------------:|:---------------------------------:|
+| `G1401211006`  |  Angga Fathan Rofiqy              |
+| `G1401211018`  |  Muhammad Farras Surya Dio Putra  |
+| `G1401211026`  |  Salsabila Dwi Rahmi              |
+| `G1401211038`  |  Dhiya Khalishah Tsany Suwarso |
   
 ## Peubah
 | **Peubah** | **Sebagai Peubah** | **Keterangan**                                          | **Tipe Peubah** |
