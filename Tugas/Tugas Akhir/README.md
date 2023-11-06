@@ -10,6 +10,11 @@
 | `G1401211026`  |  Salsabila Dwi Rahmi              |
 | `G1401211038`  |  Dhiya Khalishah Tsany Suwarso |
   
+`Notes` : https://ipb.link/psd-kel3-tugas-akhir-notes  
+  
+# Data
+`Link` : [Data](https://docs.google.com/spreadsheets/d/1MUyiNHCIAaAdEeLhjkWGowbFcfzxQRfYlxVeH7lkYtg/edit#gid=0)  
+  
 ## Peubah
 | **Peubah** | **Sebagai Peubah** | **Keterangan**                                          | **Tipe Peubah** |
 |------------|--------------------|---------------------------------------------------------|-----------------|
@@ -25,3 +30,7 @@
 | `PSTV12`   | `X9`               |  Jenis faskes                                           | _Kategorik_     |
 | `PSTV13`   | `X10`              |  Provinsi Fasilitas Kesehatan   Peserta Terdaftar       | _Kategorik_     |
 | `PSTV14`   | `X11`              |  Kabupaten/Kota Fasilitas Kesehatan   Peserta Terdaftar | _Kategorik_     |
+  
+# Extras 
+**Link Data & Metode Perkelompok Pararel** :  
+https://ipb.link/data-tugas-akhir-psd-2023-2024  
