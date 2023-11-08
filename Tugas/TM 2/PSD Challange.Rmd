@@ -490,5 +490,6 @@ Yah walaupun rsq tinggi disini. Ternyata di kaggle zonk. Dapet 0.01.
 # Save Model
 
 ```{r}
-saveRDS(model, file="Model.rds")
+saveRDS(model, 
+        file="Angga Fathan Rofiqy-G1401211006-model terbaik-Pekan 9.rds")
 ```
