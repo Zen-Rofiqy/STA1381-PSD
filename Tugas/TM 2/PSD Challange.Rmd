@@ -90,7 +90,7 @@ Hidup **(UHH)** Pasien BPJS Penderita Diabetes Mellitus **tahun 2022**.
 ## Peubah
 
 | **Peubah** | **Sebagai Peubah** | **Keterangan**                                       | **Tipe Peubah** |
-|------------|--------------------|------------------------------------------------------|-----------------|
+|--------------|--------------|--------------------------------|--------------|
 | `UHH`      | `Y`                | Usia Harapan Hidup                                   | *Numerik*       |
 | `PSTV04`   | `X1`               | Hubungan Keluarga                                    | *Kategorik*     |
 | `PSTV05`   | `X2`               | Jenis Kelamin                                        | *Kategorik*     |
@@ -485,4 +485,10 @@ datatable(pre,
 write.csv(pre, "predict.csv", row.names=FALSE)
 ```
 
-Yah walaupun rsq tinggi disin. Ternyata di kaggle zonk. Dapet 0.01.
+Yah walaupun rsq tinggi disini. Ternyata di kaggle zonk. Dapet 0.01.
+
+# Save Model
+
+```{r}
+saveRDS(model, file="Model.rds")
+```
