@@ -64,9 +64,11 @@ export.chart <- "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 5/8. Pen
 
 ```{r, warning=FALSE, message = FALSE}
 install_load('rio')
-raw.data1 <- import("https://raw.githubusercontent.com/Zen-Rofiqy/STA1381-PSD/main/Tugas/Tugas%20Akhir/Data%20PSD_Perc.csv")
+raw.data1 <- import("https://raw.githubusercontent.com/Zen-Rofiqy/STA1381-PSD/main/Tugas/Tugas%20Akhir/Data%20PSD.csv")
 
-raw.data2 <- import("https://raw.githubusercontent.com/Zen-Rofiqy/STA1381-PSD/main/Tugas/Tugas%20Akhir/Data%20PSD.csv")
+raw.data2 <- import("https://raw.githubusercontent.com/Zen-Rofiqy/STA1381-PSD/main/Tugas/Tugas%20Akhir/Data%20PSD_Perc.csv")
+
+raw.data3 <- import("https://raw.githubusercontent.com/Zen-Rofiqy/STA1381-PSD/main/Tugas/Tugas%20Akhir/Data%20PSD_Desa.csv")
 ```
 
 ```{r}
