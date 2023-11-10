@@ -68,6 +68,9 @@ opts_knit$set(root.dir = "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt
 ```{r}
 library(readxl)
 data1 <- read_excel("Data PSD.xlsx")
+data2 <- read_excel("Data PSD.xlsx", sheet=2)
+
+data3 <- 
 write.csv(data1, "Data PSD.csv", row.names=FALSE)
 View(data1)
 str(data1)
