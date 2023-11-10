@@ -83,6 +83,7 @@ sxx <- statdesc(dtx); View(sxx)
 ```{r}
 #Library visualisasi matriks korelasi
 library(corrplot)
+library(scales)
 m <- cor(dtx) #Membuat matriks korelasi
 ```
 
@@ -135,7 +136,7 @@ fviz_nbclust(x = df, FUNcluster = kmeans, method = "gap_stat") #ga_stat k=1
 
 ```
 
-```{r}
+```{r, error = TRUE}
 library(NbClust)
 library("factoextra")
 nb <- NbClust(data = df, distance = "euclidean", method="kmeans")
