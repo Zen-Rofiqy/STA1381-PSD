@@ -70,8 +70,19 @@ library(readxl)
 data1 <- read_excel("Data PSD.xlsx")
 data2 <- read_excel("Data PSD.xlsx", sheet=2)
 
-data3 <- 
+library(dplyr)
+data3 <- cbind(data1$Provinsi, 
+               round((data1 %>% select(-1) / data2$`Jumlah Desa`) * 100, 2)  )
 write.csv(data1, "Data PSD.csv", row.names=FALSE)
+write.csv(data3, "Data PSD_Perc.csv", row.names=FALSE)
+
+install_load('openxlsx')
+#Model Tentatif 
+write.xlsx(list("Bencana Alam" = data1, 
+                "Persentase" = data3, 
+                "Jumlah Desa" = data2), 
+           file = "Data PSD.xlsx")
+
 View(data1)
 str(data1)
 ```
