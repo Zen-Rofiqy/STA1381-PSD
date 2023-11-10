@@ -16,20 +16,19 @@
 `Link` : [Data](https://docs.google.com/spreadsheets/d/1MUyiNHCIAaAdEeLhjkWGowbFcfzxQRfYlxVeH7lkYtg/edit#gid=0)  
   
 ## Peubah
-| **Peubah** | **Sebagai Peubah** | **Keterangan**                                          | **Tipe Peubah** |
-|------------|--------------------|---------------------------------------------------------|-----------------|
-| `UHH`      | `Y`                |  Usia Harapan Hidup                                     | _Numerik_       |
-| `PSTV04`   | `X1`               |  Hubungan Keluarga                                      | _Kategorik_     |
-| `PSTV05`   | `X2`               |  Jenis Kelamin                                          | _Kategorik_     |
-| `PSTV06`   | `X3`               |  Status perkawinan                                      | _Kategorik_     |
-| `PSTV07`   | `X4`               |  Kelas rawat                                            | _Kategorik_     |
-| `PSTV08`   | `X5`               |  Segmentasi peserta                                     | _Kategorik_     |
-| `PSTV09`   | `X6`               |  Provinsi Tempat Tinggal Peserta                        | _Kategorik_     |
-| `PSTV10`   | `X7`               |  Kabupaten/Kota Tempat Tinggal   Peserta                | _Kategorik_     |
-| `PSTV11`   | `X8`               |  Kepemilikan faskes                                     | _Kategorik_     |
-| `PSTV12`   | `X9`               |  Jenis faskes                                           | _Kategorik_     |
-| `PSTV13`   | `X10`              |  Provinsi Fasilitas Kesehatan   Peserta Terdaftar       | _Kategorik_     |
-| `PSTV14`   | `X11`              |  Kabupaten/Kota Fasilitas Kesehatan   Peserta Terdaftar | _Kategorik_     |
+| **Peubah** | **Sebagai Peubah** | **Keterangan**                             | **Tipe Peubah** |
+|------------|--------------------|--------------------------------------------|-----------------|
+| `Gada`     | `X1`               | Tidak Ada Bencana Alam                     | _Numerik_       |
+| `KG`       | `X2`               | Kekeringan                                 | _Numerik_       |
+| `KH`       | `X3`               | Kebakaran Hutan                            | _Numerik_       |
+| `GM`       | `X4`               | Gunung Meletus                             | _Numerik_       |
+| `APB`      | `X5`               | Angin Puyuh / Angin Puting Beliung / Topan | _Numerik_       |
+| `GPL`      | `X6`               | Gelombang Pasang Laut                      | _Numerik_       |
+| `TSN`      | `X7`               | Tsunami                                    | _Numerik_       |
+| `GB`       | `X8`               | Gempa Bumi                                 | _Numerik_       |
+| `BB`       | `X9`               | Banjir Bandang                             | _Numerik_       |
+| `BJR`      | `X10`              | Banjir                                     | _Numerik_       |
+| `TL`       | `X11`              | Tanah Longsor                              | _Numerik_       |
   
 # Extras 
 **Link Data & Metode Perkelompok Pararel** :  
