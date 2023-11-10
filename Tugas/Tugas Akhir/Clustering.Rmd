@@ -58,33 +58,15 @@ path <- function(){
 export.chart <- "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 5/8. Pengantar Sains Data/Tugas/Tugas Akhir/Chart"
 ```
 
-```{r setup, include=FALSE, echo=FALSE}
-require("knitr")
-opts_knit$set(root.dir = "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 5/8. Pengantar Sains Data/Tugas/Tugas Akhir")
-```
+# Pendahuluan
 
 ### Data Entry
 
-```{r}
-library(readxl)
-data1 <- read_excel("Data PSD.xlsx")
-data2 <- read_excel("Data PSD.xlsx", sheet=2)
+```{r, warning=FALSE, message = FALSE}
+install_load('rio')
+raw.data1 <- import("https://raw.githubusercontent.com/Zen-Rofiqy/STA1381-PSD/main/Tugas/Tugas%20Akhir/Data%20PSD_Perc.csv")
 
-library(dplyr)
-data3 <- cbind(data1$Provinsi, 
-               round((data1 %>% select(-1) / data2$`Jumlah Desa`) * 100, 2)  )
-write.csv(data1, "Data PSD.csv", row.names=FALSE)
-write.csv(data3, "Data PSD_Perc.csv", row.names=FALSE)
-
-install_load('openxlsx')
-#Model Tentatif 
-write.xlsx(list("Bencana Alam" = data1, 
-                "Persentase" = data3, 
-                "Jumlah Desa" = data2), 
-           file = "Data PSD.xlsx")
-
-View(data1)
-str(data1)
+raw.data2 <- import("https://raw.githubusercontent.com/Zen-Rofiqy/STA1381-PSD/main/Tugas/Tugas%20Akhir/Data%20PSD.csv")
 ```
 
 ```{r}
