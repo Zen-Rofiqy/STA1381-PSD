@@ -76,7 +76,8 @@ raw.data3 <- import("https://raw.githubusercontent.com/Zen-Rofiqy/STA1381-PSD/ma
 ## Library
 
 ```{r message=FALSE, warning=FALSE}
-install_load("ppclust", "factoextra", "dplyr", "cluster", "fclust", "psych")
+install_load("ppclust", "factoextra", "dplyr", "cluster", "fclust", "psych", 
+             "FactoMineR", "ggplot2", "fmsb")
 ```
 
 # Eksplorasi
@@ -207,4 +208,36 @@ print(index.DB(dtx, cl2$clustering, centrotypes="centroids"))
 ```{r}
 c<- pam(dtx,10)
 index.G1(dtx, c$clustering)
+```
+
+# Bi-Plot
+
+```{r}
+#Biplot
+df = scale(dtx, scale = FALSE)
+head(df)
+```
+
+```{r}
+df_pca = PCA(df, graph = T,scale.unit = T)
+```
+
+```{r}
+fviz_pca_biplot(df_pca,repel = T) + theme_classic()
+```
+
+```{r}
+fviz_eig(df_pca, addlabels = T) + theme_classic()
+```
+
+## **Radar Chart**
+
+```{r}
+max_min <- data.frame(
+  X1 = c(90, 0), X2 = c(90, 0), X3 = c(90, 0),
+  X4 = c(90, 0), X5 = c(90, 0), X6 = c(90, 0),
+  X7 = c(90, 0), X8 = c(90, 0), X9 = c(90, 0),
+  X10 = c(90, 0), X11 = c(90, 0), X12 = c(90, 0)  
+)
+rownames(max_min) <- c("Max", "Min")
 ```
