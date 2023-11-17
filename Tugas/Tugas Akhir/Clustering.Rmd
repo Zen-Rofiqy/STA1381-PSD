@@ -187,4 +187,24 @@ paste("Modified Partition Coefficient :",idxmpc)
 
 ```{r message=FALSE, warning=FALSE}
 install_load("clusterSim")
+cl1<-pam(dtx,4)
+cl2<-pam(dtx,5)
+clall<-cbind(cl1$clustering,cl2$clustering)
+g<-index.Gap(dtxndefined, clall, reference.distribution="unif", B=10,method="pam")
+
+print(g)
+```
+
+# **Davies-Bouldin\'s index**
+
+```{r}
+cl2 <- pam(dtx, 5)
+print(index.DB(dtx, cl2$clustering, centrotypes="centroids"))
+```
+
+# **Calinski-Harabasz pseudo F-statistic**
+
+```{r}
+c<- pam(dtx,10)
+index.G1(dtx, c$clustering)
 ```
