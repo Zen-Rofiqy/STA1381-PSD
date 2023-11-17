@@ -60,7 +60,9 @@ export.chart <- "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 5/8. Pen
 
 # Pendahuluan
 
-### Data Entry
+Fuzzy C-Means (FCM) adalah algoritma pengelompokan lunak yang diusulkan oleh Bezdek (1974; 1981). Berbeda dengan algoritma K-means di mana setiap objek data adalah anggota hanya satu kelompok, objek data adalah anggota dari semua kelompok dengan derajat keanggotaan yang bervariasi antara 0 dan 1 dalam FCM. Oleh karena itu, objek data yang lebih dekat ke pusat kelompok memiliki derajat keanggotaan yang lebih tinggi daripada objek yang tersebar di batas kelompok.
+
+## Data Entry
 
 ```{r, warning=FALSE, message = FALSE}
 install_load('rio')
@@ -71,29 +73,26 @@ raw.data2 <- import("https://raw.githubusercontent.com/Zen-Rofiqy/STA1381-PSD/ma
 raw.data3 <- import("https://raw.githubusercontent.com/Zen-Rofiqy/STA1381-PSD/main/Tugas/Tugas%20Akhir/Data%20PSD_Desa.csv")
 ```
 
-```{r}
-data <- data1
-colnames(data) <- c('prov', 'kab/kot', 'X1', 'X2', 'X3', 'X4', 'X5', 
-                    'X6', 'X7', 'X8', 'X9')
-dtx <- data[,-c(1,2)]
-nx  <- as.numeric(ncol(dtx))
+## Library
 
-prov <- data[,1]
-kab  <- data[,2]
-x1   <- dtx[,1]
-x2   <- dtx[,2]
-x3   <- dtx[,3]
-x4   <- dtx[,4]
-x5   <- dtx[,5]
-x6   <- dtx[,6]
-x7   <- dtx[,7]
-x8   <- dtx[,8]
-x9   <- dtx[,9]
+```{r message=FALSE, warning=FALSE}
+install_load("ppclust", "factoextra", "dplyr", "cluster", "fclust", "psych")
 ```
 
-# Explore
+# Eksplorasi
 
-### 1. Statistik Deskriptif
+```{r fig.align="center", fig.height=15, fig.width=25, message=FALSE, warning=FALSE, dpi=300}
+dtx <- raw.data2[,-1]
+pairs.panels(dtx, method = "pearson")
+```
+
+# Clustering
+
+## Fuzzy
+
+```{r}
+res.fcm <- fcm(data, centers=3)
+```
 
 ```{r}
 statdesc1 <- function(x){
