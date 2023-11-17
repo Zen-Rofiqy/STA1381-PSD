@@ -1,4 +1,4 @@
-"data1$Provinsi","Tidak Ada Bencana Alam","Kekeringan","Kebakaran Hutan","Gunung Meletus","Angin Puyuh / Angin Puting Beliung / Topan","Gelombang Pasang Laut","Tsunami","Gempa Bumi","Banjir Bandang","Banjir","Tanah Longsor"
+"Provinsi","Gada","KG","KH","GM","APB","GPL","TSN","GB","BJR","BB","TL"
 "ACEH",67.62,2.66,0.66,0.02,1.66,1.63,0.03,7.57,1.24,22.02,3.04
 "SUMATERA UTARA",62.41,2.07,0.96,1.34,7.88,1.27,0.07,15.72,0.85,11.94,7.88
 "SUMATERA BARAT",44.26,3.71,1.55,0,21.4,4.92,0,31.41,5.61,29.51,19.15
