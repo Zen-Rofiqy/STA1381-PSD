@@ -108,3 +108,83 @@ res.fcm$v
 ```{r}
 summary(res.fcm)
 ```
+
+## **Run FCM with Multiple Starts**
+
+```{r}
+res.fcm <- fcm(dtx, centers=3, nstart=5)
+
+res.fcm$func.val
+```
+
+```{r}
+res.fcm$iter
+```
+
+```{r}
+res.fcm$best.start
+```
+
+```{r}
+summary(res.fcm)
+```
+
+## **Pairwise Scatter Plots**
+
+```{r fig.align="center", fig.height=10, fig.width=20, message=FALSE, warning=FALSE, dpi=300}
+plotcluster(res.fcm, cp=1, trans=TRUE)
+```
+
+## **Cluster Plot with fviz_cluster**
+
+```{r}
+res.fcm2 <- ppclust2(res.fcm, "kmeans")
+fviz_cluster(res.fcm2, data = dtx, 
+  ellipse.type = "convex",
+  palette = "jco",
+  repel = TRUE)
+```
+
+## **Cluster Plot with clusplot**
+
+```{r}
+res.fcm3 <- ppclust2(res.fcm, "fanny")
+
+cluster::clusplot(scale(dtx), res.fcm3$cluster,  
+  main = "Cluster plot of Iris data set",
+  color=TRUE, labels = 2, lines = 2, cex=1)
+```
+
+## **VALIDATION OF THE CLUSTERING RESULTS**
+
+```{r}
+res.fcm4 <- ppclust2(res.fcm, "fclust")
+
+# Fuzzy Silhouette Index:
+idxsf <- SIL.F(res.fcm4$Xca, res.fcm4$U, alpha=1)
+paste("Fuzzy Silhouette Index: ",idxsf)
+```
+
+```{r}
+# Partition Entropy:
+idxsf <- PE(res.fcm4$U)
+paste("Partition Entropy: ",idxsf)
+```
+
+```{r}
+# Partition Coefficient:
+idxpc <- PC(res.fcm4$U)
+paste("Partition Coefficient : ",idxpc)
+```
+
+```{r}
+# Modified Partition Coefficient:
+idxmpc <- MPC(res.fcm4$U)
+paste("Modified Partition Coefficient :",idxmpc)
+```
+
+# **gap index**
+
+```{r message=FALSE, warning=FALSE}
+install_load("clusterSim")
+```
