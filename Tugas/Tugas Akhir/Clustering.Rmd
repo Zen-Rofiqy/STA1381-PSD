@@ -127,9 +127,27 @@ Fuzzy C-Means (FCM) adalah algoritma pengelompokan lunak yang diusulkan oleh Bez
 
 Metode ini mengasumsikan bahwa keseluruhan individu adalah campuran dari sebaran peluang Gaussian, mewakili distribusi Gaussian dimana masing masing sebaran secara khas mempunyai parameter distribusi. Algoritma Expectation Maximization adalah salah satu alternatif algoritma yang banyak digunakan dalam melakukan pemodelan mixture.
 
-## Data  {.tabset}
+## Data {.tabset}
 
-Data yang digunakan adalah data sekunder yang berasal dari situs www.bps.go.id berupa **Banyaknya Desa/Kelurahan Menurut Jenis Bencana Alam dalam Tiga Tahun Terakhir (Desa), 2021.** Data terdiri dari 34 amatan berupa provinsi yang ada di Indonesia
+Data yang digunakan adalah data sekunder yang berasal dari situs www.bps.go.id berupa **Banyaknya Desa/Kelurahan Menurut Jenis Bencana Alam dalam Tiga Tahun Terakhir (Desa), 2021.** Data terdiri dari 34 amatan berupa provinsi yang ada di Indonesia.
+
+Selain itu, terdapat data jumlah desa menurut provinsi di Indonesia pada tahun 2021 yang bersumber dari www.bps.go.id. Dilakukan standarisasi dengan membuat persentase antara jumlah desa yang terkena bencana alam dengan jumlah seluruh desa yang ada di tiap provinsi.
+
+> Peubah yang digunakan
+
+| **Peubah** | **Sebagai Peubah** |               **Keterangan**               | **Tipe Peubah** |
+|:----------:|:------------------:|:------------------------------------------:|:---------------:|
+|    Gada    |         X1         |           Tidak Ada Bencana Alam           |     Numerik     |
+|     KG     |         X2         |                 Kekeringan                 |     Numerik     |
+|     KH     |         X3         |              Kebakaran Hutan               |     Numerik     |
+|     GM     |         X4         |               Gunung Meletus               |     Numerik     |
+|    APB     |         X5         | Angin Puyuh / Angin Puting Beliung / Topan |     Numerik     |
+|    GPL     |         X6         |           Gelombang Pasang Laut            |     Numerik     |
+|    TSN     |         X7         |                  Tsunami                   |     Numerik     |
+|     GB     |         X8         |                 Gempa Bumi                 |     Numerik     |
+|     BB     |         X9         |               Banjir Bandang               |     Numerik     |
+|    BJR     |        X10         |                   Banjir                   |     Numerik     |
+|     TL     |        X11         |               Tanah Longsor                |     Numerik     |
 
 ### Data Entry
 
