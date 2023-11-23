@@ -75,6 +75,10 @@ opts_knit$set(root.dir = "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt
 | Salsabila Dwi Rahmi            | `G1401211026` |
 | Dhiya Khalishah Tsany Suwarso  | `G1401211038` |
 
+## Latar Belakang
+
+Bencana alam adalah suatu peristiwa alam yang dapat mengakibatkan dampak besar bagi populasi manusia.
+
 ## Metode Clustering
 
 ### Hierarchical
@@ -92,6 +96,10 @@ Langkah-langkah untuk melakukan hierarchical cluster analysis:
 ### Fuzzy C-Means
 
 Fuzzy C-Means (FCM) adalah algoritma pengelompokan lunak yang diusulkan oleh Bezdek (1974; 1981). Berbeda dengan algoritma K-means di mana setiap objek data adalah anggota hanya satu kelompok, objek data adalah anggota dari semua kelompok dengan derajat keanggotaan yang bervariasi antara 0 dan 1 dalam FCM. Oleh karena itu, objek data yang lebih dekat ke pusat kelompok memiliki derajat keanggotaan yang lebih tinggi daripada objek yang tersebar di batas kelompok.
+
+### Gaussian Mixture Model (GMM)
+
+Metode ini mengasumsikan bahwa keseluruhan individu adalah campuran dari sebaran peluang Gaussian, mewakili distribusi Gaussian dimana masing masing sebaran secara khas mempunyai parameter distribusi. Algoritma Expectation Maximization adalah salah satu alternatif algoritma yang banyak digunakan dalam melakukan pemodelan mixture.
 
 ## Data  {.tabset}
 
