@@ -329,6 +329,14 @@ theme(
 )
 ```
 
+### Map
+
+```{r message=FALSE, warning=FALSE}
+install_load("spdep","rgdal")
+indo <- st_read(dsn="C:/Users/FARHAN ABDILLAH/Documents/1 KULIAH/SEMESTER 5/Regresi Spasial/petajabar27-20230920T034626Z-001/petajabar27/Peta Jabar 27.shp", 
+                quiet = TRUE)
+```
+
 ## Jumlah Cluster
 
 ```{r}
