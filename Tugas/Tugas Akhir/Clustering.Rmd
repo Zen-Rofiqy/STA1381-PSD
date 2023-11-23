@@ -58,11 +58,19 @@ path <- function(){
 export.chart <- "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 5/8. Pengantar Sains Data/Tugas/Tugas Akhir/Chart"
 ```
 
+```{r setup, include=FALSE, echo=FALSE}
+#SetWD
+require("knitr")
+opts_knit$set(root.dir = "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 5/8. Pengantar Sains Data/Tugas/Tugas Akhir")
+```
+
 # Pendahuluan
 
 Fuzzy C-Means (FCM) adalah algoritma pengelompokan lunak yang diusulkan oleh Bezdek (1974; 1981). Berbeda dengan algoritma K-means di mana setiap objek data adalah anggota hanya satu kelompok, objek data adalah anggota dari semua kelompok dengan derajat keanggotaan yang bervariasi antara 0 dan 1 dalam FCM. Oleh karena itu, objek data yang lebih dekat ke pusat kelompok memiliki derajat keanggotaan yang lebih tinggi daripada objek yang tersebar di batas kelompok.
 
-## Data Entry
+## Data Preprocessing {.tabset}
+
+### Data Entry
 
 ```{r, warning=FALSE, message = FALSE}
 install_load('rio')
@@ -72,6 +80,16 @@ raw.data2 <- import("https://raw.githubusercontent.com/Zen-Rofiqy/STA1381-PSD/ma
 
 raw.data3 <- import("https://raw.githubusercontent.com/Zen-Rofiqy/STA1381-PSD/main/Tugas/Tugas%20Akhir/Data%20PSD_Desa.csv")
 ```
+
+### Data Checking
+
+```{r}
+str(raw.data1)
+str(raw.data2)
+str(raw.data3)
+```
+
+Semua tipe data sudah sesuai.
 
 ## Library
 
@@ -83,7 +101,7 @@ install_load("ppclust", "factoextra", "dplyr", "cluster", "fclust", "psych",
 # Eksplorasi
 
 ```{r fig.align="center", fig.height=15, fig.width=25, message=FALSE, warning=FALSE, dpi=300}
-dtx <- raw.data2[,-1]
+dtx <- raw.data2[-35,-1]
 pairs.panels(dtx, method = "pearson")
 ```
 
@@ -143,11 +161,47 @@ plotcluster(res.fcm, cp=1, trans=TRUE)
 ## **Cluster Plot with fviz_cluster**
 
 ```{r}
+set.seed(12333333)
 res.fcm2 <- ppclust2(res.fcm, "kmeans")
 fviz_cluster(res.fcm2, data = dtx, 
   ellipse.type = "convex",
   palette = "jco",
   repel = TRUE)
+```
+
+```{r}
+res.fcm2[["size"]]
+```
+
+```{r}
+data.akhir <- cbind(raw.data2[-35,], Cluster = res.fcm2[["cluster"]]) %>% 
+  relocate(Cluster, .before = 2) %>%
+  mutate(Cluster = case_when(
+    Cluster == 1 ~ "A",
+    Cluster == 2 ~ "B",
+    Cluster == 3 ~ "C",
+    TRUE ~ as.character(Cluster)
+  )) %>%
+  mutate(Cluster = case_when(
+    Cluster == "A" ~ 3,
+    Cluster == "B" ~ 2,
+    Cluster == "C" ~ 1,
+    TRUE ~ as.numeric(Cluster)
+  ))
+
+
+datatable(data.akhir)
+```
+
+```{r}
+table(data.akhir$Cluster)
+```
+
+```{r}
+install_load('openxlsx')
+#Model Tentatif 
+write.xlsx(list("Fuzzy" = data.akhir), 
+           file = "Data_Cluster.xlsx")
 ```
 
 ## **Cluster Plot with clusplot**
@@ -200,7 +254,7 @@ g<-index.Gap(dtxndefined, clall, reference.distribution="unif", B=10,method="pam
 print(g)
 ```
 
-# **Davies-Bouldin\'s index**
+# **Davies-Bouldin's index**
 
 ```{r}
 cl2 <- pam(dtx, 5)
