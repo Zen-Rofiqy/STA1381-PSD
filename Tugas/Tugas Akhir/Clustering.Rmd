@@ -136,18 +136,18 @@ Selain itu, terdapat data jumlah desa menurut provinsi di Indonesia pada tahun 2
 > Peubah yang digunakan
 
 | **Peubah** | **Sebagai Peubah** |               **Keterangan**               | **Tipe Peubah** |
-|:----------:|:------------------:|:------------------------------------------:|:---------------:|
-|   `Gada`   |         X1         | Tidak Ada Bencana Alam                     |     Numerik     |
-|    `KG`    |         X2         | Kekeringan                                 |     Numerik     |
-|    `KH`    |         X3         | Kebakaran Hutan                            |     Numerik     |
-|    `GM`    |         X4         | Gunung Meletus                             |     Numerik     |
-|    `APB`   |         X5         | Angin Puyuh / Angin Puting Beliung / Topan |     Numerik     |
-|    `GPL`   |         X6         | Gelombang Pasang Laut                      |     Numerik     |
-|    `TSN`   |         X7         | Tsunami                                    |     Numerik     |
-|    `GB`    |         X8         | Gempa Bumi                                 |     Numerik     |
-|    `BB`    |         X9         | Banjir Bandang                             |     Numerik     |
-|    `BJR`   |         X10        | Banjir                                     |     Numerik     |
-|    `TL`    |         X11        | Tanah Longsor                              |     Numerik     |
+|:------------:|:------------:|:---------------------------:|:------------:|
+|   `Gada`   |         X1         |           Tidak Ada Bencana Alam           |     Numerik     |
+|    `KG`    |         X2         |                 Kekeringan                 |     Numerik     |
+|    `KH`    |         X3         |              Kebakaran Hutan               |     Numerik     |
+|    `GM`    |         X4         |               Gunung Meletus               |     Numerik     |
+|   `APB`    |         X5         | Angin Puyuh / Angin Puting Beliung / Topan |     Numerik     |
+|   `GPL`    |         X6         |           Gelombang Pasang Laut            |     Numerik     |
+|   `TSN`    |         X7         |                  Tsunami                   |     Numerik     |
+|    `GB`    |         X8         |                 Gempa Bumi                 |     Numerik     |
+|    `BB`    |         X9         |               Banjir Bandang               |     Numerik     |
+|   `BJR`    |        X10         |                   Banjir                   |     Numerik     |
+|    `TL`    |        X11         |               Tanah Longsor                |     Numerik     |
 
 ### Data Entry
 
@@ -213,10 +213,14 @@ install_load("ppclust", "factoextra", "dplyr", "cluster", "fclust", "psych",
 
 # Eksplorasi
 
+## Korelasi Antar Peubah
+
 ```{r fig.align="center", fig.height=15, fig.width=25, message=FALSE, warning=FALSE, dpi=300}
 dtx <- raw.data2[-35,-1]
-pairs.panels(dtx, method = "pearson")
+pairs.panels(dtx, method = "pearson", stars=TRUE)
 ```
+
+Bisa dilihat bahwa ada beberapa peubah yang memiliki nilai korelasi linier yang signifikan. Sebaran tiap peubahnya juga cenderung menjulur ke kanan, artinya nilai yang lebih tinggi dari setiap peubah cenderung lebih sering muncul di bagian kanan grafik. Ini menunjukkan adanya kecenderungan bahwa beberapa nilai ekstrem yang lebih tinggi mungkin mempengaruhi data, sehingga grafik cenderung menjulur ke kanan.
 
 ```{r}
 boxplot(dtx)
