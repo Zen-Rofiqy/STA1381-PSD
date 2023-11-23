@@ -240,6 +240,31 @@ Untuk metode *non-hierarchical clustering* kami akan mencoba untuk membuat 3 cul
 
 Karena sebagaimana yang sudah dijelaskan di Pendahuluan, Indonesia merupakan daerah yang rawan bencana. Sehingga tidak mungkin kami akan mengkategorikan bencananya hanya 2. Karena jika demikian maka cluster yang terbentuk akan seperti ini : Rawan Bencana dan Tidak rawan Bencana. Yang mana ini bertentangan dengan "Indonesia Rawan Bencana". Sehingga kami juga secara tidak langsung akan meng-*highlight* bahwa daerah yang tingkat rawan bencana nya rendah itu cenderung sedikit di Indonesia.
 
+## Jumlah Cluster
+
+```{r}
+#calculate gap statistic for each number of clusters (up to 10 clusters)
+gap_stat <- clusGap(dtx, FUN = hcut, nstart = 25, K.max = 10, B = 50)
+
+#produce plot of clusters vs. gap statistic
+fviz_gap_stat(gap_stat)
+```
+
+```{r}
+## Koefisien silhoutte dan Elbow
+
+fviz_nbclust(dtx, kmeans, method = "silhouette") #silhouette, k=3
+fviz_nbclust(dtx, kmeans, method = "wss") #wss, k=1
+fviz_nbclust(x = dtx, FUNcluster = kmeans, method = "gap_stat") #ga_stat k=1
+```
+
+```{r, error = TRUE}
+library(NbClust)
+library("factoextra")
+nb <- NbClust(data = dtx, distance = "euclidean", method="kmeans")
+fviz_nbclust(nb)
+```
+
 ## Fuzzy
 
 ```{r}
@@ -357,6 +382,8 @@ ggplot(cluster_profiles_long, aes(x = Cluster, y = Value, fill = Variable)) +
   theme_minimal() +
   ggtitle("Cluster Profiles")
 ```
+
+![](http://127.0.0.1:33833/chunk_output/s/C3410F7C/cee9cwzctrffl/000019.png)
 
 ### **Cluster Plot with clusplot**
 
