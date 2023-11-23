@@ -77,11 +77,25 @@ opts_knit$set(root.dir = "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt
 
 ## Metode Clustering
 
-### Fuzzy
+### Hierarchical
+
+Langkah-langkah untuk melakukan hierarchical cluster analysis:
+
+1.  Menyiapkan data dimana data yang digunakan adalah data bertipe numerik agar dapat digunakan untuk penghitungan jarak.
+2.  Menghitung (dis)similarity atau jarak antar data yang berpasangan pada dataset. Metode penghitungan (dis)similarity dapat dipilih berdasarkan data. Nilai (dis)similarity tersebut kemudian akan disusun menjadi distance matrix.
+3.  Membuat dendrogram dari distance matrix menggunakan linkage method tertentu. Kita juga dapat mencoba beberapa linkage method kemudian memilih dedrogram paling baik.
+4.  Menentukan dimana akan melakukan pemotongan tree (dengan nilai (dis)similarity tertentu). Disinilah tahap dimana cluster akan terbentuk.
+5.  Melakukan interpretasi dari dendrogram yang telah didapat.
+
+### K-Means
+
+### Fuzzy C-Means
 
 Fuzzy C-Means (FCM) adalah algoritma pengelompokan lunak yang diusulkan oleh Bezdek (1974; 1981). Berbeda dengan algoritma K-means di mana setiap objek data adalah anggota hanya satu kelompok, objek data adalah anggota dari semua kelompok dengan derajat keanggotaan yang bervariasi antara 0 dan 1 dalam FCM. Oleh karena itu, objek data yang lebih dekat ke pusat kelompok memiliki derajat keanggotaan yang lebih tinggi daripada objek yang tersebar di batas kelompok.
 
-## Data Preprocessing {.tabset}
+## Data  {.tabset}
+
+Data yang digunakan merupakan
 
 ### Data Entry
 
