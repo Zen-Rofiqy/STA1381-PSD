@@ -449,6 +449,70 @@ c<- pam(dtx,10)
 index.G1(dtx, c$clustering)
 ```
 
+## K-Means
+
+```{r}
+df <- scale(dtx)
+set.seed(112233)
+km <- kmeans(df, 3, nstart = 25)
+p <- fviz_cluster(km, data = dtx, repel=TRUE,
+             ellipse.type = "convex") # save to access $data
+
+# save '$data'
+dt <- p$data # this is all you need
+
+# calculate the convex hull using chull(), for each cluster
+hull_data <- dt %>%
+  group_by(cluster) %>%
+  slice(chull(x, y))
+
+# plot: you can now customize this by using ggplot sintax
+ggplot(dt, aes(x, y, colour = cluster)) + geom_point() +
+  geom_polygon(data = hull_data, alpha = 0.2, aes(fill=cluster)) 
+```
+
+```{r}
+table(dt$cluster)
+```
+### Penerapan K-means 3 cluster
+
+```{r}
+km.res <- kmeans(data1, centers = 3)
+
+# Print the clustering results
+print(km.res)
+```
+
+### Profilling Kluster
+```{r}
+# Ambil data centeroids
+centers <- km.res$centers
+
+# Konvert data centeroids ke data frame
+centers_df <- as.data.frame(centers)
+
+# Tambahkan Kolom Kluster
+centers_df$cluster <- rownames(centers_df)
+
+# Konversi Data Wide ke Long
+library(tidyr)
+centers_long <- gather(centers_df, key = "variable", value = "value", -cluster)
+```
+
+
+```{r}
+# Plot the cluster profiles
+library(ggplot2)
+ggplot(centers_long, aes(x = cluster, y = value, fill = variable)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(x = "Cluster", y = "Mean Value", fill = "Variable") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ggtitle("Profil Klaster Rata-rata Intensitas 
+          Terjadi Bencana Alam Menurut Provinsi di Indonesia")
+```
+
+
 # Bi-Plot
 
 ```{r}
