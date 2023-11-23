@@ -77,7 +77,19 @@ opts_knit$set(root.dir = "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt
 
 ## Latar Belakang
 
-Bencana alam adalah suatu peristiwa alam yang dapat mengakibatkan dampak besar bagi populasi manusia.
+Bencana alam adalah suatu peristiwa alam yang dapat mengakibatkan dampak besar bagi populasi manusia. Menurut UCLouvain (2019), Indonesia salah satu negara dengan jmlah intensitas ***bencana alam terbanyak di dunia*** setelah Amerika Serikat.
+
+Dampak negatif yang ditimbulkan menurut Chaudhary dan Piracha (2021). Diantaranya :
+
+-   Kelangkaan bahan pangan
+
+-   Trauma pasca bencana
+
+-   Terjadinya migrasi secara besar-besaran
+
+-   Masalah finansial dan ekonomi
+
+-   Perasaan khawatir akan kehidupan selanjutnya
 
 ## Metode Clustering
 
