@@ -83,6 +83,8 @@ raw.data3 <- import("https://raw.githubusercontent.com/Zen-Rofiqy/STA1381-PSD/ma
 
 ### Data Checking
 
+> Mengecek Tipe data
+
 ```{r}
 str(raw.data1)
 str(raw.data2)
@@ -90,6 +92,14 @@ str(raw.data3)
 ```
 
 Semua tipe data sudah sesuai.
+
+> Mengecek Data kosong
+
+```{r}
+sum(is.na(raw.data1))
+sum(is.na(raw.data2))
+sum(is.na(raw.data3))
+```
 
 ## Library
 
