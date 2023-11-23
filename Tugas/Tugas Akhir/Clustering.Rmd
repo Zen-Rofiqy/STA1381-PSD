@@ -101,6 +101,30 @@ sum(is.na(raw.data2))
 sum(is.na(raw.data3))
 ```
 
+Tidak ada data kosong.
+
+### Frekuensi
+
+```{r}
+install_load("DT")
+datatable(raw.data1, filter = 'top', 
+          options = list(pageLength = 10))
+```
+
+### Persentase
+
+```{r}
+datatable(raw.data2, filter = 'top', 
+          options = list(pageLength = 10))
+```
+
+### Desa
+
+```{r}
+datatable(raw.data3, filter = 'top', 
+          options = list(pageLength = 10))
+```
+
 ## Library
 
 ```{r message=FALSE, warning=FALSE}
