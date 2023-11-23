@@ -137,17 +137,17 @@ Selain itu, terdapat data jumlah desa menurut provinsi di Indonesia pada tahun 2
 
 | **Peubah** | **Sebagai Peubah** |               **Keterangan**               | **Tipe Peubah** |
 |:----------:|:------------------:|:------------------------------------------:|:---------------:|
-|    Gada    |         X1         |           Tidak Ada Bencana Alam           |     Numerik     |
-|     KG     |         X2         |                 Kekeringan                 |     Numerik     |
-|     KH     |         X3         |              Kebakaran Hutan               |     Numerik     |
-|     GM     |         X4         |               Gunung Meletus               |     Numerik     |
-|    APB     |         X5         | Angin Puyuh / Angin Puting Beliung / Topan |     Numerik     |
-|    GPL     |         X6         |           Gelombang Pasang Laut            |     Numerik     |
-|    TSN     |         X7         |                  Tsunami                   |     Numerik     |
-|     GB     |         X8         |                 Gempa Bumi                 |     Numerik     |
-|     BB     |         X9         |               Banjir Bandang               |     Numerik     |
-|    BJR     |        X10         |                   Banjir                   |     Numerik     |
-|     TL     |        X11         |               Tanah Longsor                |     Numerik     |
+|   `Gada`   |         X1         | Tidak Ada Bencana Alam                     |     Numerik     |
+|    `KG`    |         X2         | Kekeringan                                 |     Numerik     |
+|    `KH`    |         X3         | Kebakaran Hutan                            |     Numerik     |
+|    `GM`    |         X4         | Gunung Meletus                             |     Numerik     |
+|    `APB`   |         X5         | Angin Puyuh / Angin Puting Beliung / Topan |     Numerik     |
+|    `GPL`   |         X6         | Gelombang Pasang Laut                      |     Numerik     |
+|    `TSN`   |         X7         | Tsunami                                    |     Numerik     |
+|    `GB`    |         X8         | Gempa Bumi                                 |     Numerik     |
+|    `BB`    |         X9         | Banjir Bandang                             |     Numerik     |
+|    `BJR`   |         X10        | Banjir                                     |     Numerik     |
+|    `TL`    |         X11        | Tanah Longsor                              |     Numerik     |
 
 ### Data Entry
 
