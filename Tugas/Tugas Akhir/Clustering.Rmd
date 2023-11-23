@@ -68,6 +68,17 @@ opts_knit$set(root.dir = "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt
 
 ## Kelompok 3
 
+| **Nama**                       | **NIM**       |
+|--------------------------------|---------------|
+| Angga Fathan Rofiqy            | `G1401211006` |
+| Muhamad Farras Surya Dio Putra | `G1401211018` |
+| Salsabila Dwi Rahmi            | `G1401211026` |
+| Dhiya Khalishah Tsany Suwarso  | `G1401211038` |
+
+## Metode Clustering
+
+### Fuzzy
+
 Fuzzy C-Means (FCM) adalah algoritma pengelompokan lunak yang diusulkan oleh Bezdek (1974; 1981). Berbeda dengan algoritma K-means di mana setiap objek data adalah anggota hanya satu kelompok, objek data adalah anggota dari semua kelompok dengan derajat keanggotaan yang bervariasi antara 0 dan 1 dalam FCM. Oleh karena itu, objek data yang lebih dekat ke pusat kelompok memiliki derajat keanggotaan yang lebih tinggi daripada objek yang tersebar di batas kelompok.
 
 ## Data Preprocessing {.tabset}
