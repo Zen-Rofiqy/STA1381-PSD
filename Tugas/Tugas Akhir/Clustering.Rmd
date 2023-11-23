@@ -261,7 +261,7 @@ res.fcm$v
 summary(res.fcm)
 ```
 
-## **Run FCM with Multiple Starts**
+### **Run FCM with Multiple Starts**
 
 ```{r}
 res.fcm <- fcm(dtx, centers=3, nstart=5)
@@ -281,13 +281,13 @@ res.fcm$best.start
 summary(res.fcm)
 ```
 
-## **Pairwise Scatter Plots**
+### **Pairwise Scatter Plots**
 
 ```{r fig.align="center", fig.height=10, fig.width=20, message=FALSE, warning=FALSE, dpi=300}
 plotcluster(res.fcm, cp=1, trans=TRUE)
 ```
 
-## **Cluster Plot with fviz_cluster**
+### **Cluster Plot with fviz_cluster**
 
 ```{r}
 set.seed(12333333)
@@ -302,7 +302,7 @@ fviz_cluster(res.fcm2, data = dtx,
 res.fcm2[["size"]]
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 data.akhir <- cbind(raw.data2[-35,], Cluster = res.fcm2[["cluster"]]) %>% 
   relocate(Cluster, .before = 2) %>%
   mutate(Cluster = case_when(
@@ -333,7 +333,7 @@ write.xlsx(list("Fuzzy" = data.akhir),
            file = "Data_Cluster.xlsx")
 ```
 
-## **Cluster Plot with clusplot**
+### **Cluster Plot with clusplot**
 
 ```{r}
 res.fcm3 <- ppclust2(res.fcm, "fanny")
@@ -371,26 +371,26 @@ idxmpc <- MPC(res.fcm4$U)
 paste("Modified Partition Coefficient :",idxmpc)
 ```
 
-# **gap index**
+### **gap index**
 
 ```{r message=FALSE, warning=FALSE}
 install_load("clusterSim")
 cl1<-pam(dtx,4)
 cl2<-pam(dtx,5)
 clall<-cbind(cl1$clustering,cl2$clustering)
-g<-index.Gap(dtxndefined, clall, reference.distribution="unif", B=10,method="pam")
+g<-index.Gap(dtx, clall, reference.distribution="unif", B=10,method="pam")
 
 print(g)
 ```
 
-# **Davies-Bouldin's index**
+### **Davies-Bouldin's index**
 
 ```{r}
 cl2 <- pam(dtx, 5)
 print(index.DB(dtx, cl2$clustering, centrotypes="centroids"))
 ```
 
-# **Calinski-Harabasz pseudo F-statistic**
+### **Calinski-Harabasz pseudo F-statistic**
 
 ```{r}
 c<- pam(dtx,10)
