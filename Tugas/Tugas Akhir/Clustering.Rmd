@@ -222,9 +222,13 @@ pairs.panels(dtx, method = "pearson", stars=TRUE)
 
 Bisa dilihat bahwa ada beberapa peubah yang memiliki nilai korelasi linier yang signifikan. Sebaran tiap peubahnya juga cenderung menjulur ke kanan, artinya nilai yang lebih tinggi dari setiap peubah cenderung lebih sering muncul di bagian kanan grafik. Ini menunjukkan adanya kecenderungan bahwa beberapa nilai ekstrem yang lebih tinggi mungkin mempengaruhi data, sehingga grafik cenderung menjulur ke kanan.
 
+## Pencilan
+
 ```{r}
 boxplot(dtx)
 ```
+
+Sebagaimana yang sudah dijelaskan sebelumnya, bahwa data memiliki nilai ekstrim atau pencilan.
 
 # Clustering
 
