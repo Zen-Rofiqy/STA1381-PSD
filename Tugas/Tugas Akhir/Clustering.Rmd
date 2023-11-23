@@ -60,8 +60,9 @@ export.chart <- "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 5/8. Pen
 
 ```{r setup, include=FALSE, echo=FALSE}
 #SetWD
+wd <- "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 5/8. Pengantar Sains Data/Tugas/Tugas Akhir"
 require("knitr")
-opts_knit$set(root.dir = "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 5/8. Pengantar Sains Data/Tugas/Tugas Akhir")
+opts_knit$set(root.dir = wd)
 ```
 
 # Pendahuluan
@@ -333,7 +334,7 @@ theme(
 
 ```{r message=FALSE, warning=FALSE}
 install_load("spdep","rgdal")
-indo <- st_read(dsn="C:/Users/FARHAN ABDILLAH/Documents/1 KULIAH/SEMESTER 5/Regresi Spasial/petajabar27-20230920T034626Z-001/petajabar27/Peta Jabar 27.shp", 
+indo <- st_read(dsn= paste0(wd,"/SHP Indonesia/prov.shp"), 
                 quiet = TRUE)
 ```
 
