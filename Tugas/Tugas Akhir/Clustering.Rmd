@@ -336,6 +336,7 @@ theme(
 install_load("spdep","rgdal")
 indo <- st_read(dsn= paste0(wd,"/SHP Indonesia/prov.shp"), 
                 quiet = TRUE)
+datatable(indo)
 ```
 
 ## Jumlah Cluster
