@@ -232,6 +232,14 @@ Sebagaimana yang sudah dijelaskan sebelumnya, bahwa data memiliki nilai ekstrim 
 
 # Clustering
 
+Untuk metode *non-hierarchical clustering* kami akan mencoba untuk membuat 3 culster. Kami berencana menggerombolkannya kedalam 3 kategori yakni :
+
+1.  Tingkat Rawan Bencana **Tinggi**
+2.  Tingkat Rawan Bencana **Sedang**
+3.  Tingkat Rawan Bencana **Rendah**
+
+Karena sebagaimana yang sudah dijelaskan di Pendahuluan, Indonesia merupakan daerah yang rawan bencana. Sehingga tidak mungkin kami akan mengkategorikan bencananya hanya 2. Karena jika demikian maka cluster yang terbentuk akan seperti ini : Rawan Bencana dan Tidak rawan Bencana. Yang mana ini bertentangan dengan "Indonesia Rawan Bencana". Sehingga kami juga secara tidak langsung akan meng-*highlight* bahwa daerah yang tingkat rawan bencana nya rendah itu cenderung sedikit di Indonesia.
+
 ## Fuzzy
 
 ```{r}
@@ -239,7 +247,7 @@ res.fcm <- fcm(dtx, centers=3)
 as.data.frame(res.fcm$u)[1:6,]
 ```
 
-## **Initial and final cluster prototypes matrices**
+### **Matriks prototipe awal dan akhir klaster**
 
 ```{r}
 res.fcm$v0
