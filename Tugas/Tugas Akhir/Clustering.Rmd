@@ -91,6 +91,20 @@ Dampak negatif yang ditimbulkan menurut Chaudhary dan Piracha (2021). Diantarany
 
 -   Perasaan khawatir akan kehidupan selanjutnya
 
+Penanggulangan bencana alam atau mitigasi adalah upaya berkelanjutan untuk mengurangi dampak bencana terhadap manusia dan harta benda.
+
+## Tujuan
+
+Penelitian ini bertujuan mengelompokan provinsi di Indonesia menurut data intensitas bencana alam tahun 2018-2021 menggunakan metode Clustering.
+
+> Manfaat bagi Pemerintah
+
+Hasil dari analisis ini diharapkan dapat menjadi referensi ataupun pedoman bagi pemerintah pusat maupun pemerintah daerah agar lebih fokus dalam merancang langkah-langkah yang harus diambil untuk mencegah atau menanggulangi dampak suatu bencana yang akan terjadi
+
+> Manfaat bagi Masyarakat
+
+Hasil dari analisis ini diharapkan mampu dimanfaatkan oleh masyarakat Indonesia agar lebih mempersiapkan diri dan mempelajari cara penanggulangan bencana alam berdasarkan jumlah intensitas bencana alam yang tejadi di Provinsi Indonesia.
+
 ## Metode Clustering
 
 ### Hierarchical
@@ -115,7 +129,7 @@ Metode ini mengasumsikan bahwa keseluruhan individu adalah campuran dari sebaran
 
 ## Data  {.tabset}
 
-Data yang digunakan merupakan
+Data yang digunakan adalah data sekunder yang berasal dari situs www.bps.go.id berupa **Banyaknya Desa/Kelurahan Menurut Jenis Bencana Alam dalam Tiga Tahun Terakhir (Desa), 2021.** Data terdiri dari 34 amatan berupa provinsi yang ada di Indonesia
 
 ### Data Entry
 
