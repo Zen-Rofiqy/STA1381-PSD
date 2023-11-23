@@ -136,7 +136,7 @@ Selain itu, terdapat data jumlah desa menurut provinsi di Indonesia pada tahun 2
 > Peubah yang digunakan
 
 | **Peubah** | **Sebagai Peubah** |               **Keterangan**               | **Tipe Peubah** |
-|:------------:|:------------:|:---------------------------:|:------------:|
+|:--------------:|:--------------:|:------------------------:|:--------------:|
 |   `Gada`   |         X1         |           Tidak Ada Bencana Alam           |     Numerik     |
 |    `KG`    |         X2         |                 Kekeringan                 |     Numerik     |
 |    `KH`    |         X3         |              Kebakaran Hutan               |     Numerik     |
@@ -364,7 +364,7 @@ write.xlsx(list("Fuzzy" = data.akhir),
 data.clust <- cbind(dtx, Cluster = res.fcm2[["cluster"]])
 
 # Calculate the mean of each variable for each cluster
-cluster_profiles <- aggregate(. ~ Cluster, data.clust, mean)
+cluster_profiles <- aggregate(. ~ Cluster, data.akhir, mean)
 
 # Print the cluster profiles
 print(cluster_profiles)
@@ -383,7 +383,27 @@ ggplot(cluster_profiles_long, aes(x = Cluster, y = Value, fill = Variable)) +
   ggtitle("Cluster Profiles")
 ```
 
-![](http://127.0.0.1:33833/chunk_output/s/C3410F7C/cee9cwzctrffl/000019.png)
+### Radar Plot
+
+```{r}
+library(ggiraphExtra)
+
+# Radar Plot
+old_par <- par()
+par(oma = c(10, 4, 4, 8))
+
+ggRadar(
+  data = data.akhir,
+  mapping = aes(colours = Cluster),
+) + 
+theme_light() +
+theme(
+  text = element_text(size = 10),  # Mengubah ukuran font global
+  title = element_text(size = 12),  # Mengubah ukuran font judul
+  axis.text = element_text(size = 10),  # Mengubah ukuran font label sumbu
+  legend.text = element_text(size = 8)  # Mengubah ukuran font legenda
+)
+```
 
 ### **Cluster Plot with clusplot**
 
@@ -466,6 +486,7 @@ hull_data <- dt %>%
   group_by(cluster) %>%
   slice(chull(x, y))
 
+
 # plot: you can now customize this by using ggplot sintax
 ggplot(dt, aes(x, y, colour = cluster)) + geom_point() +
   geom_polygon(data = hull_data, alpha = 0.2, aes(fill=cluster)) 
@@ -474,16 +495,18 @@ ggplot(dt, aes(x, y, colour = cluster)) + geom_point() +
 ```{r}
 table(dt$cluster)
 ```
+
 ### Penerapan K-means 3 cluster
 
 ```{r}
-km.res <- kmeans(data1, centers = 3)
+km.res <- kmeans(dtx, centers = 3)
 
 # Print the clustering results
 print(km.res)
 ```
 
 ### Profilling Kluster
+
 ```{r}
 # Ambil data centeroids
 centers <- km.res$centers
@@ -499,7 +522,6 @@ library(tidyr)
 centers_long <- gather(centers_df, key = "variable", value = "value", -cluster)
 ```
 
-
 ```{r}
 # Plot the cluster profiles
 library(ggplot2)
@@ -511,7 +533,6 @@ ggplot(centers_long, aes(x = cluster, y = value, fill = variable)) +
   ggtitle("Profil Klaster Rata-rata Intensitas 
           Terjadi Bencana Alam Menurut Provinsi di Indonesia")
 ```
-
 
 # Bi-Plot
 
