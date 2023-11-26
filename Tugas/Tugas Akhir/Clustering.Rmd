@@ -137,7 +137,7 @@ Selain itu, terdapat data jumlah desa menurut provinsi di Indonesia pada tahun 2
 > Peubah yang digunakan
 
 | **Peubah** | **Sebagai Peubah** |               **Keterangan**               | **Tipe Peubah** |
-|:------------:|:------------:|:---------------------------:|:------------:|
+|:----------:|:------------------:|:------------------------------------------:|:---------------:|
 |   `Gada`   |         X1         |           Tidak Ada Bencana Alam           |     Numerik     |
 |    `KG`    |         X2         |                 Kekeringan                 |     Numerik     |
 |    `KH`    |         X3         |              Kebakaran Hutan               |     Numerik     |
