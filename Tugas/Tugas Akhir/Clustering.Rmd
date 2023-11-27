@@ -20,7 +20,7 @@ pkgdown:
   as_is: true
 ---
 
-Kode di `Hide` dalam *default*, untuk menampilkan kode, klik `Code` .
+Kode di `Hide` dalam *default*, untuk menampilkan kode, klik `Code`.
 
 ```{r, warning=FALSE, message = FALSE}
 #                      -=( Install & Load Package Function )=-
@@ -137,7 +137,7 @@ Selain itu, terdapat data jumlah desa menurut provinsi di Indonesia pada tahun 2
 > Peubah yang digunakan
 
 | **Peubah** | **Sebagai Peubah** |               **Keterangan**               | **Tipe Peubah** |
-|:----------:|:------------------:|:------------------------------------------:|:---------------:|
+|:------------:|:------------:|:---------------------------:|:------------:|
 |   `Gada`   |         X1         |           Tidak Ada Bencana Alam           |     Numerik     |
 |    `KG`    |         X2         |                 Kekeringan                 |     Numerik     |
 |    `KH`    |         X3         |              Kebakaran Hutan               |     Numerik     |
@@ -310,7 +310,7 @@ ggplot(cluster_profiles_long1, aes(x = Cluster, y = Value, fill = Variable)) +
   ggtitle("Cluster Profiles")
 ```
 
-```{r}
+```{r dpi=300,  fig.height = 12, fig.width = 12, fig.align = "center", warning=FALSE, message = FALSE}
 library(ggiraphExtra)
 
 data.akhir1 <- cbind(raw.data2[-35,], Cluster =  mod1b[["classification"]]) %>% 
@@ -319,7 +319,7 @@ data.akhir1 <- cbind(raw.data2[-35,], Cluster =  mod1b[["classification"]]) %>%
 # Radar Plot
 ggRadar(
   data = data.akhir1,
-  mapping = aes(colours = Cluster),
+  mapping = aes(colours = Cluster)
 ) + 
 theme_light() +
 theme(
@@ -362,6 +362,16 @@ ggplot() +
         plot.title = element_text(size=12, face="bold", hjust = 0.5)) +
   scale_x_continuous(labels = function(x) paste0(x, "°")) +
   scale_y_continuous(labels = function(y) paste0(y, "°"))
+```
+
+### Eksport Data Cluster
+
+```{r}
+#Export Data
+install_load('openxlsx')
+#Model Tentatif 
+write.xlsx(list("GMM" = data.akhir1), 
+           file = "Data_Cluster.xlsx")
 ```
 
 ## Jumlah Cluster
