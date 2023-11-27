@@ -330,6 +330,15 @@ theme(
 )
 ```
 
+```{r}
+ggplot(cluster_profiles_long1, aes(x = Cluster, y = Value, fill = Variable)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(x = "Cluster", y = "Mean Value", fill = "Variable") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  theme_minimal() +
+  ggtitle("Cluster Profiles")
+```
+
 ### Map
 
 ```{r message=FALSE, warning=FALSE}
