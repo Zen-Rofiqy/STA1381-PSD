@@ -151,32 +151,6 @@ theme(
 )
 ```
 
-```{r}
-
-result <- cluster_profiles_long1
-
-unique_clusters <- unique(cluster_profiles_long1$Cluster)
-unique_variables <- unique(cluster_profiles_long1$Variable)
-
-for (clust in unique_clusters) {
-  for (var in unique_variables) {
-    # Menentukan nilai 0 dan 100 untuk setiap variabel
-    values <- c(0, 100)
-    
-    # Menambahkan nilai ke dalam data frame hasil
-    result <- bind_rows(result, 
-                data.frame(Cluster = clust, Variable = var, Value = values))
-  }
-}
-
-ggplot(result, aes(x = Cluster, y = Value, fill = Variable)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  labs(x = "Cluster", y = "Mean Value", fill = "Variable") +
-  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
-  theme_minimal() +
-  ggtitle("Cluster Profiles")
-```
-
 ### Map
 
 ```{r message=FALSE, warning=FALSE}
