@@ -210,38 +210,3 @@ ggplot() +
   scale_x_continuous(labels = function(x) paste0(x, "°")) +
   scale_y_continuous(labels = function(y) paste0(y, "°"))
 ```
-
-### Eksport Data Cluster
-
-```{r}
-#Export Data
-install_load('openxlsx')
-#Model Tentatif 
-write.xlsx(list("GMM" = data.akhir1), 
-           file = "Data_Cluster.xlsx")
-```
-
-## Jumlah Cluster
-
-```{r}
-#calculate gap statistic for each number of clusters (up to 10 clusters)
-gap_stat <- clusGap(dtx, FUN = hcut, nstart = 25, K.max = 10, B = 50)
-
-#produce plot of clusters vs. gap statistic
-fviz_gap_stat(gap_stat)
-```
-
-```{r}
-## Koefisien silhoutte dan Elbow
-
-fviz_nbclust(dtx, kmeans, method = "silhouette") #silhouette, k=3
-fviz_nbclust(dtx, kmeans, method = "wss") #wss, k=1
-fviz_nbclust(x = dtx, FUNcluster = kmeans, method = "gap_stat") #ga_stat k=1
-```
-
-```{r, error = TRUE}
-library(NbClust)
-library("factoextra")
-nb <- NbClust(data = dtx, distance = "euclidean", method="kmeans")
-fviz_nbclust(nb)
-```
