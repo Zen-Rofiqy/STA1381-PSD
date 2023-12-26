@@ -527,16 +527,6 @@ theme(
 )
 ```
 
-### **Cluster Plot with clusplot**
-
-```{r}
-res.fcm3 <- ppclust2(res.fcm, "fanny")
-
-cluster::clusplot(scale(dtx), res.fcm3$cluster,  
-  main = "Cluster plot of Iris data set",
-  color=TRUE, labels = 2, lines = 2, cex=1)
-```
-
 ### **VALIDATION OF THE CLUSTERING RESULTS**
 
 ```{r}
@@ -684,61 +674,4 @@ theme(
   axis.text = element_text(size = 10),  # Mengubah ukuran font label sumbu
   legend.text = element_text(size = 8)  # Mengubah ukuran font legenda
 )
-```
-
-# Export
-
-```{r}
-install_load('openxlsx')
-#Export
-write.xlsx(list("GMM" = data.akhir1,
-                "Fuzzy" = data.akhir,
-                "K-means" = data.akhir3), 
-           file = "Data_Cluster.xlsx")
-```
-
-# Bi-Plot
-
-```{r}
-#Biplot
-df = scale(dtx, scale = FALSE)
-head(df)
-```
-
-```{r}
-df_pca = PCA(df, graph = T,scale.unit = T)
-```
-
-```{r}
-fviz_pca_biplot(df_pca,repel = T) + theme_classic()
-```
-
-```{r}
-fviz_eig(df_pca, addlabels = T) + theme_classic()
-```
-
-## **Radar Chart** {.tabset}
-
-```{r}
-max_min <- data.frame(
-  X1 = c(100, 0), X2 = c(100, 0), X3 = c(100, 0),
-  X4 = c(100, 0), X5 = c(100, 0), X6 = c(100, 0),
-  X7 = c(100, 0), X8 = c(100, 0), X9 = c(100, 0),
-  X10 = c(100, 0), X11 = c(100, 0) 
-)
-rownames(max_min) <- c("Max", "Min")
-data <- dtx; colnames(data) <- paste0("X", 1:11); row.names(data) <- raw.data2$Provinsi
-df <- rbind(max_min, data)
-```
-
-### Aceh - Kep.Riau
-
-```{r}
-aceh <- df[c("Max", "Min", rownames(data)[1]),]
-radarchart(aceh)
-for(i in 1:nrow(data)){
-  chart <- radarchart(df[c("Max", "Min", rownames(data)[i]),])
-  ggsave(paste0(rownames(data)[i], ".png") , chart, path = export.chart,
-        dpi = 300, height = 12, width = 12)
-}
 ```
