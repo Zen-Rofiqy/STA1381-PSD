@@ -59,6 +59,7 @@ export.chart <- "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 5/8. Pen
 ```
 
 ```{r setup, include=FALSE, echo=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 #SetWD
 wd <- "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 5/8. Pengantar Sains Data/Tugas/Tugas Akhir"
 require("knitr")
@@ -137,7 +138,7 @@ Selain itu, terdapat data jumlah desa menurut provinsi di Indonesia pada tahun 2
 > Peubah yang digunakan
 
 | **Peubah** | **Sebagai Peubah** |               **Keterangan**               | **Tipe Peubah** |
-|:----------:|:------------------:|:------------------------------------------:|:---------------:|
+|:------------:|:------------:|:---------------------------:|:------------:|
 |   `Gada`   |         X1         |           Tidak Ada Bencana Alam           |     Numerik     |
 |    `KG`    |         X2         |                 Kekeringan                 |     Numerik     |
 |    `KH`    |         X3         |              Kebakaran Hutan               |     Numerik     |
@@ -185,7 +186,7 @@ Tidak ada data kosong.
 
 ### Frekuensi
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 install_load("DT")
 datatable(raw.data1, filter = 'top', 
           options = list(pageLength = 10))
@@ -232,14 +233,6 @@ boxplot(dtx)
 Sebagaimana yang sudah dijelaskan sebelumnya, bahwa data memiliki nilai ekstrim atau pencilan.
 
 # Clustering
-
-Untuk metode *non-hierarchical clustering* kami akan mencoba untuk membuat 3 culster. Kami berencana menggerombolkannya kedalam 3 kategori yakni :
-
-1.  Tingkat Rawan Bencana **Tinggi**
-2.  Tingkat Rawan Bencana **Sedang**
-3.  Tingkat Rawan Bencana **Rendah**
-
-Karena sebagaimana yang sudah dijelaskan di Pendahuluan, Indonesia merupakan daerah yang rawan bencana. Sehingga tidak mungkin kami akan mengkategorikan bencananya hanya 2. Karena jika demikian maka cluster yang terbentuk akan seperti ini : Rawan Bencana dan Tidak rawan Bencana. Yang mana ini bertentangan dengan "Indonesia Rawan Bencana". Sehingga kami juga secara tidak langsung akan meng-*highlight* bahwa daerah yang tingkat rawan bencana nya rendah itu cenderung sedikit di Indonesia.
 
 ## GMM
 
@@ -328,32 +321,6 @@ theme(
   axis.text = element_text(size = 10),  # Mengubah ukuran font label sumbu
   legend.text = element_text(size = 8)  # Mengubah ukuran font legenda
 )
-```
-
-```{r}
-
-result <- cluster_profiles_long1
-
-unique_clusters <- unique(cluster_profiles_long1$Cluster)
-unique_variables <- unique(cluster_profiles_long1$Variable)
-
-for (clust in unique_clusters) {
-  for (var in unique_variables) {
-    # Menentukan nilai 0 dan 100 untuk setiap variabel
-    values <- c(0, 100)
-    
-    # Menambahkan nilai ke dalam data frame hasil
-    result <- bind_rows(result, 
-                data.frame(Cluster = clust, Variable = var, Value = values))
-  }
-}
-
-ggplot(result, aes(x = Cluster, y = Value, fill = Variable)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  labs(x = "Cluster", y = "Mean Value", fill = "Variable") +
-  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
-  theme_minimal() +
-  ggtitle("Cluster Profiles")
 ```
 
 ### Map
